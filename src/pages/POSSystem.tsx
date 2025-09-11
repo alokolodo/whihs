@@ -13,7 +13,9 @@ import {
   Receipt,
   Banknote,
   Users,
-  DollarSign
+  DollarSign,
+  CheckCircle,
+  X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,6 +23,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { toast } from "@/hooks/use-toast";
 
 interface POSItem {
   id: string;
@@ -37,8 +41,23 @@ interface Guest {
   items: Array<POSItem & { quantity: number }>;
 }
 
+interface PaymentState {
+  method: string;
+  processing: boolean;
+  completed: boolean;
+  printReceipt: boolean;
+}
+
 const POSSystem = () => {
   const [activeCategory, setActiveCategory] = useState("all");
+  const [selectedGuest, setSelectedGuest] = useState("1");
+  const [paymentState, setPaymentState] = useState<PaymentState>({
+    method: "",
+    processing: false,
+    completed: false,
+    printReceipt: true,
+  });
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [guests, setGuests] = useState<Guest[]>([
     { 
       id: "1", 
@@ -68,7 +87,6 @@ const POSSystem = () => {
       ]
     }
   ]);
-  const [selectedGuest, setSelectedGuest] = useState("1");
 
   const categories = [
     { id: "all", name: "ALL", color: "bg-gray-500" },
@@ -198,6 +216,69 @@ const POSSystem = () => {
     return subtotal * 0.0825; // 8.25% tax
   };
 
+  // Payment Functions
+  const handlePayment = (method: string) => {
+    if (!currentGuest || currentGuest.items.length === 0) return;
+    
+    setPaymentState(prev => ({ ...prev, method, processing: true }));
+    setShowPaymentDialog(true);
+    
+    // Simulate payment processing
+    setTimeout(() => {
+      setPaymentState(prev => ({ ...prev, processing: false, completed: true }));
+      
+      toast({
+        title: "Payment Successful",
+        description: `Payment of $${(getGuestTotal(currentGuest) + getTotalTax(getGuestTotal(currentGuest))).toFixed(2)} processed via ${method}`,
+      });
+      
+      // Clear the guest's order
+      setGuests(prev => prev.map(guest => 
+        guest.id === selectedGuest 
+          ? { ...guest, items: [] }
+          : guest
+      ));
+      
+      setTimeout(() => {
+        setShowPaymentDialog(false);
+        setPaymentState({ method: "", processing: false, completed: false, printReceipt: true });
+      }, 2000);
+    }, 2000);
+  };
+
+  const handleCancel = () => {
+    if (currentGuest && currentGuest.items.length > 0) {
+      setGuests(prev => prev.map(guest => 
+        guest.id === selectedGuest 
+          ? { ...guest, items: [] }
+          : guest
+      ));
+      
+      toast({
+        title: "Order Cancelled",
+        description: "The current order has been cancelled.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSettle = () => {
+    if (!currentGuest || currentGuest.items.length === 0) return;
+    
+    toast({
+      title: "Order Settled",
+      description: "Order has been settled and moved to pending payment.",
+    });
+  };
+
+  const toggleReceipt = () => {
+    setPaymentState(prev => ({ ...prev, printReceipt: !prev.printReceipt }));
+    toast({
+      title: paymentState.printReceipt ? "Receipt Disabled" : "Receipt Enabled",
+      description: paymentState.printReceipt ? "No receipt will be printed" : "Receipt will be printed",
+    });
+  };
+
   return (
     <div className="h-screen flex bg-background">
       {/* Left Sidebar - Guest Orders */}
@@ -303,32 +384,64 @@ const POSSystem = () => {
             </div>
             
             <div className="grid grid-cols-4 gap-2">
-              <Button variant="outline" size="sm">
+              <Button 
+                variant={paymentState.printReceipt ? "outline" : "default"} 
+                size="sm"
+                onClick={toggleReceipt}
+              >
                 <Receipt className="h-4 w-4" />
-                <span className="text-xs">NO RECEIPT</span>
+                <span className="text-xs">
+                  {paymentState.printReceipt ? "RECEIPT" : "NO RECEIPT"}
+                </span>
               </Button>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handlePayment("BANK")}
+              >
                 <DollarSign className="h-4 w-4" />
                 <span className="text-xs">BANK</span>
               </Button>
-              <Button variant="default" size="sm" className="bg-green-600 hover:bg-green-700">
+              <Button 
+                variant="default" 
+                size="sm" 
+                className="bg-green-600 hover:bg-green-700"
+                onClick={() => handlePayment("CARD")}
+              >
                 <CreditCard className="h-4 w-4" />
                 <span className="text-xs">CARD</span>
               </Button>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleSettle}
+              >
                 <span className="text-xs">SETTLE</span>
               </Button>
             </div>
             
             <div className="grid grid-cols-3 gap-2 mt-2">
-              <Button variant="destructive" size="sm" className="col-span-1">
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                className="col-span-1"
+                onClick={handleCancel}
+              >
                 <span className="text-xs">CANCEL</span>
               </Button>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handlePayment("CASH")}
+              >
                 <Banknote className="h-4 w-4" />
                 <span className="text-xs">CASH</span>
               </Button>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handlePayment("CREDIT")}
+              >
                 <CreditCard className="h-4 w-4" />
                 <span className="text-xs">CREDIT</span>
               </Button>
@@ -376,6 +489,31 @@ const POSSystem = () => {
           </div>
         </ScrollArea>
       </div>
+
+      {/* Payment Dialog */}
+      <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Processing Payment</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-4 py-4">
+            {paymentState.processing ? (
+              <>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                <p>Processing {paymentState.method} payment...</p>
+              </>
+            ) : paymentState.completed ? (
+              <>
+                <CheckCircle className="h-12 w-12 text-green-500" />
+                <p className="text-green-600 font-semibold">Payment Successful!</p>
+                <p className="text-sm text-muted-foreground">
+                  ${currentGuest ? (getGuestTotal(currentGuest) + getTotalTax(getGuestTotal(currentGuest))).toFixed(2) : '0.00'} paid via {paymentState.method}
+                </p>
+              </>
+            ) : null}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
