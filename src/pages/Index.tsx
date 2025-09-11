@@ -1,12 +1,349 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { 
+  Hotel, 
+  Calendar, 
+  ShoppingCart, 
+  Star, 
+  Users, 
+  Wifi, 
+  Car, 
+  Coffee, 
+  Waves,
+  Dumbbell,
+  ArrowRight,
+  Phone,
+  Mail,
+  MapPin
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import heroImage from "@/assets/hero-hotel.jpg";
 
 const Index = () => {
+  const features = [
+    {
+      icon: Calendar,
+      title: "Online Booking",
+      description: "Easy room and event space reservations with real-time availability"
+    },
+    {
+      icon: ShoppingCart,
+      title: "POS System",
+      description: "Touch-friendly point of sale for restaurants, bars, and retail"
+    },
+    {
+      icon: Users,
+      title: "Guest Management",
+      description: "Complete CRM system with guest preferences and history"
+    },
+    {
+      icon: Hotel,
+      title: "Room Management",
+      description: "Real-time room status, housekeeping, and maintenance tracking"
+    }
+  ];
+
+  const amenities = [
+    { icon: Wifi, name: "Free WiFi" },
+    { icon: Car, name: "Valet Parking" },
+    { icon: Coffee, name: "Restaurant & Bar" },
+    { icon: Waves, name: "Spa & Pool" },
+    { icon: Dumbbell, name: "Fitness Center" },
+    { icon: Users, name: "24/7 Concierge" }
+  ];
+
+  const roomTypes = [
+    {
+      name: "Standard Room",
+      price: "$199",
+      features: ["King Bed", "City View", "Free WiFi", "Room Service"]
+    },
+    {
+      name: "Deluxe Suite",
+      price: "$349",
+      features: ["Separate Living Area", "Ocean View", "Mini Bar", "Balcony"]
+    },
+    {
+      name: "Presidential Suite",
+      price: "$799",
+      features: ["2 Bedrooms", "Private Terrace", "Butler Service", "Jacuzzi"]
+    }
+  ];
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      {/* Navigation Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-sm border-b border-border/50">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-primary rounded-lg">
+                <Hotel className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-foreground">LuxeStay Hotel</h1>
+                <p className="text-sm text-muted-foreground">Management System</p>
+              </div>
+            </div>
+            <nav className="flex items-center gap-4">
+              <Button variant="ghost" asChild>
+                <a href="#rooms">Rooms</a>
+              </Button>
+              <Button variant="ghost" asChild>
+                <a href="#amenities">Amenities</a>
+              </Button>
+              <Button variant="ghost" asChild>
+                <a href="#contact">Contact</a>
+              </Button>
+              <Button asChild>
+                <a href="/book">Book Now</a>
+              </Button>
+              <Button variant="outline" asChild>
+                <a href="/admin">Staff Login</a>
+              </Button>
+            </nav>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        <img 
+          src={heroImage} 
+          alt="Luxury hotel lobby interior" 
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 luxury-gradient opacity-80"></div>
+        <div className="relative z-10 text-center text-primary-foreground max-w-4xl mx-auto px-4">
+          <h1 className="text-5xl md:text-7xl font-bold mb-6">
+            Experience
+            <span className="block text-accent">Luxury</span>
+          </h1>
+          <p className="text-xl md:text-2xl mb-8 opacity-90">
+            World-class amenities, exceptional service, and unforgettable memories await you
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="button-luxury text-lg px-8 py-4" asChild>
+              <a href="/book">
+                Book Your Stay
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </a>
+            </Button>
+            <Button size="lg" variant="outline" className="text-lg px-8 py-4 bg-white/10 border-white/30 text-white hover:bg-white/20" asChild>
+              <a href="#rooms">
+                Explore Rooms
+              </a>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-foreground mb-4">
+              Complete Hotel Management Solution
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Our comprehensive system handles every aspect of hotel operations with modern, touch-friendly interfaces
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => {
+              const Icon = feature.icon;
+              return (
+                <Card key={index} className="card-luxury text-center">
+                  <CardContent className="p-8">
+                    <div className="mb-6">
+                      <div className="w-16 h-16 bg-gradient-accent rounded-full flex items-center justify-center mx-auto">
+                        <Icon className="h-8 w-8 text-accent-foreground" />
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+                    <p className="text-muted-foreground">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Room Types Section */}
+      <section id="rooms" className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-foreground mb-4">
+              Luxury Accommodations
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              Choose from our selection of elegantly appointed rooms and suites
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {roomTypes.map((room, index) => (
+              <Card key={index} className="card-luxury overflow-hidden">
+                <div className="h-48 bg-gradient-card"></div>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-xl">{room.name}</CardTitle>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-accent">{room.price}</div>
+                      <div className="text-sm text-muted-foreground">per night</div>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 mb-6">
+                    {room.features.map((feature, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <Star className="h-4 w-4 text-accent" />
+                        <span className="text-sm">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <Button className="w-full button-luxury" asChild>
+                    <a href="/book">Book Now</a>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Amenities Section */}
+      <section id="amenities" className="py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-foreground mb-4">
+              World-Class Amenities
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              Everything you need for a perfect stay
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            {amenities.map((amenity, index) => {
+              const Icon = amenity.icon;
+              return (
+                <Card key={index} className="card-luxury text-center p-6">
+                  <div className="w-12 h-12 bg-gradient-accent rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Icon className="h-6 w-6 text-accent-foreground" />
+                  </div>
+                  <p className="font-medium text-sm">{amenity.name}</p>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Management System Demo */}
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-foreground mb-4">
+              Try Our Management System
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              Experience the power of our comprehensive hotel management platform
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <Card className="card-luxury p-8 text-center">
+              <div className="w-20 h-20 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                <ShoppingCart className="h-10 w-10 text-primary-foreground" />
+              </div>
+              <h3 className="text-2xl font-bold mb-4">POS System Demo</h3>
+              <p className="text-muted-foreground mb-6">
+                Try our touch-friendly point of sale system designed for restaurants, bars, and retail operations
+              </p>
+              <Button className="button-luxury" asChild>
+                <a href="/pos">
+                  Try POS System
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </a>
+              </Button>
+            </Card>
+            
+            <Card className="card-luxury p-8 text-center">
+              <div className="w-20 h-20 bg-gradient-accent rounded-full flex items-center justify-center mx-auto mb-6">
+                <Hotel className="h-10 w-10 text-accent-foreground" />
+              </div>
+              <h3 className="text-2xl font-bold mb-4">Admin Dashboard</h3>
+              <p className="text-muted-foreground mb-6">
+                Explore our comprehensive dashboard for managing bookings, rooms, guests, and operations
+              </p>
+              <Button className="button-luxury" asChild>
+                <a href="/admin">
+                  View Dashboard
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </a>
+              </Button>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section id="contact" className="py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-foreground mb-4">
+              Get In Touch
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              Ready to experience luxury? Contact us today
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <Card className="card-luxury text-center p-6">
+              <Phone className="h-8 w-8 text-accent mx-auto mb-4" />
+              <h3 className="font-bold mb-2">Phone</h3>
+              <p className="text-muted-foreground">+1 (555) 123-4567</p>
+            </Card>
+            
+            <Card className="card-luxury text-center p-6">
+              <Mail className="h-8 w-8 text-accent mx-auto mb-4" />
+              <h3 className="font-bold mb-2">Email</h3>
+              <p className="text-muted-foreground">info@luxestay.com</p>
+            </Card>
+            
+            <Card className="card-luxury text-center p-6">
+              <MapPin className="h-8 w-8 text-accent mx-auto mb-4" />
+              <h3 className="font-bold mb-2">Address</h3>
+              <p className="text-muted-foreground">123 Luxury Ave<br />Downtown, NY 10001</p>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-primary text-primary-foreground py-12">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="p-2 bg-accent rounded-lg">
+                <Hotel className="h-6 w-6 text-accent-foreground" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold">LuxeStay Hotel</h3>
+                <p className="text-sm opacity-80">Management System</p>
+              </div>
+            </div>
+            <p className="opacity-80">
+              © 2024 LuxeStay Hotel Management System. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
