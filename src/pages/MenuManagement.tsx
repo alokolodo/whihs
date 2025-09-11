@@ -21,23 +21,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-interface MenuItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  isAvailable: boolean;
-  isPopular: boolean;
-  allergens: string[];
-  preparationTime: number;
-  calories?: number;
-  image?: string;
-  ingredients: string[];
-}
+import { useMenuItems, MenuItem } from "@/hooks/useMenuItems";
 
 const MenuManagement = () => {
+  const { menuItems } = useMenuItems();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -50,61 +37,7 @@ const MenuManagement = () => {
     "Gluten", "Dairy", "Nuts", "Shellfish", "Eggs", "Soy", "Fish"
   ];
 
-  const mockMenuItems: MenuItem[] = [
-    {
-      id: "1",
-      name: "Grilled Salmon with Herbs",
-      description: "Fresh Atlantic salmon grilled to perfection with herb seasoning, served with seasonal vegetables",
-      price: 28.00,
-      category: "Main Course",
-      isAvailable: true,
-      isPopular: true,
-      allergens: ["Fish"],
-      preparationTime: 25,
-      calories: 420,
-      ingredients: ["Salmon", "Fresh Herbs", "Seasonal Vegetables", "Olive Oil"]
-    },
-    {
-      id: "2",
-      name: "Caesar Salad",
-      description: "Classic Caesar salad with homemade dressing, parmesan cheese, and crispy croutons",
-      price: 16.00,
-      category: "Salads",
-      isAvailable: true,
-      isPopular: false,
-      allergens: ["Gluten", "Dairy", "Eggs"],
-      preparationTime: 10,
-      calories: 320,
-      ingredients: ["Romaine Lettuce", "Parmesan", "Croutons", "Caesar Dressing"]
-    },
-    {
-      id: "3",
-      name: "Chocolate Lava Cake",
-      description: "Warm chocolate cake with a molten center, served with vanilla ice cream",
-      price: 12.00,
-      category: "Desserts",
-      isAvailable: false,
-      isPopular: true,
-      allergens: ["Gluten", "Dairy", "Eggs"],
-      preparationTime: 15,
-      calories: 580,
-      ingredients: ["Dark Chocolate", "Butter", "Eggs", "Flour", "Vanilla Ice Cream"]
-    },
-    {
-      id: "4",
-      name: "Craft Beer Selection",
-      description: "Local craft beer selection including IPA, Lager, and Wheat varieties",
-      price: 8.00,
-      category: "Beverages",
-      isAvailable: true,
-      isPopular: false,
-      allergens: ["Gluten"],
-      preparationTime: 2,
-      ingredients: ["Craft Beer"]
-    }
-  ];
-
-  const filteredItems = mockMenuItems.filter(item => {
+  const filteredItems = menuItems.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
@@ -345,7 +278,7 @@ const MenuManagement = () => {
             <div className="flex items-center gap-3">
               <Menu className="h-8 w-8 text-accent" />
               <div>
-                <p className="text-2xl font-bold">{mockMenuItems.length}</p>
+                <p className="text-2xl font-bold">{menuItems.length}</p>
                 <p className="text-sm text-muted-foreground">Total Items</p>
               </div>
             </div>
@@ -356,7 +289,7 @@ const MenuManagement = () => {
             <div className="flex items-center gap-3">
               <Eye className="h-8 w-8 text-green-600" />
               <div>
-                <p className="text-2xl font-bold">{mockMenuItems.filter(i => i.isAvailable).length}</p>
+                <p className="text-2xl font-bold">{menuItems.filter(i => i.isAvailable).length}</p>
                 <p className="text-sm text-muted-foreground">Available</p>
               </div>
             </div>
@@ -367,7 +300,7 @@ const MenuManagement = () => {
             <div className="flex items-center gap-3">
               <Star className="h-8 w-8 text-yellow-500" />
               <div>
-                <p className="text-2xl font-bold">{mockMenuItems.filter(i => i.isPopular).length}</p>
+                <p className="text-2xl font-bold">{menuItems.filter(i => i.isPopular).length}</p>
                 <p className="text-sm text-muted-foreground">Popular Items</p>
               </div>
             </div>
@@ -379,7 +312,7 @@ const MenuManagement = () => {
               <DollarSign className="h-8 w-8 text-purple-600" />
               <div>
                 <p className="text-2xl font-bold">
-                  ${(mockMenuItems.reduce((sum, item) => sum + item.price, 0) / mockMenuItems.length).toFixed(2)}
+                  ${menuItems.length > 0 ? (menuItems.reduce((sum, item) => sum + item.price, 0) / menuItems.length).toFixed(2) : '0.00'}
                 </p>
                 <p className="text-sm text-muted-foreground">Avg Price</p>
               </div>

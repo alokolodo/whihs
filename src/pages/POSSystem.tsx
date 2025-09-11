@@ -64,8 +64,8 @@ const POSSystem = () => {
       name: "GUEST 1", 
       table: "Table 5",
       items: [
-        { id: "1", name: "SM PIZZA", price: 5.75, category: "food", color: "bg-amber-500", quantity: 1 },
-        { id: "9", name: "ROOT BEER", price: 1.25, category: "drinks", color: "bg-blue-500", quantity: 1 }
+        { id: "service1", name: "ROOM SERVICE", price: 15.00, category: "services", color: "bg-purple-600", quantity: 1 },
+        { id: "ent1", name: "POOL ACCESS", price: 20.00, category: "entertainment", color: "bg-blue-600", quantity: 1 }
       ]
     },
     { 
@@ -73,8 +73,8 @@ const POSSystem = () => {
       name: "GUEST 2", 
       table: "Table 3",
       items: [
-        { id: "3", name: "CHILI TACO", price: 2.05, category: "food", color: "bg-red-500", quantity: 1 },
-        { id: "4", name: "BOT WATER", price: 1.50, category: "drinks", color: "bg-blue-400", quantity: 1 }
+        { id: "service2", name: "LAUNDRY SERVICE", price: 25.00, category: "services", color: "bg-purple-500", quantity: 1 },
+        { id: "ent2", name: "GYM ACCESS", price: 15.00, category: "entertainment", color: "bg-blue-500", quantity: 1 }
       ]
     },
     { 
@@ -82,8 +82,8 @@ const POSSystem = () => {
       name: "GUEST 3", 
       table: "Walk-in",
       items: [
-        { id: "5", name: "SIMPLE WINGS", price: 9.00, category: "food", color: "bg-orange-500", quantity: 1 },
-        { id: "6", name: "COORS LIGHT", price: 7.00, category: "drinks", color: "bg-yellow-500", quantity: 1 }
+        { id: "service3", name: "SPA MASSAGE", price: 80.00, category: "spa", color: "bg-pink-600", quantity: 1 },
+        { id: "upgrade1", name: "SUITE UPGRADE", price: 75.00, category: "upgrades", color: "bg-amber-600", quantity: 1 }
       ]
     }
   ]);
@@ -99,8 +99,8 @@ const POSSystem = () => {
     { id: "upgrades", name: "UPGRADES", color: "bg-amber-600" },
   ];
 
+  // Hotel Services & Amenities (Non-food items only)
   const items: POSItem[] = [
-    // Hotel Services & Amenities (Non-food items)
     { id: "service1", name: "ROOM SERVICE", price: 15.00, category: "services", color: "bg-purple-600" },
     { id: "service2", name: "LAUNDRY SERVICE", price: 25.00, category: "services", color: "bg-purple-500" },
     { id: "service3", name: "SPA MASSAGE", price: 80.00, category: "spa", color: "bg-pink-600" },

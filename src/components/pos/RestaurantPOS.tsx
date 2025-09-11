@@ -22,17 +22,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useMenuItems, MenuItem } from "@/hooks/useMenuItems";
 
-interface RestaurantItem {
-  id: string;
-  name: string;
-  price: number;
-  category: string;
-  prepTime: number;
-  isAvailable: boolean;
-}
-
-interface OrderItem extends RestaurantItem {
+interface OrderItem extends MenuItem {
   quantity: number;
   specialInstructions?: string;
 }
@@ -45,7 +37,8 @@ interface Guest {
 }
 
 const RestaurantPOS = () => {
-  const [activeCategory, setActiveCategory] = useState("mains");
+  const { getFoodAndBeverageItems } = useMenuItems();
+  const [activeCategory, setActiveCategory] = useState("Main Course");
   const [guests, setGuests] = useState<Guest[]>([
     { id: "1", name: "GUEST 1", tableNumber: "1", items: [] },
     { id: "2", name: "GUEST 2", tableNumber: "2", items: [] },
@@ -53,67 +46,34 @@ const RestaurantPOS = () => {
   ]);
   const [selectedGuestId, setSelectedGuestId] = useState("1");
 
-  const categories = [
-    { id: "appetizers", name: "APPETIZERS", icon: Utensils, color: "bg-orange-500 hover:bg-orange-600" },
-    { id: "beverages", name: "DRINKS", icon: Coffee, color: "bg-green-500 hover:bg-green-600" },
-    { id: "wine", name: "WINE", icon: Wine, color: "bg-red-600 hover:bg-red-700" },
-    { id: "cocktails", name: "COCKTAILS", icon: Wine, color: "bg-red-500 hover:bg-red-600" },
-    { id: "desserts", name: "DESSERTS", icon: IceCream, color: "bg-blue-400 hover:bg-blue-500" },
-    { id: "sandwiches", name: "SANDWICHES", icon: Sandwich, color: "bg-purple-500 hover:bg-purple-600" },
-    { id: "mains", name: "MAINS", icon: Utensils, color: "bg-red-700 hover:bg-red-800" },
-    { id: "seafood", name: "SEAFOOD", icon: Fish, color: "bg-teal-500 hover:bg-teal-600" },
-  ];
+  const restaurantItems = getFoodAndBeverageItems();
 
-  const restaurantItems: RestaurantItem[] = [
-    // Main Course / Subs
-    { id: "1", name: "MEATBALL SUB", price: 12.99, category: "mains", prepTime: 15, isAvailable: true },
-    { id: "2", name: "STEAK SUB", price: 15.99, category: "mains", prepTime: 18, isAvailable: true },
-    { id: "3", name: "STEAK HOGIE", price: 14.99, category: "mains", prepTime: 16, isAvailable: true },
-    { id: "4", name: "ITALIAN SAUSAGE SUB", price: 13.99, category: "mains", prepTime: 17, isAvailable: true },
-    { id: "5", name: "PIZZA SUB", price: 11.99, category: "mains", prepTime: 12, isAvailable: true },
-    { id: "6", name: "CHICKEN BREAST", price: 16.99, category: "mains", prepTime: 20, isAvailable: true },
-    { id: "7", name: "ROAST BBQ CHICKEN", price: 18.99, category: "mains", prepTime: 22, isAvailable: true },
-    { id: "8", name: "HAM SUB", price: 10.99, category: "mains", prepTime: 10, isAvailable: true },
-    { id: "9", name: "TUNA SUB", price: 12.99, category: "mains", prepTime: 12, isAvailable: true },
-    { id: "10", name: "TURKEY SUB", price: 11.99, category: "mains", prepTime: 11, isAvailable: true },
-    { id: "11", name: "BLT SUB", price: 9.99, category: "mains", prepTime: 8, isAvailable: true },
+  // Map menu categories to display categories
+  const categoryMap = {
+    "Main Course": { name: "MAINS", icon: Utensils, color: "bg-red-700 hover:bg-red-800" },
+    "Appetizers": { name: "APPETIZERS", icon: Utensils, color: "bg-orange-500 hover:bg-orange-600" },
+    "Beverages": { name: "DRINKS", icon: Coffee, color: "bg-green-500 hover:bg-green-600" },
+    "Desserts": { name: "DESSERTS", icon: IceCream, color: "bg-blue-400 hover:bg-blue-500" },
+    "Salads": { name: "SALADS", icon: Utensils, color: "bg-purple-500 hover:bg-purple-600" },
+    "Soups": { name: "SOUPS", icon: Utensils, color: "bg-teal-500 hover:bg-teal-600" },
+    "Sides": { name: "SIDES", icon: Utensils, color: "bg-amber-500 hover:bg-amber-600" },
+  };
 
-    // Appetizers
-    { id: "12", name: "CHICKEN WINGS", price: 8.99, category: "appetizers", prepTime: 12, isAvailable: true },
-    { id: "13", name: "MOZZARELLA STICKS", price: 6.99, category: "appetizers", prepTime: 8, isAvailable: true },
-    { id: "14", name: "ONION RINGS", price: 5.99, category: "appetizers", prepTime: 6, isAvailable: true },
-
-    // Beverages (Food & Drinks only)
-    { id: "15", name: "FRESH JUICE", price: 4.99, category: "beverages", prepTime: 3, isAvailable: true },
-    { id: "16", name: "BOTTLED WATER", price: 1.99, category: "beverages", prepTime: 1, isAvailable: true },
-    { id: "17", name: "SOFT DRINKS", price: 2.99, category: "beverages", prepTime: 2, isAvailable: true },
-    { id: "18", name: "COFFEE", price: 3.99, category: "beverages", prepTime: 4, isAvailable: true },
-
-    // Wine & Cocktails
-    { id: "19", name: "HOUSE WINE", price: 12.99, category: "wine", prepTime: 2, isAvailable: true },
-    { id: "20", name: "COCKTAIL", price: 8.99, category: "cocktails", prepTime: 5, isAvailable: true },
-    { id: "21", name: "COCKTAIL SHORT", price: 6.99, category: "cocktails", prepTime: 3, isAvailable: true },
-
-    // Desserts
-    { id: "22", name: "CHOCOLATE CAKE", price: 6.99, category: "desserts", prepTime: 5, isAvailable: true },
-    { id: "23", name: "ICE CREAM", price: 4.99, category: "desserts", prepTime: 3, isAvailable: true },
-
-    // Sandwiches
-    { id: "24", name: "CLUB SANDWICH", price: 9.99, category: "sandwiches", prepTime: 10, isAvailable: true },
-    { id: "25", name: "GRILLED CHEESE", price: 7.99, category: "sandwiches", prepTime: 8, isAvailable: true },
-
-    // Seafood
-    { id: "26", name: "FISH & CHIPS", price: 16.99, category: "seafood", prepTime: 18, isAvailable: true },
-    { id: "27", name: "GRILLED SALMON", price: 22.99, category: "seafood", prepTime: 20, isAvailable: true },
-  ];
+  // Get unique categories from menu items
+  const availableCategories = [...new Set(restaurantItems.map(item => item.category))]
+    .filter(category => categoryMap[category as keyof typeof categoryMap])
+    .map(category => ({
+      id: category,
+      ...categoryMap[category as keyof typeof categoryMap]
+    }));
 
   const filteredItems = restaurantItems.filter(item => 
-    item.category === activeCategory && item.isAvailable
+    item.category === activeCategory
   );
 
   const selectedGuest = guests.find(g => g.id === selectedGuestId);
 
-  const addToGuestOrder = (item: RestaurantItem) => {
+  const addToGuestOrder = (item: MenuItem) => {
     setGuests(prev => prev.map(guest => {
       if (guest.id === selectedGuestId) {
         const existing = guest.items.find(orderItem => orderItem.id === item.id);
@@ -280,7 +240,7 @@ const RestaurantPOS = () => {
         {/* Categories Grid */}
         <div className="flex-1 p-6">
           <div className="grid grid-cols-4 gap-4 h-full">
-            {categories.map((category) => {
+            {availableCategories.map((category) => {
               const Icon = category.icon;
               return (
                 <Button
@@ -303,7 +263,7 @@ const RestaurantPOS = () => {
               <div className="p-6 h-full flex flex-col">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-bold">
-                    {categories.find(c => c.id === activeCategory)?.name}
+                    {availableCategories.find(c => c.id === activeCategory)?.name || activeCategory.toUpperCase()}
                   </h3>
                   <Button 
                     variant="ghost"
@@ -332,7 +292,7 @@ const RestaurantPOS = () => {
                           </div>
                           <div className="flex items-center justify-center gap-1 text-xs text-gray-500">
                             <Clock className="h-3 w-3" />
-                            {item.prepTime}min
+                            {item.preparationTime}min
                           </div>
                         </CardContent>
                       </Card>
