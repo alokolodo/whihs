@@ -59,30 +59,39 @@ const RestaurantPOS = () => {
     { id: "2", name: "Beef Tenderloin", price: 42.00, category: "mains", prepTime: 30, isAvailable: true },
     { id: "3", name: "Chicken Parmesan", price: 24.00, category: "mains", prepTime: 20, isAvailable: true },
     { id: "4", name: "Vegetarian Pasta", price: 18.00, category: "mains", prepTime: 15, isAvailable: true },
+    { id: "5", name: "Fish & Chips", price: 22.00, category: "mains", prepTime: 18, isAvailable: true },
+    { id: "6", name: "Steak & Fries", price: 35.00, category: "mains", prepTime: 25, isAvailable: true },
     
     // Appetizers
-    { id: "5", name: "Caesar Salad", price: 16.00, category: "appetizers", prepTime: 10, isAvailable: true },
-    { id: "6", name: "Bruschetta", price: 12.00, category: "appetizers", prepTime: 8, isAvailable: true },
-    { id: "7", name: "Calamari Rings", price: 14.00, category: "appetizers", prepTime: 12, isAvailable: true },
-    { id: "8", name: "Soup of the Day", price: 8.00, category: "appetizers", prepTime: 5, isAvailable: true },
+    { id: "7", name: "Caesar Salad", price: 16.00, category: "appetizers", prepTime: 10, isAvailable: true },
+    { id: "8", name: "Bruschetta", price: 12.00, category: "appetizers", prepTime: 8, isAvailable: true },
+    { id: "9", name: "Calamari Rings", price: 14.00, category: "appetizers", prepTime: 12, isAvailable: true },
+    { id: "10", name: "Soup of the Day", price: 8.00, category: "appetizers", prepTime: 5, isAvailable: true },
+    { id: "11", name: "Chicken Wings", price: 16.00, category: "appetizers", prepTime: 15, isAvailable: true },
     
-    // Beverages
-    { id: "9", name: "Fresh Orange Juice", price: 6.00, category: "beverages", prepTime: 3, isAvailable: true },
-    { id: "10", name: "Espresso", price: 4.50, category: "beverages", prepTime: 2, isAvailable: true },
-    { id: "11", name: "Cappuccino", price: 5.50, category: "beverages", prepTime: 3, isAvailable: true },
-    { id: "12", name: "Iced Tea", price: 4.00, category: "beverages", prepTime: 2, isAvailable: true },
+    // Beverages (Food & Drinks only)
+    { id: "12", name: "Fresh Orange Juice", price: 6.00, category: "beverages", prepTime: 3, isAvailable: true },
+    { id: "13", name: "Apple Juice", price: 5.50, category: "beverages", prepTime: 2, isAvailable: true },
+    { id: "14", name: "Bottled Water", price: 3.00, category: "beverages", prepTime: 1, isAvailable: true },
+    { id: "15", name: "Sparkling Water", price: 4.00, category: "beverages", prepTime: 1, isAvailable: true },
+    { id: "16", name: "Fresh Lemonade", price: 5.00, category: "beverages", prepTime: 3, isAvailable: true },
+    { id: "17", name: "Iced Tea", price: 4.00, category: "beverages", prepTime: 2, isAvailable: true },
+    { id: "18", name: "Hot Tea", price: 3.50, category: "beverages", prepTime: 3, isAvailable: true },
+    { id: "19", name: "Coffee", price: 4.50, category: "beverages", prepTime: 4, isAvailable: true },
     
-    // Wine & Bar
-    { id: "13", name: "House Red Wine", price: 15.00, category: "wine", prepTime: 2, isAvailable: true },
-    { id: "14", name: "Champagne", price: 85.00, category: "wine", prepTime: 3, isAvailable: true },
-    { id: "15", name: "Craft Cocktail", price: 18.00, category: "wine", prepTime: 5, isAvailable: true },
-    { id: "16", name: "Premium Whiskey", price: 25.00, category: "wine", prepTime: 2, isAvailable: true },
+    // Wine & Bar (Alcoholic beverages)
+    { id: "20", name: "House Red Wine", price: 15.00, category: "wine", prepTime: 2, isAvailable: true },
+    { id: "21", name: "House White Wine", price: 14.00, category: "wine", prepTime: 2, isAvailable: true },
+    { id: "22", name: "Champagne", price: 85.00, category: "wine", prepTime: 3, isAvailable: true },
+    { id: "23", name: "Local Beer", price: 6.00, category: "wine", prepTime: 2, isAvailable: true },
+    { id: "24", name: "Premium Beer", price: 8.00, category: "wine", prepTime: 2, isAvailable: true },
     
     // Desserts
-    { id: "17", name: "Chocolate Cake", price: 12.00, category: "desserts", prepTime: 8, isAvailable: true },
-    { id: "18", name: "Tiramisu", price: 14.00, category: "desserts", prepTime: 5, isAvailable: true },
-    { id: "19", name: "Fresh Fruit Platter", price: 16.00, category: "desserts", prepTime: 10, isAvailable: true },
-    { id: "20", name: "Ice Cream Selection", price: 8.00, category: "desserts", prepTime: 3, isAvailable: true },
+    { id: "25", name: "Chocolate Cake", price: 12.00, category: "desserts", prepTime: 8, isAvailable: true },
+    { id: "26", name: "Tiramisu", price: 14.00, category: "desserts", prepTime: 5, isAvailable: true },
+    { id: "27", name: "Fresh Fruit Platter", price: 16.00, category: "desserts", prepTime: 10, isAvailable: true },
+    { id: "28", name: "Ice Cream Selection", price: 8.00, category: "desserts", prepTime: 3, isAvailable: true },
+    { id: "29", name: "Cheesecake", price: 10.00, category: "desserts", prepTime: 5, isAvailable: true },
   ];
 
   const filteredItems = restaurantItems.filter(item => 

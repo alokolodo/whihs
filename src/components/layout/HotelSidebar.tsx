@@ -43,6 +43,7 @@ const navigationItems = [
   { title: "Inventory", url: "/admin/inventory", icon: Package },
   { title: "Accounting", url: "/admin/accounting", icon: BarChart3 },
   { title: "HR Management", url: "/admin/hr", icon: Users },
+  { title: "Housekeeping", url: "/admin/housekeeping", icon: Home },
   { title: "Settings", url: "/admin/settings", icon: Settings },
 ];
 

@@ -23,6 +23,7 @@ import PaymentsManagement from "./pages/PaymentsManagement";
 import InventoryManagement from "./pages/InventoryManagement";
 import AccountingModule from "./pages/AccountingModule";
 import HRManagement from "./pages/HRManagement";
+import HousekeepingManagement from "./pages/HousekeepingManagement";
 import RestaurantPOS from "./components/pos/RestaurantPOS";
 import NotFound from "./pages/NotFound";
 
@@ -93,6 +94,37 @@ const App = () => {
                 <Route path="/admin/game-center" element={
                   <HotelLayout>
                     <GameCenter />
+                  </HotelLayout>
+                } />
+                <Route path="/booking-confirmation" element={<BookingConfirmation />} />
+                <Route path="/admin/guests" element={
+                  <HotelLayout>
+                    <GuestManagement />
+                  </HotelLayout>
+                } />
+                <Route path="/admin/payments" element={
+                  <HotelLayout>
+                    <PaymentsManagement />
+                  </HotelLayout>
+                } />
+                <Route path="/admin/inventory" element={
+                  <HotelLayout>
+                    <InventoryManagement />
+                  </HotelLayout>
+                } />
+                <Route path="/admin/accounting" element={
+                  <HotelLayout>
+                    <AccountingModule />
+                  </HotelLayout>
+                } />
+                <Route path="/admin/hr" element={
+                  <HotelLayout>
+                    <HRManagement />
+                  </HotelLayout>
+                } />
+                <Route path="/admin/housekeeping" element={
+                  <HotelLayout>
+                    <HousekeepingManagement />
                   </HotelLayout>
                 } />
                 

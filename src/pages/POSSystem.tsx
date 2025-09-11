@@ -90,70 +90,56 @@ const POSSystem = () => {
 
   const categories = [
     { id: "all", name: "ALL", color: "bg-gray-500" },
-    { id: "beer", name: "BEER BASKET", color: "bg-amber-600" },
-    { id: "wine", name: "WINE", color: "bg-red-700" },
-    { id: "cocktail-short", name: "COCKTAIL SHORT", color: "bg-red-500" },
-    { id: "cocktail", name: "COCKTAIL", color: "bg-red-600" },
-    { id: "drinks", name: "DRINKS", color: "bg-green-600" },
-    { id: "desserts", name: "DESSERTS", color: "bg-blue-400" },
-    { id: "clubs", name: "CLUBS", color: "bg-blue-800" },
-    { id: "sandwiches", name: "SANDWICHES", color: "bg-purple-600" },
-    { id: "burgers", name: "BURGERS", color: "bg-green-700" },
-    { id: "platters", name: "PLATTERS", color: "bg-amber-700" },
-    { id: "seafood", name: "SEAFOOD", color: "bg-teal-600" },
+    { id: "services", name: "SERVICES", color: "bg-purple-600" },
+    { id: "spa", name: "SPA & WELLNESS", color: "bg-pink-600" },
+    { id: "entertainment", name: "ENTERTAINMENT", color: "bg-blue-600" },
+    { id: "transport", name: "TRANSPORT", color: "bg-gray-600" },
+    { id: "business", name: "BUSINESS", color: "bg-indigo-600" },
+    { id: "retail", name: "RETAIL", color: "bg-teal-600" },
+    { id: "upgrades", name: "UPGRADES", color: "bg-amber-600" },
   ];
 
   const items: POSItem[] = [
-    // Subs & Sandwiches
-    { id: "sub1", name: "MEATBALL SUB", price: 8.50, category: "sandwiches", color: "bg-red-500" },
-    { id: "sub2", name: "STEAK SUB", price: 9.75, category: "sandwiches", color: "bg-red-600" },
-    { id: "sub3", name: "STEAK HOGIE", price: 10.25, category: "sandwiches", color: "bg-red-700" },
-    { id: "sub4", name: "ITALIAN SAUSAGE SUB", price: 8.75, category: "sandwiches", color: "bg-red-500" },
-    { id: "sub5", name: "PIZZA SUB", price: 7.50, category: "sandwiches", color: "bg-red-600" },
-    { id: "sub6", name: "CHICKEN BREAST", price: 9.25, category: "sandwiches", color: "bg-amber-600" },
-    { id: "sub7", name: "ROAST BBQ CHICKEN", price: 9.50, category: "sandwiches", color: "bg-amber-700" },
-    { id: "sub8", name: "HAM SUB", price: 7.75, category: "sandwiches", color: "bg-blue-600" },
-    { id: "sub9", name: "TUNA SUB", price: 8.25, category: "sandwiches", color: "bg-blue-700" },
-    { id: "sub10", name: "TURKEY SUB", price: 8.00, category: "sandwiches", color: "bg-blue-600" },
-    { id: "sub11", name: "BLT SUB", price: 7.25, category: "sandwiches", color: "bg-blue-700" },
+    // Hotel Services & Amenities (Non-food items)
+    { id: "service1", name: "ROOM SERVICE", price: 15.00, category: "services", color: "bg-purple-600" },
+    { id: "service2", name: "LAUNDRY SERVICE", price: 25.00, category: "services", color: "bg-purple-500" },
+    { id: "service3", name: "SPA MASSAGE", price: 80.00, category: "spa", color: "bg-pink-600" },
+    { id: "service4", name: "FACIAL TREATMENT", price: 60.00, category: "spa", color: "bg-pink-500" },
+    { id: "service5", name: "MANICURE", price: 35.00, category: "spa", color: "bg-pink-400" },
+    { id: "service6", name: "PEDICURE", price: 40.00, category: "spa", color: "bg-pink-700" },
     
-    // Drinks
-    { id: "drink1", name: "COKE", price: 2.50, category: "drinks", color: "bg-green-600" },
-    { id: "drink2", name: "SPRITE", price: 2.50, category: "drinks", color: "bg-green-500" },
-    { id: "drink3", name: "ORANGE JUICE", price: 3.25, category: "drinks", color: "bg-green-400" },
-    { id: "drink4", name: "COFFEE", price: 2.75, category: "drinks", color: "bg-green-700" },
+    // Entertainment & Activities
+    { id: "ent1", name: "POOL ACCESS", price: 20.00, category: "entertainment", color: "bg-blue-600" },
+    { id: "ent2", name: "GYM ACCESS", price: 15.00, category: "entertainment", color: "bg-blue-500" },
+    { id: "ent3", name: "TENNIS COURT", price: 30.00, category: "entertainment", color: "bg-green-600" },
+    { id: "ent4", name: "GOLF COURSE", price: 75.00, category: "entertainment", color: "bg-green-700" },
+    { id: "ent5", name: "GAME CENTER", price: 10.00, category: "entertainment", color: "bg-yellow-600" },
+    { id: "ent6", name: "KARAOKE ROOM", price: 45.00, category: "entertainment", color: "bg-orange-600" },
     
-    // Beer
-    { id: "beer1", name: "BUDWEISER", price: 4.50, category: "beer", color: "bg-amber-600" },
-    { id: "beer2", name: "COORS LIGHT", price: 4.25, category: "beer", color: "bg-amber-500" },
-    { id: "beer3", name: "CORONA", price: 5.00, category: "beer", color: "bg-amber-700" },
+    // Transportation
+    { id: "trans1", name: "AIRPORT SHUTTLE", price: 25.00, category: "transport", color: "bg-gray-600" },
+    { id: "trans2", name: "TAXI SERVICE", price: 15.00, category: "transport", color: "bg-gray-500" },
+    { id: "trans3", name: "CAR RENTAL", price: 65.00, category: "transport", color: "bg-gray-700" },
+    { id: "trans4", name: "CITY TOUR", price: 50.00, category: "transport", color: "bg-gray-800" },
     
-    // Wine
-    { id: "wine1", name: "RED WINE", price: 8.00, category: "wine", color: "bg-red-700" },
-    { id: "wine2", name: "WHITE WINE", price: 7.50, category: "wine", color: "bg-red-600" },
-    { id: "wine3", name: "CHAMPAGNE", price: 25.00, category: "wine", color: "bg-red-800" },
+    // Business Services
+    { id: "biz1", name: "CONFERENCE ROOM", price: 100.00, category: "business", color: "bg-indigo-600" },
+    { id: "biz2", name: "PRINTING SERVICE", price: 5.00, category: "business", color: "bg-indigo-500" },
+    { id: "biz3", name: "FAX SERVICE", price: 3.00, category: "business", color: "bg-indigo-400" },
+    { id: "biz4", name: "INTERNET ACCESS", price: 10.00, category: "business", color: "bg-indigo-700" },
     
-    // Cocktails
-    { id: "cocktail1", name: "MARTINI", price: 12.00, category: "cocktail", color: "bg-red-600" },
-    { id: "cocktail2", name: "MOJITO", price: 10.50, category: "cocktail", color: "bg-red-500" },
-    { id: "cocktail3", name: "OLD FASHIONED", price: 13.00, category: "cocktail-short", color: "bg-red-500" },
+    // Retail Items
+    { id: "retail1", name: "HOTEL ROBE", price: 45.00, category: "retail", color: "bg-teal-600" },
+    { id: "retail2", name: "TOWEL SET", price: 25.00, category: "retail", color: "bg-teal-500" },
+    { id: "retail3", name: "TOILETRIES KIT", price: 15.00, category: "retail", color: "bg-teal-400" },
+    { id: "retail4", name: "SOUVENIR T-SHIRT", price: 20.00, category: "retail", color: "bg-teal-700" },
+    { id: "retail5", name: "POSTCARD SET", price: 8.00, category: "retail", color: "bg-teal-300" },
     
-    // Burgers
-    { id: "burger1", name: "CLASSIC BURGER", price: 12.50, category: "burgers", color: "bg-green-700" },
-    { id: "burger2", name: "CHEESE BURGER", price: 13.25, category: "burgers", color: "bg-green-600" },
-    { id: "burger3", name: "BACON BURGER", price: 14.75, category: "burgers", color: "bg-green-800" },
-    
-    // Platters
-    { id: "platter1", name: "WINGS PLATTER", price: 16.50, category: "platters", color: "bg-amber-700" },
-    { id: "platter2", name: "NACHOS PLATTER", price: 14.25, category: "platters", color: "bg-amber-600" },
-    
-    // Seafood
-    { id: "seafood1", name: "GRILLED SALMON", price: 22.00, category: "seafood", color: "bg-teal-600" },
-    { id: "seafood2", name: "FISH & CHIPS", price: 18.50, category: "seafood", color: "bg-teal-500" },
-    
-    // Desserts
-    { id: "dessert1", name: "CHOCOLATE CAKE", price: 6.50, category: "desserts", color: "bg-blue-400" },
-    { id: "dessert2", name: "ICE CREAM", price: 4.75, category: "desserts", color: "bg-blue-300" },
+    // Room Upgrades
+    { id: "upgrade1", name: "SUITE UPGRADE", price: 75.00, category: "upgrades", color: "bg-amber-600" },
+    { id: "upgrade2", name: "OCEAN VIEW", price: 45.00, category: "upgrades", color: "bg-amber-500" },
+    { id: "upgrade3", name: "BALCONY ACCESS", price: 35.00, category: "upgrades", color: "bg-amber-400" },
+    { id: "upgrade4", name: "LATE CHECKOUT", price: 25.00, category: "upgrades", color: "bg-amber-700" },
   ];
 
   const filteredItems = activeCategory === "all" 
