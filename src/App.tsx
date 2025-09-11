@@ -13,6 +13,10 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Settings from "./pages/Settings";
 import RecipeManagement from "./pages/RecipeManagement";
 import MenuManagement from "./pages/MenuManagement";
+import RoomManagement from "./pages/RoomManagement";
+import HallManagement from "./pages/HallManagement";
+import GymManagement from "./pages/GymManagement";
+import GameCenter from "./pages/GameCenter";
 import RestaurantPOS from "./components/pos/RestaurantPOS";
 import NotFound from "./pages/NotFound";
 
@@ -63,6 +67,26 @@ const App = () => {
                 <Route path="/admin/menu" element={
                   <HotelLayout>
                     <MenuManagement />
+                  </HotelLayout>
+                } />
+                <Route path="/admin/rooms" element={
+                  <HotelLayout>
+                    <RoomManagement />
+                  </HotelLayout>
+                } />
+                <Route path="/admin/halls" element={
+                  <HotelLayout>
+                    <HallManagement />
+                  </HotelLayout>
+                } />
+                <Route path="/admin/gym" element={
+                  <HotelLayout>
+                    <GymManagement />
+                  </HotelLayout>
+                } />
+                <Route path="/admin/game-center" element={
+                  <HotelLayout>
+                    <GameCenter />
                   </HotelLayout>
                 } />
                 

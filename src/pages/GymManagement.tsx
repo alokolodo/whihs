@@ -1,0 +1,463 @@
+import { useState } from "react";
+import { 
+  Dumbbell,
+  Users,
+  Clock,
+  Calendar,
+  TrendingUp,
+  Plus,
+  Search,
+  Filter,
+  User,
+  CreditCard,
+  CheckCircle,
+  XCircle,
+  Activity
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface GymMember {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  membershipType: "day-pass" | "monthly" | "yearly";
+  startDate: string;
+  endDate: string;
+  status: "active" | "expired" | "suspended";
+  checkIns: number;
+}
+
+interface Equipment {
+  id: string;
+  name: string;
+  category: string;
+  status: "available" | "in-use" | "maintenance";
+  location: string;
+  lastMaintenance: string;
+}
+
+interface Trainer {
+  id: string;
+  name: string;
+  specialization: string[];
+  hourlyRate: number;
+  availability: "available" | "busy" | "off-duty";
+  rating: number;
+}
+
+const GymManagement = () => {
+  const [members] = useState<GymMember[]>([
+    {
+      id: "1",
+      name: "John Smith",
+      email: "john@email.com", 
+      phone: "+1234567890",
+      membershipType: "monthly",
+      startDate: "2024-01-01",
+      endDate: "2024-01-31",
+      status: "active",
+      checkIns: 15
+    },
+    {
+      id: "2",
+      name: "Sarah Johnson",
+      email: "sarah@email.com",
+      phone: "+1234567891", 
+      membershipType: "yearly",
+      startDate: "2023-12-01",
+      endDate: "2024-12-01",
+      status: "active",
+      checkIns: 45
+    },
+    {
+      id: "3", 
+      name: "Mike Wilson",
+      email: "mike@email.com",
+      phone: "+1234567892",
+      membershipType: "day-pass",
+      startDate: "2024-01-15",
+      endDate: "2024-01-15", 
+      status: "expired",
+      checkIns: 1
+    }
+  ]);
+
+  const [equipment] = useState<Equipment[]>([
+    {
+      id: "1",
+      name: "Treadmill #1",
+      category: "Cardio",
+      status: "in-use",
+      location: "Cardio Zone",
+      lastMaintenance: "2024-01-10"
+    },
+    {
+      id: "2", 
+      name: "Bench Press",
+      category: "Strength",
+      status: "available", 
+      location: "Weight Room",
+      lastMaintenance: "2024-01-08"
+    },
+    {
+      id: "3",
+      name: "Rowing Machine",
+      category: "Cardio", 
+      status: "maintenance",
+      location: "Cardio Zone",
+      lastMaintenance: "2024-01-05"
+    }
+  ]);
+
+  const [trainers] = useState<Trainer[]>([
+    {
+      id: "1",
+      name: "Alex Rodriguez", 
+      specialization: ["Weight Training", "HIIT"],
+      hourlyRate: 80,
+      availability: "available",
+      rating: 4.9
+    },
+    {
+      id: "2",
+      name: "Emma Davis",
+      specialization: ["Yoga", "Pilates"],
+      hourlyRate: 70, 
+      availability: "busy",
+      rating: 4.8
+    },
+    {
+      id: "3",
+      name: "Chris Brown",
+      specialization: ["CrossFit", "Cardio"],
+      hourlyRate: 75,
+      availability: "available", 
+      rating: 4.7
+    }
+  ]);
+
+  const [activeTab, setActiveTab] = useState("overview");
+
+  const membershipColors = {
+    "day-pass": "bg-blue-500",
+    monthly: "bg-green-500", 
+    yearly: "bg-purple-500"
+  };
+
+  const statusColors = {
+    active: "bg-green-500",
+    expired: "bg-red-500",
+    suspended: "bg-yellow-500",
+    available: "bg-green-500",
+    "in-use": "bg-blue-500",
+    maintenance: "bg-red-500",
+    busy: "bg-yellow-500",
+    "off-duty": "bg-gray-500"
+  };
+
+  const getMemberStats = () => {
+    return {
+      total: members.length,
+      active: members.filter(m => m.status === "active").length,
+      expired: members.filter(m => m.status === "expired").length,
+      checkInsToday: 28 // Mock data
+    };
+  };
+
+  const getEquipmentStats = () => {
+    return {
+      total: equipment.length,
+      available: equipment.filter(e => e.status === "available").length,
+      inUse: equipment.filter(e => e.status === "in-use").length,
+      maintenance: equipment.filter(e => e.status === "maintenance").length
+    };
+  };
+
+  const memberStats = getMemberStats();
+  const equipmentStats = getEquipmentStats();
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Gym Management</h1>
+          <p className="text-muted-foreground">Manage gym members, equipment, and trainers</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline">
+            <Activity className="h-4 w-4 mr-2" />
+            Live Dashboard
+          </Button>
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            New Member
+          </Button>
+        </div>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="members">Members</TabsTrigger>
+          <TabsTrigger value="equipment">Equipment</TabsTrigger>
+          <TabsTrigger value="trainers">Trainers</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold">{memberStats.total}</div>
+                <div className="text-sm text-muted-foreground">Total Members</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-green-600">{memberStats.active}</div>
+                <div className="text-sm text-muted-foreground">Active Members</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-blue-600">{memberStats.checkInsToday}</div>
+                <div className="text-sm text-muted-foreground">Check-ins Today</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-orange-600">{equipmentStats.inUse}</div>
+                <div className="text-sm text-muted-foreground">Equipment In Use</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-6 text-center">
+                <Users className="h-12 w-12 mx-auto mb-4 text-primary" />
+                <h3 className="font-semibold mb-2">Member Check-in</h3>
+                <p className="text-sm text-muted-foreground">Quick member check-in and validation</p>
+              </CardContent>
+            </Card>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-6 text-center">
+                <Calendar className="h-12 w-12 mx-auto mb-4 text-primary" />
+                <h3 className="font-semibold mb-2">Book Trainer</h3>
+                <p className="text-sm text-muted-foreground">Schedule personal training sessions</p>
+              </CardContent>
+            </Card>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-6 text-center">
+                <Dumbbell className="h-12 w-12 mx-auto mb-4 text-primary" />
+                <h3 className="font-semibold mb-2">Equipment Status</h3>
+                <p className="text-sm text-muted-foreground">View and update equipment status</p>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="members" className="space-y-6">
+          {/* Member Search & Filter */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex gap-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input placeholder="Search members..." className="pl-10" />
+                </div>
+                <Select defaultValue="all">
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Membership Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="day-pass">Day Pass</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                    <SelectItem value="yearly">Yearly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Members List */}
+          <div className="space-y-4">
+            {members.map((member) => (
+              <Card key={member.id}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center">
+                        <User className="h-6 w-6 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">{member.name}</h3>
+                        <p className="text-sm text-muted-foreground">{member.email}</p>
+                        <p className="text-sm text-muted-foreground">{member.phone}</p>
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <Badge className={`${membershipColors[member.membershipType]} text-white mb-2`}>
+                        {member.membershipType}
+                      </Badge>
+                      <div className="text-sm text-muted-foreground">
+                        Expires: {member.endDate}
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold">{member.checkIns}</div>
+                      <div className="text-sm text-muted-foreground">Check-ins</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge className={`${statusColors[member.status]} text-white`}>
+                        {member.status}
+                      </Badge>
+                      <Button size="sm" variant="outline">
+                        <CheckCircle className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="equipment" className="space-y-6">
+          {/* Equipment Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold">{equipmentStats.total}</div>
+                <div className="text-sm text-muted-foreground">Total Equipment</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-green-600">{equipmentStats.available}</div>
+                <div className="text-sm text-muted-foreground">Available</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-blue-600">{equipmentStats.inUse}</div>
+                <div className="text-sm text-muted-foreground">In Use</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-red-600">{equipmentStats.maintenance}</div>
+                <div className="text-sm text-muted-foreground">Maintenance</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Equipment Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {equipment.map((item) => (
+              <Card key={item.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">{item.name}</CardTitle>
+                    <Badge className={`${statusColors[item.status]} text-white`}>
+                      {item.status}
+                    </Badge>
+                  </div>
+                  <CardDescription>{item.category}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Location:</span>
+                      <span className="text-sm">{item.location}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Last Maintenance:</span>
+                      <span className="text-sm">{item.lastMaintenance}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" className="flex-1">
+                        Update Status
+                      </Button>
+                      <Button size="sm" variant="outline" className="flex-1">
+                        Maintenance
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="trainers" className="space-y-6">
+          {/* Trainers Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {trainers.map((trainer) => (
+              <Card key={trainer.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>{trainer.name}</CardTitle>
+                    <Badge className={`${statusColors[trainer.availability]} text-white`}>
+                      {trainer.availability}
+                    </Badge>
+                  </div>
+                  <CardDescription>
+                    <div className="flex items-center gap-2">
+                      <span>Rating: {trainer.rating}/5</span>
+                      <div className="flex">
+                        {[...Array(5)].map((_, i) => (
+                          <div 
+                            key={i} 
+                            className={`h-3 w-3 ${i < Math.floor(trainer.rating) ? 'bg-yellow-400' : 'bg-gray-200'} rounded-full mr-1`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <span className="text-sm text-muted-foreground">Specialization:</span>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {trainer.specialization.map((spec) => (
+                          <Badge key={spec} variant="secondary" className="text-xs">
+                            {spec}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Hourly Rate:</span>
+                      <span className="font-semibold">${trainer.hourlyRate}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" className="flex-1" disabled={trainer.availability !== "available"}>
+                        Book Session
+                      </Button>
+                      <Button size="sm" variant="outline">
+                        View Schedule
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default GymManagement;

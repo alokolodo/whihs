@@ -9,7 +9,10 @@ import {
   Hotel,
   CreditCard,
   Package,
-  ChefHat
+  ChefHat,
+  Building,
+  Dumbbell,
+  Gamepad2
 } from "lucide-react";
 import {
   Sidebar,
@@ -30,6 +33,9 @@ const navigationItems = [
   { title: "Restaurant POS", url: "/pos/restaurant", icon: ChefHat },
   { title: "Bookings", url: "/admin/bookings", icon: Calendar },
   { title: "Rooms", url: "/admin/rooms", icon: Hotel },
+  { title: "Halls", url: "/admin/halls", icon: Building },
+  { title: "Gym", url: "/admin/gym", icon: Dumbbell },
+  { title: "Game Center", url: "/admin/game-center", icon: Gamepad2 },
   { title: "Guests", url: "/admin/guests", icon: Users },
   { title: "Menu Management", url: "/admin/menu", icon: ChefHat },
   { title: "Recipe Management", url: "/admin/recipes", icon: ChefHat },
