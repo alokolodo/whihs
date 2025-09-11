@@ -99,7 +99,9 @@ const BookingPage = () => {
                         <SelectItem value="standard">Standard Room</SelectItem>
                         <SelectItem value="deluxe">Deluxe Room</SelectItem>
                         <SelectItem value="suite">Executive Suite</SelectItem>
-                        <SelectItem value="presidential">Presidential Suite</SelectItem>
+                        <SelectItem value="king">King Size Room</SelectItem>
+                        <SelectItem value="queen">Queen Size Room</SelectItem>
+                        <SelectItem value="twin">Twin Beds Room</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -127,8 +129,35 @@ const BookingPage = () => {
                 </div>
 
                 <Button className="w-full button-luxury text-lg py-6">
-                  Book Now
+                  Book Room
                 </Button>
+
+                <div className="pt-4 border-t">
+                  <h3 className="font-semibold mb-4">Or Book Event Hall</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="event-date">Event Date</Label>
+                      <Input type="date" id="event-date" className="touch-target" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="hall-type">Hall Type</Label>
+                      <Select>
+                        <SelectTrigger className="touch-target">
+                          <SelectValue placeholder="Select hall" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ballroom">Grand Ballroom</SelectItem>
+                          <SelectItem value="conference">Conference Hall</SelectItem>
+                          <SelectItem value="banquet">Banquet Hall</SelectItem>
+                          <SelectItem value="meeting">Meeting Room</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <Button className="w-full button-luxury text-lg py-6" variant="outline">
+                    Book Event Hall
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 

@@ -25,7 +25,7 @@ interface Room {
   id: string;
   number: string;
   type: "Standard Single" | "Standard Double" | "King Size" | "Queen Size" | "Twin Beds" | "Suite" | "Deluxe Single" | "Deluxe Double" | "Presidential Suite" | "Executive Room";
-  status: "available" | "occupied" | "cleaning" | "maintenance" | "out-of-order";
+  status: "ready" | "occupied" | "vacant-dirty" | "under-repairs";
   guest?: string;
   checkIn?: string;
   checkOut?: string;
@@ -42,7 +42,7 @@ const RoomManagement = () => {
       id: "1", 
       number: "101", 
       type: "King Size", 
-      status: "occupied", 
+      status: "occupied",
       guest: "John Smith", 
       checkIn: "2024-01-15", 
       checkOut: "2024-01-17", 
@@ -56,7 +56,7 @@ const RoomManagement = () => {
       id: "2", 
       number: "102", 
       type: "Queen Size", 
-      status: "available", 
+      status: "ready",
       rate: 130, 
       amenities: ["WiFi", "Air Condition", "Television", "Reading Table & Chair", "Mini Bar", "Solar Power"], 
       floor: 1,
@@ -67,7 +67,7 @@ const RoomManagement = () => {
       id: "3", 
       number: "103", 
       type: "Presidential Suite", 
-      status: "cleaning", 
+      status: "vacant-dirty", 
       rate: 450, 
       amenities: ["WiFi", "Air Condition", "Television", "Reading Table & Chair", "Fan", "Solar Power", "Balcony", "Kitchen", "Living Room"], 
       floor: 1,
@@ -92,7 +92,7 @@ const RoomManagement = () => {
       id: "5", 
       number: "202", 
       type: "Executive Room", 
-      status: "available", 
+      status: "ready",
       rate: 280, 
       amenities: ["WiFi", "Air Condition", "Television", "Reading Table & Chair", "Fan", "Solar Power", "Work Desk", "Coffee Machine"], 
       floor: 2,
@@ -103,7 +103,7 @@ const RoomManagement = () => {
       id: "6", 
       number: "203", 
       type: "Standard Double", 
-      status: "maintenance", 
+      status: "under-repairs", 
       rate: 110, 
       amenities: ["WiFi", "Air Condition", "Television", "Reading Table & Chair", "Fan", "Solar Power"], 
       floor: 2,
@@ -114,7 +114,7 @@ const RoomManagement = () => {
       id: "7", 
       number: "301", 
       type: "Suite", 
-      status: "available", 
+      status: "ready",
       rate: 320, 
       amenities: ["WiFi", "Air Condition", "Television", "Reading Table & Chair", "Fan", "Solar Power", "Balcony", "Kitchenette"], 
       floor: 3,
@@ -125,7 +125,7 @@ const RoomManagement = () => {
       id: "8", 
       number: "302", 
       type: "Deluxe Double", 
-      status: "available", 
+      status: "ready", 
       rate: 180, 
       amenities: ["WiFi", "Air Condition", "Television", "Reading Table & Chair", "Fan", "Solar Power", "Mini Fridge"], 
       floor: 3,
@@ -139,19 +139,17 @@ const RoomManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const statusColors = {
-    available: "bg-green-500",
+    ready: "bg-green-500",
     occupied: "bg-red-500", 
-    cleaning: "bg-yellow-500",
-    maintenance: "bg-orange-500",
-    "out-of-order": "bg-gray-500"
+    "vacant-dirty": "bg-yellow-500",
+    "under-repairs": "bg-orange-500"
   };
 
   const statusLabels = {
-    available: "Available",
+    ready: "Ready",
     occupied: "Occupied",
-    cleaning: "Cleaning",
-    maintenance: "Maintenance", 
-    "out-of-order": "Out of Order"
+    "vacant-dirty": "Vacant Dirty", 
+    "under-repairs": "Under Repairs"
   };
 
   const filteredRooms = rooms.filter(room => {
@@ -166,10 +164,10 @@ const RoomManagement = () => {
   const getStatusStats = () => {
     return {
       total: rooms.length,
-      available: rooms.filter(r => r.status === "available").length,
+      ready: rooms.filter(r => r.status === "ready").length,
       occupied: rooms.filter(r => r.status === "occupied").length,
-      cleaning: rooms.filter(r => r.status === "cleaning").length,
-      maintenance: rooms.filter(r => r.status === "maintenance").length,
+      vacantDirty: rooms.filter(r => r.status === "vacant-dirty").length,
+      underRepairs: rooms.filter(r => r.status === "under-repairs").length,
     };
   };
 
@@ -198,8 +196,8 @@ const RoomManagement = () => {
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-2xl font-bold text-green-600">{stats.available}</div>
-            <div className="text-sm text-muted-foreground">Available</div>
+            <div className="text-2xl font-bold text-green-600">{stats.ready}</div>
+            <div className="text-sm text-muted-foreground">Ready</div>
           </CardContent>
         </Card>
         <Card>
@@ -210,14 +208,14 @@ const RoomManagement = () => {
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-2xl font-bold text-yellow-600">{stats.cleaning}</div>
-            <div className="text-sm text-muted-foreground">Cleaning</div>
+            <div className="text-2xl font-bold text-yellow-600">{stats.vacantDirty}</div>
+            <div className="text-sm text-muted-foreground">Vacant Dirty</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-2xl font-bold text-orange-600">{stats.maintenance}</div>
-            <div className="text-sm text-muted-foreground">Maintenance</div>
+            <div className="text-2xl font-bold text-orange-600">{stats.underRepairs}</div>
+            <div className="text-sm text-muted-foreground">Under Repairs</div>
           </CardContent>
         </Card>
       </div>
@@ -241,11 +239,10 @@ const RoomManagement = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="available">Available</SelectItem>
+                <SelectItem value="ready">Ready</SelectItem>
                 <SelectItem value="occupied">Occupied</SelectItem>
-                <SelectItem value="cleaning">Cleaning</SelectItem>
-                <SelectItem value="maintenance">Maintenance</SelectItem>
-                <SelectItem value="out-of-order">Out of Order</SelectItem>
+                <SelectItem value="vacant-dirty">Vacant Dirty</SelectItem>
+                <SelectItem value="under-repairs">Under Repairs</SelectItem>
               </SelectContent>
             </Select>
             <Select value={filterFloor} onValueChange={setFilterFloor}>
@@ -333,9 +330,14 @@ const RoomManagement = () => {
                   <Button size="sm" variant="outline" className="flex-1">
                     <Settings className="h-4 w-4" />
                   </Button>
-                  {room.status === "available" && (
+                  {room.status === "occupied" && (
                     <Button size="sm" className="flex-1">
-                      <Calendar className="h-4 w-4" />
+                      Check Out
+                    </Button>
+                  )}
+                  {room.status === "ready" && (
+                    <Button size="sm" className="flex-1">
+                      Check In
                     </Button>
                   )}
                 </div>

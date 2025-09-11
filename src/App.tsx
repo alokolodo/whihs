@@ -18,6 +18,7 @@ import HallManagement from "./pages/HallManagement";
 import GymManagement from "./pages/GymManagement";
 import GameCenter from "./pages/GameCenter";
 import BookingConfirmation from "./pages/BookingConfirmation";
+import BookingManagement from "./pages/BookingManagement";
 import GuestManagement from "./pages/GuestManagement";
 import PaymentsManagement from "./pages/PaymentsManagement";
 import InventoryManagement from "./pages/InventoryManagement";
@@ -84,6 +85,11 @@ const App = () => {
                 <Route path="/admin/halls" element={
                   <HotelLayout>
                     <HallManagement />
+                  </HotelLayout>
+                } />
+                <Route path="/admin/bookings" element={
+                  <HotelLayout>
+                    <BookingManagement />
                   </HotelLayout>
                 } />
                 <Route path="/admin/gym" element={
