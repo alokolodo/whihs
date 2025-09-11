@@ -24,7 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 interface Room {
   id: string;
   number: string;
-  type: string;
+  type: "Standard Single" | "Standard Double" | "King Size" | "Queen Size" | "Twin Beds" | "Suite" | "Deluxe Single" | "Deluxe Double" | "Presidential Suite" | "Executive Room";
   status: "available" | "occupied" | "cleaning" | "maintenance" | "out-of-order";
   guest?: string;
   checkIn?: string;
@@ -32,16 +32,106 @@ interface Room {
   rate: number;
   amenities: string[];
   floor: number;
+  bedType: string;
+  roomSize: number; // in square meters
 }
 
 const RoomManagement = () => {
   const [rooms] = useState<Room[]>([
-    { id: "1", number: "101", type: "Standard Single", status: "occupied", guest: "John Smith", checkIn: "2024-01-15", checkOut: "2024-01-17", rate: 120, amenities: ["WiFi", "AC", "TV"], floor: 1 },
-    { id: "2", number: "102", type: "Standard Double", status: "available", rate: 150, amenities: ["WiFi", "AC", "TV", "Mini Bar"], floor: 1 },
-    { id: "3", number: "103", type: "Suite", status: "cleaning", rate: 280, amenities: ["WiFi", "AC", "TV", "Mini Bar", "Balcony"], floor: 1 },
-    { id: "4", number: "201", type: "Deluxe Single", status: "occupied", guest: "Sarah Johnson", checkIn: "2024-01-14", checkOut: "2024-01-16", rate: 180, amenities: ["WiFi", "AC", "TV", "Mini Bar"], floor: 2 },
-    { id: "5", number: "202", type: "Presidential Suite", status: "available", rate: 500, amenities: ["WiFi", "AC", "TV", "Mini Bar", "Balcony", "Kitchen"], floor: 2 },
-    { id: "6", number: "203", type: "Standard Double", status: "maintenance", rate: 150, amenities: ["WiFi", "AC", "TV"], floor: 2 },
+    { 
+      id: "1", 
+      number: "101", 
+      type: "King Size", 
+      status: "occupied", 
+      guest: "John Smith", 
+      checkIn: "2024-01-15", 
+      checkOut: "2024-01-17", 
+      rate: 150, 
+      amenities: ["WiFi", "Air Condition", "Television", "Reading Table & Chair", "Fan", "Solar Power"], 
+      floor: 1,
+      bedType: "King Size Bed",
+      roomSize: 35
+    },
+    { 
+      id: "2", 
+      number: "102", 
+      type: "Queen Size", 
+      status: "available", 
+      rate: 130, 
+      amenities: ["WiFi", "Air Condition", "Television", "Reading Table & Chair", "Mini Bar", "Solar Power"], 
+      floor: 1,
+      bedType: "Queen Size Bed",
+      roomSize: 32
+    },
+    { 
+      id: "3", 
+      number: "103", 
+      type: "Presidential Suite", 
+      status: "cleaning", 
+      rate: 450, 
+      amenities: ["WiFi", "Air Condition", "Television", "Reading Table & Chair", "Fan", "Solar Power", "Balcony", "Kitchen", "Living Room"], 
+      floor: 1,
+      bedType: "King Size Bed + Sofa Bed",
+      roomSize: 85
+    },
+    { 
+      id: "4", 
+      number: "201", 
+      type: "Twin Beds", 
+      status: "occupied", 
+      guest: "Sarah Johnson", 
+      checkIn: "2024-01-14", 
+      checkOut: "2024-01-16", 
+      rate: 140, 
+      amenities: ["WiFi", "Air Condition", "Television", "Reading Table & Chair", "Fan", "Solar Power"], 
+      floor: 2,
+      bedType: "Two Single Beds",
+      roomSize: 38
+    },
+    { 
+      id: "5", 
+      number: "202", 
+      type: "Executive Room", 
+      status: "available", 
+      rate: 280, 
+      amenities: ["WiFi", "Air Condition", "Television", "Reading Table & Chair", "Fan", "Solar Power", "Work Desk", "Coffee Machine"], 
+      floor: 2,
+      bedType: "King Size Bed",
+      roomSize: 45
+    },
+    { 
+      id: "6", 
+      number: "203", 
+      type: "Standard Double", 
+      status: "maintenance", 
+      rate: 110, 
+      amenities: ["WiFi", "Air Condition", "Television", "Reading Table & Chair", "Fan", "Solar Power"], 
+      floor: 2,
+      bedType: "Double Bed",
+      roomSize: 28
+    },
+    { 
+      id: "7", 
+      number: "301", 
+      type: "Suite", 
+      status: "available", 
+      rate: 320, 
+      amenities: ["WiFi", "Air Condition", "Television", "Reading Table & Chair", "Fan", "Solar Power", "Balcony", "Kitchenette"], 
+      floor: 3,
+      bedType: "King Size Bed",
+      roomSize: 55
+    },
+    { 
+      id: "8", 
+      number: "302", 
+      type: "Deluxe Double", 
+      status: "available", 
+      rate: 180, 
+      amenities: ["WiFi", "Air Condition", "Television", "Reading Table & Chair", "Fan", "Solar Power", "Mini Fridge"], 
+      floor: 3,
+      bedType: "Double Bed",
+      roomSize: 40
+    },
   ]);
 
   const [filterStatus, setFilterStatus] = useState("all");
@@ -198,6 +288,16 @@ const RoomManagement = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Floor:</span>
                   <span>{room.floor}</span>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Bed Type:</span>
+                  <span className="text-sm">{room.bedType}</span>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Size:</span>
+                  <span className="text-sm">{room.roomSize}m²</span>
                 </div>
 
                 {room.guest && (

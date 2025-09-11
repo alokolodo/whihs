@@ -19,21 +19,41 @@ import { useToast } from "@/components/ui/use-toast";
 
 const Settings = () => {
   const { toast } = useToast();
-  const [currency, setCurrency] = useState("USD");
+  const [currency, setCurrency] = useState("NGN");
   const [language, setLanguage] = useState("en");
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
-  const [taxRate, setTaxRate] = useState("8.5");
+  const [taxRate, setTaxRate] = useState("7.5");
+  const [paymentGateways, setPaymentGateways] = useState({
+    paystack: true,
+    flutterwave: true,
+    stripe: true,
+    paypal: false,
+    razorpay: false,
+    mobileMoney: true,
+  });
 
   const currencies = [
     { code: "USD", name: "US Dollar", symbol: "$" },
     { code: "EUR", name: "Euro", symbol: "€" },
     { code: "GBP", name: "British Pound", symbol: "£" },
+    { code: "NGN", name: "Nigerian Naira", symbol: "₦" },
+    { code: "GHS", name: "Ghanaian Cedi", symbol: "₵" },
+    { code: "KES", name: "Kenyan Shilling", symbol: "KSh" },
+    { code: "ZAR", name: "South African Rand", symbol: "R" },
+    { code: "EGP", name: "Egyptian Pound", symbol: "£E" },
+    { code: "MAD", name: "Moroccan Dirham", symbol: "DH" },
+    { code: "TZS", name: "Tanzanian Shilling", symbol: "TSh" },
+    { code: "UGX", name: "Ugandan Shilling", symbol: "USh" },
+    { code: "ETB", name: "Ethiopian Birr", symbol: "Br" },
+    { code: "XOF", name: "West African CFA Franc", symbol: "F CFA" },
+    { code: "XAF", name: "Central African CFA Franc", symbol: "FCFA" },
     { code: "CAD", name: "Canadian Dollar", symbol: "C$" },
     { code: "AUD", name: "Australian Dollar", symbol: "A$" },
     { code: "JPY", name: "Japanese Yen", symbol: "¥" },
     { code: "INR", name: "Indian Rupee", symbol: "₹" },
-    { code: "NGN", name: "Nigerian Naira", symbol: "₦" },
+    { code: "CNY", name: "Chinese Yuan", symbol: "¥" },
+    { code: "BRL", name: "Brazilian Real", symbol: "R$" },
   ];
 
   const languages = [
@@ -184,6 +204,88 @@ const Settings = () => {
                 <p className="text-sm text-muted-foreground">Switch between light and dark themes</p>
               </div>
               <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Payment Gateways */}
+        <Card className="card-luxury">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <DollarSign className="h-5 w-5 text-accent" />
+              Payment Gateways
+            </CardTitle>
+            <CardDescription>Configure payment methods for your hotel system</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h4 className="font-medium">African Payment Gateways</h4>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Paystack (Nigeria)</Label>
+                    <p className="text-sm text-muted-foreground">Cards, Bank Transfer, USSD</p>
+                  </div>
+                  <Switch 
+                    checked={paymentGateways.paystack} 
+                    onCheckedChange={(checked) => setPaymentGateways(prev => ({...prev, paystack: checked}))}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Flutterwave (Multi-African)</Label>
+                    <p className="text-sm text-muted-foreground">Cards, Mobile Money, Bank Transfer</p>
+                  </div>
+                  <Switch 
+                    checked={paymentGateways.flutterwave} 
+                    onCheckedChange={(checked) => setPaymentGateways(prev => ({...prev, flutterwave: checked}))}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Mobile Money</Label>
+                    <p className="text-sm text-muted-foreground">MTN, Airtel, Vodafone Cash</p>
+                  </div>
+                  <Switch 
+                    checked={paymentGateways.mobileMoney} 
+                    onCheckedChange={(checked) => setPaymentGateways(prev => ({...prev, mobileMoney: checked}))}
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h4 className="font-medium">Global Payment Gateways</h4>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Stripe (Global)</Label>
+                    <p className="text-sm text-muted-foreground">Credit/Debit Cards, Apple Pay</p>
+                  </div>
+                  <Switch 
+                    checked={paymentGateways.stripe} 
+                    onCheckedChange={(checked) => setPaymentGateways(prev => ({...prev, stripe: checked}))}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>PayPal</Label>
+                    <p className="text-sm text-muted-foreground">PayPal wallet, Credit Cards</p>
+                  </div>
+                  <Switch 
+                    checked={paymentGateways.paypal} 
+                    onCheckedChange={(checked) => setPaymentGateways(prev => ({...prev, paypal: checked}))}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Razorpay (India/SEA)</Label>
+                    <p className="text-sm text-muted-foreground">UPI, Cards, Net Banking</p>
+                  </div>
+                  <Switch 
+                    checked={paymentGateways.razorpay} 
+                    onCheckedChange={(checked) => setPaymentGateways(prev => ({...prev, razorpay: checked}))}
+                  />
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

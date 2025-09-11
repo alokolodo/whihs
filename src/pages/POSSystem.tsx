@@ -223,13 +223,18 @@ const POSSystem = () => {
     setPaymentState(prev => ({ ...prev, method, processing: true }));
     setShowPaymentDialog(true);
     
-    // Simulate payment processing
+    // Simulate payment processing with different methods
+    const processingTime = method === "MOBILE_MONEY" ? 3000 : method === "BANK" ? 4000 : 2000;
+    
     setTimeout(() => {
       setPaymentState(prev => ({ ...prev, processing: false, completed: true }));
       
+      const total = getGuestTotal(currentGuest) + getTotalTax(getGuestTotal(currentGuest));
+      const currency = method === "MOBILE_MONEY" || method === "BANK" ? "₦" : "$";
+      
       toast({
         title: "Payment Successful",
-        description: `Payment of $${(getGuestTotal(currentGuest) + getTotalTax(getGuestTotal(currentGuest))).toFixed(2)} processed via ${method}`,
+        description: `Payment of ${currency}${total.toFixed(2)} processed via ${method}`,
       });
       
       // Clear the guest's order
@@ -243,7 +248,7 @@ const POSSystem = () => {
         setShowPaymentDialog(false);
         setPaymentState({ method: "", processing: false, completed: false, printReceipt: true });
       }, 2000);
-    }, 2000);
+    }, processingTime);
   };
 
   const handleCancel = () => {
@@ -397,7 +402,8 @@ const POSSystem = () => {
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={() => handlePayment("BANK")}
+                onClick={() => handlePayment("BANK_TRANSFER")}
+                className="bg-orange-600 hover:bg-orange-700 text-white"
               >
                 <DollarSign className="h-4 w-4" />
                 <span className="text-xs">BANK</span>
@@ -420,11 +426,10 @@ const POSSystem = () => {
               </Button>
             </div>
             
-            <div className="grid grid-cols-3 gap-2 mt-2">
+            <div className="grid grid-cols-4 gap-2 mt-2">
               <Button 
                 variant="destructive" 
-                size="sm" 
-                className="col-span-1"
+                size="sm"
                 onClick={handleCancel}
               >
                 <span className="text-xs">CANCEL</span>
@@ -433,6 +438,7 @@ const POSSystem = () => {
                 variant="outline" 
                 size="sm"
                 onClick={() => handlePayment("CASH")}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 <Banknote className="h-4 w-4" />
                 <span className="text-xs">CASH</span>
@@ -440,10 +446,20 @@ const POSSystem = () => {
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={() => handlePayment("CREDIT")}
+                onClick={() => handlePayment("MOBILE_MONEY")}
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                <DollarSign className="h-4 w-4" />
+                <span className="text-xs">MOBILE</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handlePayment("PAYSTACK")}
+                className="bg-teal-600 hover:bg-teal-700 text-white"
               >
                 <CreditCard className="h-4 w-4" />
-                <span className="text-xs">CREDIT</span>
+                <span className="text-xs">PAYSTACK</span>
               </Button>
             </div>
           </div>
