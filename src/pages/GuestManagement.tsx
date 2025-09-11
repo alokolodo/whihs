@@ -1,0 +1,374 @@
+import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Users, 
+  Search,
+  UserPlus,
+  Calendar,
+  Phone,
+  Mail,
+  MapPin,
+  CreditCard,
+  Star,
+  Clock,
+  CheckCircle,
+  AlertCircle
+} from "lucide-react";
+
+interface Guest {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  nationality: string;
+  joinDate: string;
+  totalBookings: number;
+  totalSpent: number;
+  loyaltyTier: 'Bronze' | 'Silver' | 'Gold' | 'Platinum';
+  status: 'active' | 'vip' | 'blacklisted';
+  lastStay: string;
+  preferences: string[];
+  notes: string;
+}
+
+interface CurrentStay {
+  guestId: string;
+  guestName: string;
+  roomNumber: string;
+  checkIn: string;
+  checkOut: string;
+  status: 'checked-in' | 'checked-out' | 'no-show';
+}
+
+const GuestManagement = () => {
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState("guests");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const [guests] = useState<Guest[]>([
+    {
+      id: "G001",
+      name: "John Smith",
+      email: "john.smith@email.com",
+      phone: "+1 (555) 123-4567",
+      address: "123 Main St, New York, NY 10001",
+      nationality: "USA",
+      joinDate: "2023-01-15",
+      totalBookings: 15,
+      totalSpent: 12450,
+      loyaltyTier: 'Gold',
+      status: 'vip',
+      lastStay: "2024-01-10",
+      preferences: ["Non-smoking", "High floor", "City view"],
+      notes: "Prefers late checkout, vegetarian meals"
+    },
+    {
+      id: "G002",
+      name: "Maria Garcia",
+      email: "maria.garcia@email.com",
+      phone: "+1 (555) 987-6543",
+      address: "456 Oak Ave, Los Angeles, CA 90210",
+      nationality: "Spain",
+      joinDate: "2023-06-20",
+      totalBookings: 8,
+      totalSpent: 6780,
+      loyaltyTier: 'Silver',
+      status: 'active',
+      lastStay: "2023-12-15",
+      preferences: ["Ground floor", "Pet-friendly"],
+      notes: "Travels with assistance dog"
+    }
+  ]);
+
+  const [currentStays] = useState<CurrentStay[]>([
+    {
+      guestId: "G001",
+      guestName: "John Smith",
+      roomNumber: "305",
+      checkIn: "2024-01-10",
+      checkOut: "2024-01-15",
+      status: 'checked-in'
+    },
+    {
+      guestId: "G003",
+      guestName: "David Johnson",
+      roomNumber: "120",
+      checkIn: "2024-01-11",
+      checkOut: "2024-01-14",
+      status: 'checked-in'
+    }
+  ]);
+
+  const filteredGuests = guests.filter(guest =>
+    guest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    guest.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    guest.phone.includes(searchTerm)
+  );
+
+  const getTierColor = (tier: string) => {
+    switch (tier) {
+      case 'Platinum': return 'bg-purple-500 text-white';
+      case 'Gold': return 'bg-yellow-500 text-black';
+      case 'Silver': return 'bg-gray-400 text-black';
+      default: return 'bg-amber-600 text-white';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'vip': return 'bg-accent text-accent-foreground';
+      case 'blacklisted': return 'bg-destructive text-destructive-foreground';
+      default: return 'bg-success text-success-foreground';
+    }
+  };
+
+  const getStayStatusIcon = (status: string) => {
+    switch (status) {
+      case 'checked-in': return CheckCircle;
+      case 'checked-out': return Clock;
+      default: return AlertCircle;
+    }
+  };
+
+  const getGuestStats = () => {
+    const total = guests.length;
+    const vip = guests.filter(g => g.status === 'vip').length;
+    const active = guests.filter(g => g.status === 'active').length;
+    const totalRevenue = guests.reduce((sum, g) => sum + g.totalSpent, 0);
+
+    return { total, vip, active, totalRevenue };
+  };
+
+  const stats = getGuestStats();
+
+  return (
+    <div className="p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Guest Management</h1>
+          <p className="text-muted-foreground">Manage guest profiles and track customer relationships</p>
+        </div>
+        <Button className="button-luxury">
+          <UserPlus className="h-4 w-4 mr-2" />
+          Add New Guest
+        </Button>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="guests">All Guests</TabsTrigger>
+          <TabsTrigger value="current">Current Stays</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="guests" className="space-y-6">
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search guests by name, email, or phone..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4">
+            {filteredGuests.map((guest) => (
+              <Card key={guest.id} className="card-luxury">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
+                        <Users className="h-6 w-6 text-primary-foreground" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold">{guest.name}</h3>
+                        <p className="text-muted-foreground">Guest ID: {guest.id}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Badge className={getTierColor(guest.loyaltyTier)}>
+                        <Star className="h-3 w-3 mr-1" />
+                        {guest.loyaltyTier}
+                      </Badge>
+                      <Badge className={getStatusColor(guest.status)}>
+                        {guest.status.toUpperCase()}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <div className="space-y-3">
+                      <h4 className="font-semibold">Contact Information</h4>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Mail className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">{guest.email}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">{guest.phone}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">{guest.nationality}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h4 className="font-semibold">Booking History</h4>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">{guest.totalBookings} bookings</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">${guest.totalSpent.toLocaleString()} spent</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">Last stay: {guest.lastStay}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h4 className="font-semibold">Preferences & Notes</h4>
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap gap-1">
+                          {guest.preferences.map((pref, index) => (
+                            <Badge key={index} variant="outline" className="text-xs">
+                              {pref}
+                            </Badge>
+                          ))}
+                        </div>
+                        <p className="text-sm text-muted-foreground">{guest.notes}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 mt-4 pt-4 border-t">
+                    <Button variant="outline" size="sm">
+                      View History
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      Edit Profile
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      New Booking
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="current" className="space-y-6">
+          <div className="grid gap-4">
+            {currentStays.map((stay, index) => {
+              const StatusIcon = getStayStatusIcon(stay.status);
+              return (
+                <Card key={index} className="card-luxury">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-gradient-accent rounded-full flex items-center justify-center">
+                          <StatusIcon className="h-6 w-6 text-accent-foreground" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold">{stay.guestName}</h3>
+                          <p className="text-muted-foreground">Room {stay.roomNumber}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <Badge className={stay.status === 'checked-in' ? 'bg-success text-success-foreground' : 'bg-muted text-muted-foreground'}>
+                          {stay.status.replace('-', ' ').toUpperCase()}
+                        </Badge>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {stay.checkIn} to {stay.checkOut}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <Card className="card-luxury">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Total Guests
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.total}</div>
+                <p className="text-xs text-muted-foreground">
+                  +12% from last month
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="card-luxury">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  VIP Guests
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.vip}</div>
+                <p className="text-xs text-muted-foreground">
+                  {((stats.vip / stats.total) * 100).toFixed(1)}% of total
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="card-luxury">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Active Guests
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.active}</div>
+                <p className="text-xs text-muted-foreground">
+                  Regular status guests
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="card-luxury">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Total Revenue
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">${stats.totalRevenue.toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground">
+                  From guest bookings
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default GuestManagement;

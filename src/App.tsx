@@ -17,6 +17,12 @@ import RoomManagement from "./pages/RoomManagement";
 import HallManagement from "./pages/HallManagement";
 import GymManagement from "./pages/GymManagement";
 import GameCenter from "./pages/GameCenter";
+import BookingConfirmation from "./pages/BookingConfirmation";
+import GuestManagement from "./pages/GuestManagement";
+import PaymentsManagement from "./pages/PaymentsManagement";
+import InventoryManagement from "./pages/InventoryManagement";
+import AccountingModule from "./pages/AccountingModule";
+import HRManagement from "./pages/HRManagement";
 import RestaurantPOS from "./components/pos/RestaurantPOS";
 import NotFound from "./pages/NotFound";
 

@@ -41,6 +41,8 @@ const navigationItems = [
   { title: "Recipe Management", url: "/admin/recipes", icon: ChefHat },
   { title: "Payments", url: "/admin/payments", icon: CreditCard },
   { title: "Inventory", url: "/admin/inventory", icon: Package },
+  { title: "Accounting", url: "/admin/accounting", icon: BarChart3 },
+  { title: "HR Management", url: "/admin/hr", icon: Users },
   { title: "Settings", url: "/admin/settings", icon: Settings },
 ];
 
