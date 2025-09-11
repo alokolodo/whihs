@@ -27,10 +27,12 @@ import {
 const navigationItems = [
   { title: "Dashboard", url: "/admin", icon: BarChart3 },
   { title: "POS System", url: "/pos", icon: ShoppingCart },
+  { title: "Restaurant POS", url: "/pos/restaurant", icon: ChefHat },
   { title: "Bookings", url: "/admin/bookings", icon: Calendar },
   { title: "Rooms", url: "/admin/rooms", icon: Hotel },
   { title: "Guests", url: "/admin/guests", icon: Users },
-  { title: "Restaurant", url: "/admin/restaurant", icon: ChefHat },
+  { title: "Menu Management", url: "/admin/menu", icon: ChefHat },
+  { title: "Recipe Management", url: "/admin/recipes", icon: ChefHat },
   { title: "Payments", url: "/admin/payments", icon: CreditCard },
   { title: "Inventory", url: "/admin/inventory", icon: Package },
   { title: "Settings", url: "/admin/settings", icon: Settings },

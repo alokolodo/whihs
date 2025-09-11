@@ -10,6 +10,10 @@ import Index from "./pages/Index";
 import BookingPage from "./pages/BookingPage";
 import POSSystem from "./pages/POSSystem";
 import AdminDashboard from "./pages/AdminDashboard";
+import Settings from "./pages/Settings";
+import RecipeManagement from "./pages/RecipeManagement";
+import MenuManagement from "./pages/MenuManagement";
+import RestaurantPOS from "./components/pos/RestaurantPOS";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,9 +40,29 @@ const App = () => {
                     <POSSystem />
                   </HotelLayout>
                 } />
+                <Route path="/pos/restaurant" element={
+                  <HotelLayout>
+                    <RestaurantPOS />
+                  </HotelLayout>
+                } />
                 <Route path="/admin" element={
                   <HotelLayout>
                     <AdminDashboard />
+                  </HotelLayout>
+                } />
+                <Route path="/admin/settings" element={
+                  <HotelLayout>
+                    <Settings />
+                  </HotelLayout>
+                } />
+                <Route path="/admin/recipes" element={
+                  <HotelLayout>
+                    <RecipeManagement />
+                  </HotelLayout>
+                } />
+                <Route path="/admin/menu" element={
+                  <HotelLayout>
+                    <MenuManagement />
                   </HotelLayout>
                 } />
                 
