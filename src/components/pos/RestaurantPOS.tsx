@@ -52,11 +52,19 @@ const RestaurantPOS = () => {
   const categoryMap = {
     "Main Course": { name: "MAINS", icon: Utensils, color: "bg-red-700 hover:bg-red-800" },
     "Appetizers": { name: "APPETIZERS", icon: Utensils, color: "bg-orange-500 hover:bg-orange-600" },
-    "Beverages": { name: "DRINKS", icon: Coffee, color: "bg-green-500 hover:bg-green-600" },
     "Desserts": { name: "DESSERTS", icon: IceCream, color: "bg-blue-400 hover:bg-blue-500" },
     "Salads": { name: "SALADS", icon: Utensils, color: "bg-purple-500 hover:bg-purple-600" },
     "Soups": { name: "SOUPS", icon: Utensils, color: "bg-teal-500 hover:bg-teal-600" },
     "Sides": { name: "SIDES", icon: Utensils, color: "bg-amber-500 hover:bg-amber-600" },
+    "Red Wine": { name: "RED WINE", icon: Wine, color: "bg-red-600 hover:bg-red-700" },
+    "White Wine": { name: "WHITE WINE", icon: Wine, color: "bg-yellow-600 hover:bg-yellow-700" },
+    "Rosé Wine": { name: "ROSÉ WINE", icon: Wine, color: "bg-pink-500 hover:bg-pink-600" },
+    "Sparkling Wine": { name: "SPARKLING", icon: Wine, color: "bg-indigo-500 hover:bg-indigo-600" },
+    "Cocktails": { name: "COCKTAILS", icon: Wine, color: "bg-red-500 hover:bg-red-600" },
+    "Spirits": { name: "SPIRITS", icon: Wine, color: "bg-amber-700 hover:bg-amber-800" },
+    "Beer": { name: "BEER", icon: Coffee, color: "bg-yellow-500 hover:bg-yellow-600" },
+    "Non-Alcoholic Beverages": { name: "SOFT DRINKS", icon: Coffee, color: "bg-green-500 hover:bg-green-600" },
+    "Hot Beverages": { name: "HOT DRINKS", icon: Coffee, color: "bg-brown-500 hover:bg-brown-600" },
   };
 
   // Get unique categories from menu items

@@ -30,7 +30,9 @@ const MenuManagement = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
   const categories = [
-    "Appetizers", "Main Course", "Desserts", "Beverages", "Salads", "Soups", "Sides"
+    "Appetizers", "Main Course", "Desserts", "Salads", "Soups", "Sides",
+    "Red Wine", "White Wine", "Rosé Wine", "Sparkling Wine", "Cocktails", 
+    "Spirits", "Beer", "Non-Alcoholic Beverages", "Hot Beverages"
   ];
 
   const allergens = [
