@@ -13,8 +13,12 @@ import {
   CheckCircle,
   X,
   UserPlus,
-  Edit3
+  Edit3,
+  Calendar,
+  Bed,
+  Building
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +27,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
+import { useRooms } from "@/hooks/useRooms";
+import { useHalls } from "@/hooks/useHalls";
 
 interface POSItem {
   id: string;
@@ -30,6 +36,11 @@ interface POSItem {
   price: number;
   category: string;
   color: string;
+  isAvailable?: boolean;
+  bookedDays?: number;
+  roomType?: string;
+  capacity?: number;
+  amenities?: string[];
 }
 
 interface Guest {
@@ -47,6 +58,10 @@ interface PaymentState {
 }
 
 const POSSystem = () => {
+  const navigate = useNavigate();
+  const { rooms, getAvailableRooms } = useRooms();
+  const { halls, getAvailableHalls } = useHalls();
+  
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedGuest, setSelectedGuest] = useState("1");
   const [paymentState, setPaymentState] = useState<PaymentState>({
@@ -93,17 +108,47 @@ const POSSystem = () => {
     { id: "accommodation", name: "ACCOMMODATION", color: "bg-blue-600" },
     { id: "facilities", name: "FACILITIES", color: "bg-green-600" },
     { id: "amenities", name: "AMENITIES", color: "bg-purple-600" },
+    { id: "booking", name: "BOOKING", color: "bg-orange-600" },
   ];
 
-  // Hotel Services - Core services as requested by user
-  const [items, setItems] = useState<POSItem[]>([
-    { id: "room", name: "ROOM", price: 150.00, category: "accommodation", color: "bg-blue-600" },
-    { id: "hall", name: "HALL", price: 200.00, category: "facilities", color: "bg-green-600" },
-    { id: "gym", name: "GYM", price: 25.00, category: "facilities", color: "bg-green-500" },
-    { id: "game-center", name: "GAME CENTER", price: 15.00, category: "facilities", color: "bg-green-700" },
-    { id: "extra-towel", name: "EXTRA TOWEL", price: 5.00, category: "amenities", color: "bg-purple-600" },
-    { id: "laundry", name: "LAUNDRY", price: 20.00, category: "amenities", color: "bg-purple-500" },
-  ]);
+  // Generate hotel service items from rooms and halls
+  const generateHotelItems = () => {
+    const roomItems: POSItem[] = rooms.map(room => ({
+      id: `room-${room.id}`,
+      name: `ROOM ${room.number}`,
+      price: room.rate,
+      category: "accommodation",
+      color: room.status === "ready" ? "bg-blue-600" : "bg-gray-400",
+      isAvailable: room.status === "ready",
+      bookedDays: room.bookedDays,
+      roomType: room.type,
+      amenities: room.amenities
+    }));
+
+    const hallItems: POSItem[] = halls.map(hall => ({
+      id: `hall-${hall.id}`,
+      name: hall.name.toUpperCase(),
+      price: hall.hourlyRate,
+      category: "facilities",
+      color: hall.availability === "available" ? "bg-green-600" : "bg-gray-400",
+      isAvailable: hall.availability === "available",
+      bookedDays: hall.bookedDays,
+      capacity: hall.capacity,
+      amenities: hall.amenities
+    }));
+
+    const baseItems: POSItem[] = [
+      { id: "gym", name: "GYM", price: 25.00, category: "facilities", color: "bg-green-500", isAvailable: true },
+      { id: "game-center", name: "GAME CENTER", price: 15.00, category: "facilities", color: "bg-green-700", isAvailable: true },
+      { id: "extra-towel", name: "EXTRA TOWEL", price: 5.00, category: "amenities", color: "bg-purple-600", isAvailable: true },
+      { id: "laundry", name: "LAUNDRY", price: 20.00, category: "amenities", color: "bg-purple-500", isAvailable: true },
+      { id: "booking-page", name: "MAKE BOOKING", price: 0, category: "booking", color: "bg-orange-600", isAvailable: true },
+    ];
+
+    return [...roomItems, ...hallItems, ...baseItems];
+  };
+
+  const [items, setItems] = useState<POSItem[]>(generateHotelItems());
 
   const filteredItems = activeCategory === "all" 
     ? items 
@@ -113,6 +158,22 @@ const POSSystem = () => {
 
   const addItemToGuest = (item: POSItem) => {
     if (!currentGuest) return;
+    
+    // Handle booking navigation
+    if (item.id === "booking-page") {
+      navigate('/booking');
+      return;
+    }
+    
+    // Check if item is available
+    if (item.isAvailable === false) {
+      toast({
+        title: "Service Unavailable",
+        description: `${item.name} is currently not available`,
+        variant: "destructive",
+      });
+      return;
+    }
     
     setGuests(prev => prev.map(guest => {
       if (guest.id === selectedGuest) {
@@ -471,12 +532,28 @@ const POSSystem = () => {
               <Button
                 key={item.id}
                 variant="outline"
-                className={`h-20 text-white font-bold text-xs ${item.color} hover:opacity-90 transition-opacity flex flex-col justify-center p-2`}
+                className={`h-24 text-white font-bold text-xs ${item.color} hover:opacity-90 transition-opacity flex flex-col justify-center p-2 ${
+                  item.isAvailable === false ? 'opacity-50' : ''
+                }`}
                 onClick={() => addItemToGuest(item)}
+                disabled={item.isAvailable === false}
               >
-                <div className="text-center">
-                  <div className="text-xs leading-tight mb-1">{item.name}</div>
-                  <div className="text-xs opacity-90">${item.price.toFixed(2)}</div>
+                <div className="text-center space-y-1">
+                  <div className="text-xs leading-tight">{item.name}</div>
+                  {item.price > 0 && (
+                    <div className="text-xs opacity-90">${item.price.toFixed(2)}</div>
+                  )}
+                  {item.bookedDays && (
+                    <div className="text-xs opacity-75 bg-black/20 px-1 rounded">
+                      {item.bookedDays} days
+                    </div>
+                  )}
+                  {item.isAvailable === false && (
+                    <div className="text-xs opacity-75">UNAVAILABLE</div>
+                  )}
+                  {item.capacity && (
+                    <div className="text-xs opacity-75">{item.capacity} seats</div>
+                  )}
                 </div>
               </Button>
             ))}
