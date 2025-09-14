@@ -29,6 +29,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { toast } from "@/hooks/use-toast";
 import { useRooms } from "@/hooks/useRooms";
 import { useHalls } from "@/hooks/useHalls";
+import { useGuests, RegisteredGuest } from "@/hooks/useGuests";
 
 interface POSItem {
   id: string;
@@ -43,9 +44,10 @@ interface POSItem {
   amenities?: string[];
 }
 
-interface Guest {
+interface POSGuest {
   id: string;
   name: string;
+  registeredGuestId?: string;
   table?: string;
   items: Array<POSItem & { quantity: number }>;
 }
@@ -61,6 +63,7 @@ const POSSystem = () => {
   const navigate = useNavigate();
   const { rooms, getAvailableRooms } = useRooms();
   const { halls, getAvailableHalls } = useHalls();
+  const { guests: registeredGuests, getAvailableGuests } = useGuests();
   
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedGuest, setSelectedGuest] = useState("1");
@@ -73,10 +76,13 @@ const POSSystem = () => {
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [showAddItemDialog, setShowAddItemDialog] = useState(false);
   const [newItem, setNewItem] = useState({ name: "", price: "", category: "amenities" });
-  const [guests, setGuests] = useState<Guest[]>([
+  const [selectedRegisteredGuest, setSelectedRegisteredGuest] = useState<RegisteredGuest | null>(null);
+  const [showGuestSelection, setShowGuestSelection] = useState(false);
+  const [posGuests, setPosGuests] = useState<POSGuest[]>([
     { 
       id: "1", 
-      name: "GUEST 1", 
+      name: "John Smith", 
+      registeredGuestId: "G001",
       table: "Room 205",
       items: [
         { id: "room", name: "ROOM", price: 150.00, category: "accommodation", color: "bg-blue-600", quantity: 1 },
@@ -85,7 +91,8 @@ const POSSystem = () => {
     },
     { 
       id: "2", 
-      name: "GUEST 2", 
+      name: "Sarah Johnson", 
+      registeredGuestId: "G002",
       table: "Room 310",
       items: [
         { id: "laundry", name: "LAUNDRY", price: 20.00, category: "amenities", color: "bg-purple-500", quantity: 2 },
@@ -94,7 +101,8 @@ const POSSystem = () => {
     },
     { 
       id: "3", 
-      name: "GUEST 3", 
+      name: "Michael Brown", 
+      registeredGuestId: "G003",
       table: "Walk-in",
       items: [
         { id: "hall", name: "HALL", price: 200.00, category: "facilities", color: "bg-green-600", quantity: 1 },
@@ -154,7 +162,7 @@ const POSSystem = () => {
     ? items 
     : items.filter(item => item.category === activeCategory);
 
-  const currentGuest = guests.find(g => g.id === selectedGuest);
+  const currentGuest = posGuests.find(g => g.id === selectedGuest);
 
   const addItemToGuest = (item: POSItem) => {
     if (!currentGuest) return;
@@ -175,7 +183,7 @@ const POSSystem = () => {
       return;
     }
     
-    setGuests(prev => prev.map(guest => {
+    setPosGuests(prev => prev.map(guest => {
       if (guest.id === selectedGuest) {
         const existingItem = guest.items.find(i => i.id === item.id);
         if (existingItem) {
@@ -199,7 +207,7 @@ const POSSystem = () => {
   const updateItemQuantity = (itemId: string, quantity: number) => {
     if (!currentGuest) return;
     
-    setGuests(prev => prev.map(guest => {
+    setPosGuests(prev => prev.map(guest => {
       if (guest.id === selectedGuest) {
         if (quantity <= 0) {
           return {
@@ -218,7 +226,7 @@ const POSSystem = () => {
     }));
   };
 
-  const getGuestTotal = (guest: Guest) => {
+  const getGuestTotal = (guest: POSGuest) => {
     return guest.items.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
 
@@ -248,7 +256,7 @@ const POSSystem = () => {
       });
       
       // Clear the guest's order
-      setGuests(prev => prev.map(guest => 
+      setPosGuests(prev => prev.map(guest =>
         guest.id === selectedGuest 
           ? { ...guest, items: [] }
           : guest
@@ -263,7 +271,7 @@ const POSSystem = () => {
 
   const handleCancel = () => {
     if (currentGuest && currentGuest.items.length > 0) {
-      setGuests(prev => prev.map(guest => 
+      setPosGuests(prev => prev.map(guest =>
         guest.id === selectedGuest 
           ? { ...guest, items: [] }
           : guest
@@ -344,10 +352,10 @@ const POSSystem = () => {
         <div className="p-4 border-b border-border">
           <div className="flex items-center gap-2 mb-3">
             <Users className="h-4 w-4" />
-            <span className="font-medium">GUEST {guests.length} OF 3</span>
+            <span className="font-medium">GUEST {posGuests.length} OF 3</span>
           </div>
           <div className="space-y-2">
-            {guests.map((guest, index) => (
+            {posGuests.map((guest, index) => (
               <Button
                 key={guest.id}
                 variant={selectedGuest === guest.id ? "default" : "outline"}
@@ -363,6 +371,15 @@ const POSSystem = () => {
               </Button>
             ))}
           </div>
+          
+          <Button
+            variant="outline"
+            className="w-full mt-2"
+            onClick={() => setShowGuestSelection(true)}
+          >
+            <UserPlus className="h-4 w-4 mr-2" />
+            Add Registered Guest
+          </Button>
         </div>
 
         {/* Current Guest Order */}
@@ -685,6 +702,61 @@ const POSSystem = () => {
               </>
             ) : null}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Guest Selection Dialog */}
+      <Dialog open={showGuestSelection} onOpenChange={setShowGuestSelection}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Select Registered Guest</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-3 max-h-96 overflow-y-auto">
+              {getAvailableGuests().map((guest) => (
+                <Button
+                  key={guest.id}
+                  variant="outline"
+                  className="w-full justify-start h-auto p-4"
+                  onClick={() => {
+                    const newPosGuest: POSGuest = {
+                      id: `pos-${Date.now()}`,
+                      name: guest.name,
+                      registeredGuestId: guest.id,
+                      table: `Guest ${posGuests.length + 1}`,
+                      items: []
+                    };
+                    setPosGuests(prev => [...prev, newPosGuest]);
+                    setSelectedGuest(newPosGuest.id);
+                    setShowGuestSelection(false);
+                    toast({
+                      title: "Guest Added",
+                      description: `${guest.name} has been added to POS system`,
+                    });
+                  }}
+                >
+                  <div className="flex flex-col items-start space-y-2 w-full">
+                    <div className="flex items-center justify-between w-full">
+                      <span className="font-medium">{guest.name}</span>
+                      <Badge variant={guest.loyaltyTier === 'Platinum' ? 'default' : 'secondary'}>
+                        {guest.loyaltyTier}
+                      </Badge>
+                    </div>
+                    <div className="text-sm text-muted-foreground text-left">
+                      <div>{guest.email}</div>
+                      <div>{guest.phone}</div>
+                      <div className="text-xs">Last Stay: {guest.lastStay}</div>
+                    </div>
+                  </div>
+                </Button>
+              ))}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowGuestSelection(false)}>
+              Cancel
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
