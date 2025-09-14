@@ -207,7 +207,10 @@ const BookingManagement = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="reservations">All Bookings</TabsTrigger>
+          <TabsTrigger value="rooms">Room Bookings</TabsTrigger>
+          <TabsTrigger value="halls">Hall Bookings</TabsTrigger>
           <TabsTrigger value="occupied">Occupied Rooms</TabsTrigger>
+          <TabsTrigger value="hall-occupied">Hall Occupied</TabsTrigger>
         </TabsList>
 
         <TabsContent value="reservations" className="space-y-6">
@@ -457,6 +460,242 @@ const BookingManagement = () => {
               </Card>
             ))}
           </div>
+        </TabsContent>
+
+        <TabsContent value="rooms" className="space-y-6">
+          {/* Stats Cards for Room Bookings */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-blue-600">{roomReservations.length}</div>
+                <div className="text-sm text-muted-foreground">Total Room Bookings</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-green-600">
+                  {roomReservations.filter(r => r.status === "confirmed").length}
+                </div>
+                <div className="text-sm text-muted-foreground">Confirmed</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-yellow-600">
+                  {roomReservations.filter(r => r.status === "pending").length}
+                </div>
+                <div className="text-sm text-muted-foreground">Pending</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-blue-500">
+                  {roomReservations.filter(r => r.status === "checked-in").length}
+                </div>
+                <div className="text-sm text-muted-foreground">Checked In</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Room Reservations List */}
+          <div className="space-y-4">
+            {roomReservations.map((reservation) => (
+              <Card key={`room-${reservation.id}`}>
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <Hotel className="h-4 w-4 text-blue-500" />
+                          <h3 className="text-lg font-semibold">Room {reservation.roomNumber}</h3>
+                        </div>
+                        <Badge className={`${statusColors[reservation.status]} text-white`}>
+                          {reservation.status}
+                        </Badge>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Guest: </span>
+                          <span className="font-medium">{reservation.guestName}</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Room Type: </span>
+                          <span className="font-medium">{reservation.roomType}</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Check-in: </span>
+                          <span className="font-medium">{reservation.checkIn}</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Check-out: </span>
+                          <span className="font-medium">{reservation.checkOut}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Guests: </span>
+                          <span className="font-medium">{reservation.guests}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="text-right space-y-2">
+                      <div className="text-2xl font-bold">${reservation.totalAmount}</div>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        {reservation.status === "pending" && (
+                          <>
+                            <Button size="sm" variant="default">
+                              <CheckCircle className="h-4 w-4" />
+                            </Button>
+                            <Button size="sm" variant="destructive">
+                              <XCircle className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
+                        {reservation.status === "confirmed" && (
+                          <Button size="sm" variant="default">
+                            Check In
+                          </Button>
+                        )}
+                        {reservation.status === "checked-in" && (
+                          <Button size="sm" variant="secondary">
+                            Check Out
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="halls" className="space-y-6">
+          {/* Stats Cards for Hall Bookings */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-purple-600">{hallReservations.length}</div>
+                <div className="text-sm text-muted-foreground">Total Hall Bookings</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-green-600">
+                  {hallReservations.filter(r => r.status === "confirmed").length}
+                </div>
+                <div className="text-sm text-muted-foreground">Confirmed</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-yellow-600">
+                  {hallReservations.filter(r => r.status === "pending").length}
+                </div>
+                <div className="text-sm text-muted-foreground">Pending</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Hall Reservations List */}
+          <div className="space-y-4">
+            {hallReservations.map((reservation) => (
+              <Card key={`hall-${reservation.id}`}>
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <Building className="h-4 w-4 text-purple-500" />
+                          <h3 className="text-lg font-semibold">{reservation.event}</h3>
+                        </div>
+                        <Badge className={`${statusColors[reservation.status]} text-white`}>
+                          {reservation.status}
+                        </Badge>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Hall: </span>
+                          <span className="font-medium">{reservation.hallName}</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Organizer: </span>
+                          <span className="font-medium">{reservation.organizer}</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Date: </span>
+                          <span className="font-medium">{reservation.date}</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Time: </span>
+                          <span className="font-medium">{reservation.startTime}-{reservation.endTime}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Guests: </span>
+                          <span className="font-medium">{reservation.guests}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="text-right space-y-2">
+                      <div className="text-2xl font-bold">${reservation.totalAmount}</div>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        {reservation.status === "pending" && (
+                          <>
+                            <Button size="sm" variant="default">
+                              <CheckCircle className="h-4 w-4" />
+                            </Button>
+                            <Button size="sm" variant="destructive">
+                              <XCircle className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="hall-occupied" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold">0</div>
+                <div className="text-sm text-muted-foreground">Currently Occupied Halls</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold">0</div>
+                <div className="text-sm text-muted-foreground">Events Today</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center text-muted-foreground">
+                <Building className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>No halls are currently occupied</p>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
