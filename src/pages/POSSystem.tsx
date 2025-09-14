@@ -1,9 +1,5 @@
 import { useState } from "react";
 import { 
-  Coffee, 
-  Wine, 
-  IceCream, 
-  ShoppingBag,
   Plus,
   Minus,
   Trash2,
@@ -15,7 +11,9 @@ import {
   Users,
   DollarSign,
   CheckCircle,
-  X
+  X,
+  UserPlus,
+  Edit3
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -58,23 +56,25 @@ const POSSystem = () => {
     printReceipt: true,
   });
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [showAddItemDialog, setShowAddItemDialog] = useState(false);
+  const [newItem, setNewItem] = useState({ name: "", price: "", category: "amenities" });
   const [guests, setGuests] = useState<Guest[]>([
     { 
       id: "1", 
       name: "GUEST 1", 
-      table: "Table 5",
+      table: "Room 205",
       items: [
-        { id: "service1", name: "ROOM SERVICE", price: 15.00, category: "services", color: "bg-purple-600", quantity: 1 },
-        { id: "ent1", name: "POOL ACCESS", price: 20.00, category: "entertainment", color: "bg-blue-600", quantity: 1 }
+        { id: "room", name: "ROOM", price: 150.00, category: "accommodation", color: "bg-blue-600", quantity: 1 },
+        { id: "gym", name: "GYM", price: 25.00, category: "facilities", color: "bg-green-500", quantity: 1 }
       ]
     },
     { 
       id: "2", 
       name: "GUEST 2", 
-      table: "Table 3",
+      table: "Room 310",
       items: [
-        { id: "service2", name: "LAUNDRY SERVICE", price: 25.00, category: "services", color: "bg-purple-500", quantity: 1 },
-        { id: "ent2", name: "GYM ACCESS", price: 15.00, category: "entertainment", color: "bg-blue-500", quantity: 1 }
+        { id: "laundry", name: "LAUNDRY", price: 20.00, category: "amenities", color: "bg-purple-500", quantity: 2 },
+        { id: "extra-towel", name: "EXTRA TOWEL", price: 5.00, category: "amenities", color: "bg-purple-600", quantity: 3 }
       ]
     },
     { 
@@ -82,65 +82,28 @@ const POSSystem = () => {
       name: "GUEST 3", 
       table: "Walk-in",
       items: [
-        { id: "service3", name: "SPA MASSAGE", price: 80.00, category: "spa", color: "bg-pink-600", quantity: 1 },
-        { id: "upgrade1", name: "SUITE UPGRADE", price: 75.00, category: "upgrades", color: "bg-amber-600", quantity: 1 }
+        { id: "hall", name: "HALL", price: 200.00, category: "facilities", color: "bg-green-600", quantity: 1 },
+        { id: "game-center", name: "GAME CENTER", price: 15.00, category: "facilities", color: "bg-green-700", quantity: 1 }
       ]
     }
   ]);
 
   const categories = [
-    { id: "all", name: "ALL", color: "bg-gray-500" },
-    { id: "services", name: "SERVICES", color: "bg-purple-600" },
-    { id: "spa", name: "SPA & WELLNESS", color: "bg-pink-600" },
-    { id: "entertainment", name: "ENTERTAINMENT", color: "bg-blue-600" },
-    { id: "transport", name: "TRANSPORT", color: "bg-gray-600" },
-    { id: "business", name: "BUSINESS", color: "bg-indigo-600" },
-    { id: "retail", name: "RETAIL", color: "bg-teal-600" },
-    { id: "upgrades", name: "UPGRADES", color: "bg-amber-600" },
+    { id: "all", name: "ALL SERVICES", color: "bg-gray-500" },
+    { id: "accommodation", name: "ACCOMMODATION", color: "bg-blue-600" },
+    { id: "facilities", name: "FACILITIES", color: "bg-green-600" },
+    { id: "amenities", name: "AMENITIES", color: "bg-purple-600" },
   ];
 
-  // Hotel Services & Amenities (Non-food items only)
-  const items: POSItem[] = [
-    { id: "service1", name: "ROOM SERVICE", price: 15.00, category: "services", color: "bg-purple-600" },
-    { id: "service2", name: "LAUNDRY SERVICE", price: 25.00, category: "services", color: "bg-purple-500" },
-    { id: "service3", name: "SPA MASSAGE", price: 80.00, category: "spa", color: "bg-pink-600" },
-    { id: "service4", name: "FACIAL TREATMENT", price: 60.00, category: "spa", color: "bg-pink-500" },
-    { id: "service5", name: "MANICURE", price: 35.00, category: "spa", color: "bg-pink-400" },
-    { id: "service6", name: "PEDICURE", price: 40.00, category: "spa", color: "bg-pink-700" },
-    
-    // Entertainment & Activities
-    { id: "ent1", name: "POOL ACCESS", price: 20.00, category: "entertainment", color: "bg-blue-600" },
-    { id: "ent2", name: "GYM ACCESS", price: 15.00, category: "entertainment", color: "bg-blue-500" },
-    { id: "ent3", name: "TENNIS COURT", price: 30.00, category: "entertainment", color: "bg-green-600" },
-    { id: "ent4", name: "GOLF COURSE", price: 75.00, category: "entertainment", color: "bg-green-700" },
-    { id: "ent5", name: "GAME CENTER", price: 10.00, category: "entertainment", color: "bg-yellow-600" },
-    { id: "ent6", name: "KARAOKE ROOM", price: 45.00, category: "entertainment", color: "bg-orange-600" },
-    
-    // Transportation
-    { id: "trans1", name: "AIRPORT SHUTTLE", price: 25.00, category: "transport", color: "bg-gray-600" },
-    { id: "trans2", name: "TAXI SERVICE", price: 15.00, category: "transport", color: "bg-gray-500" },
-    { id: "trans3", name: "CAR RENTAL", price: 65.00, category: "transport", color: "bg-gray-700" },
-    { id: "trans4", name: "CITY TOUR", price: 50.00, category: "transport", color: "bg-gray-800" },
-    
-    // Business Services
-    { id: "biz1", name: "CONFERENCE ROOM", price: 100.00, category: "business", color: "bg-indigo-600" },
-    { id: "biz2", name: "PRINTING SERVICE", price: 5.00, category: "business", color: "bg-indigo-500" },
-    { id: "biz3", name: "FAX SERVICE", price: 3.00, category: "business", color: "bg-indigo-400" },
-    { id: "biz4", name: "INTERNET ACCESS", price: 10.00, category: "business", color: "bg-indigo-700" },
-    
-    // Retail Items
-    { id: "retail1", name: "HOTEL ROBE", price: 45.00, category: "retail", color: "bg-teal-600" },
-    { id: "retail2", name: "TOWEL SET", price: 25.00, category: "retail", color: "bg-teal-500" },
-    { id: "retail3", name: "TOILETRIES KIT", price: 15.00, category: "retail", color: "bg-teal-400" },
-    { id: "retail4", name: "SOUVENIR T-SHIRT", price: 20.00, category: "retail", color: "bg-teal-700" },
-    { id: "retail5", name: "POSTCARD SET", price: 8.00, category: "retail", color: "bg-teal-300" },
-    
-    // Room Upgrades
-    { id: "upgrade1", name: "SUITE UPGRADE", price: 75.00, category: "upgrades", color: "bg-amber-600" },
-    { id: "upgrade2", name: "OCEAN VIEW", price: 45.00, category: "upgrades", color: "bg-amber-500" },
-    { id: "upgrade3", name: "BALCONY ACCESS", price: 35.00, category: "upgrades", color: "bg-amber-400" },
-    { id: "upgrade4", name: "LATE CHECKOUT", price: 25.00, category: "upgrades", color: "bg-amber-700" },
-  ];
+  // Hotel Services - Core services as requested by user
+  const [items, setItems] = useState<POSItem[]>([
+    { id: "room", name: "ROOM", price: 150.00, category: "accommodation", color: "bg-blue-600" },
+    { id: "hall", name: "HALL", price: 200.00, category: "facilities", color: "bg-green-600" },
+    { id: "gym", name: "GYM", price: 25.00, category: "facilities", color: "bg-green-500" },
+    { id: "game-center", name: "GAME CENTER", price: 15.00, category: "facilities", color: "bg-green-700" },
+    { id: "extra-towel", name: "EXTRA TOWEL", price: 5.00, category: "amenities", color: "bg-purple-600" },
+    { id: "laundry", name: "LAUNDRY", price: 20.00, category: "amenities", color: "bg-purple-500" },
+  ]);
 
   const filteredItems = activeCategory === "all" 
     ? items 
@@ -267,6 +230,35 @@ const POSSystem = () => {
     toast({
       title: paymentState.printReceipt ? "Receipt Disabled" : "Receipt Enabled",
       description: paymentState.printReceipt ? "No receipt will be printed" : "Receipt will be printed",
+    });
+  };
+
+  const addNewItem = () => {
+    if (!newItem.name || !newItem.price) {
+      toast({
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newServiceItem: POSItem = {
+      id: `custom-${Date.now()}`,
+      name: newItem.name.toUpperCase(),
+      price: parseFloat(newItem.price),
+      category: newItem.category,
+      color: newItem.category === "accommodation" ? "bg-blue-600" : 
+             newItem.category === "facilities" ? "bg-green-600" : "bg-purple-600"
+    };
+
+    setItems(prev => [...prev, newServiceItem]);
+    setNewItem({ name: "", price: "", category: "amenities" });
+    setShowAddItemDialog(false);
+    
+    toast({
+      title: "Service Added",
+      description: `${newServiceItem.name} has been added to the menu`,
     });
   };
 
@@ -491,6 +483,108 @@ const POSSystem = () => {
           </div>
         </ScrollArea>
       </div>
+
+      {/* Add Item Dialog */}
+      <Dialog open={showAddItemDialog} onOpenChange={setShowAddItemDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add New Service</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="text-sm font-medium">Service Name</label>
+              <Input
+                value={newItem.name}
+                onChange={(e) => setNewItem(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Enter service name"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Price ($)</label>
+              <Input
+                type="number"
+                step="0.01"
+                value={newItem.price}
+                onChange={(e) => setNewItem(prev => ({ ...prev, price: e.target.value }))}
+                placeholder="0.00"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Category</label>
+              <select
+                value={newItem.category}
+                onChange={(e) => setNewItem(prev => ({ ...prev, category: e.target.value }))}
+                className="w-full mt-1 p-2 border border-border rounded-md bg-background"
+              >
+                <option value="accommodation">Accommodation</option>
+                <option value="facilities">Facilities</option>
+                <option value="amenities">Amenities</option>
+              </select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddItemDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={addNewItem} className="bg-green-600 hover:bg-green-700">
+              Add Service
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Item Dialog */}
+      <Dialog open={showAddItemDialog} onOpenChange={setShowAddItemDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add New Service</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="text-sm font-medium">Service Name</label>
+              <Input
+                value={newItem.name}
+                onChange={(e) => setNewItem(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Enter service name"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Price ($)</label>
+              <Input
+                type="number"
+                step="0.01"
+                value={newItem.price}
+                onChange={(e) => setNewItem(prev => ({ ...prev, price: e.target.value }))}
+                placeholder="0.00"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Category</label>
+              <select
+                value={newItem.category}
+                onChange={(e) => setNewItem(prev => ({ ...prev, category: e.target.value }))}
+                className="w-full mt-1 p-2 border border-border rounded-md bg-background"
+              >
+                <option value="accommodation">Accommodation</option>
+                <option value="facilities">Facilities</option>
+                <option value="amenities">Amenities</option>
+              </select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddItemDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={addNewItem} className="bg-green-600 hover:bg-green-700">
+              Add Service
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Payment Dialog */}
       <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
