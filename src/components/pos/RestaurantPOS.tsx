@@ -48,7 +48,7 @@ interface Table {
 
 const RestaurantPOS = () => {
   const { getFoodAndBeverageItems } = useMenuItems();
-  const [activeCategory, setActiveCategory] = useState("Main Course");
+  const [activeCategory, setActiveCategory] = useState("");
   const [showTableView, setShowTableView] = useState(false);
   const [showGuestTypeModal, setShowGuestTypeModal] = useState(false);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
