@@ -28,7 +28,7 @@ const Index = () => {
     },
     {
       icon: ShoppingCart,
-      title: "POS System",
+      title: "Hotel Services",
       description: "Touch-friendly point of sale for restaurants, bars, and retail"
     },
     {
@@ -260,13 +260,13 @@ const Index = () => {
               <div className="w-20 h-20 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-6">
                 <ShoppingCart className="h-10 w-10 text-primary-foreground" />
               </div>
-              <h3 className="text-2xl font-bold mb-4">POS System Demo</h3>
+              <h3 className="text-2xl font-bold mb-4">Hotel Services Demo</h3>
               <p className="text-muted-foreground mb-6">
                 Try our touch-friendly point of sale system designed for restaurants, bars, and retail operations
               </p>
               <Button className="button-luxury" asChild>
                 <a href="/pos">
-                  Try POS System
+                  Try Hotel Services
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </a>
               </Button>

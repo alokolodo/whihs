@@ -173,7 +173,7 @@
     transform: scale(1.1);
   }
 
-  /* POS System Styles */
+  /* Hotel Services Styles */
   .pos-category-card {
     @apply card-luxury touch-target rounded-2xl p-6 cursor-pointer;
     min-height: 120px;

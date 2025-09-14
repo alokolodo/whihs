@@ -29,7 +29,7 @@ import {
 
 const navigationItems = [
   { title: "Dashboard", url: "/admin", icon: BarChart3 },
-  { title: "POS System", url: "/pos", icon: ShoppingCart },
+  { title: "Hotel Services", url: "/pos", icon: ShoppingCart },
   { title: "Restaurant POS", url: "/pos/restaurant", icon: ChefHat },
   { title: "Bookings", url: "/admin/bookings", icon: Calendar },
   { title: "Rooms", url: "/admin/rooms", icon: Hotel },

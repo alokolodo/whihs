@@ -413,9 +413,9 @@ const InventoryManagement = () => {
         <TabsContent value="pos-sync" className="space-y-6">
           <Card className="card-luxury">
             <CardHeader>
-              <CardTitle>POS System Integration</CardTitle>
+              <CardTitle>Hotel Services Integration</CardTitle>
               <CardDescription>
-                Automatic inventory deduction based on POS sales
+                Automatic inventory deduction based on service sales
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
