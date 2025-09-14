@@ -14,6 +14,12 @@ import {
   XCircle,
   Activity
 } from "lucide-react";
+import LiveDashboardModal from "@/components/gym/LiveDashboardModal";
+import NewMemberModal from "@/components/gym/NewMemberModal";
+import MemberCheckInModal from "@/components/gym/MemberCheckInModal";
+import BookTrainerModal from "@/components/gym/BookTrainerModal";
+import EquipmentStatusModal from "@/components/gym/EquipmentStatusModal";
+import TrainerScheduleModal from "@/components/gym/TrainerScheduleModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -144,6 +150,16 @@ const GymManagement = () => {
   ]);
 
   const [activeTab, setActiveTab] = useState("overview");
+  
+  // Modal states
+  const [liveDashboardOpen, setLiveDashboardOpen] = useState(false);
+  const [newMemberOpen, setNewMemberOpen] = useState(false);
+  const [memberCheckInOpen, setMemberCheckInOpen] = useState(false);
+  const [bookTrainerOpen, setBookTrainerOpen] = useState(false);
+  const [equipmentStatusOpen, setEquipmentStatusOpen] = useState(false);
+  const [trainerScheduleOpen, setTrainerScheduleOpen] = useState(false);
+  const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
+  const [selectedTrainer, setSelectedTrainer] = useState<Trainer | null>(null);
 
   const membershipColors = {
     "day-pass": "bg-blue-500",
@@ -191,11 +207,11 @@ const GymManagement = () => {
           <p className="text-muted-foreground">Manage gym members, equipment, and trainers</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => setLiveDashboardOpen(true)}>
             <Activity className="h-4 w-4 mr-2" />
             Live Dashboard
           </Button>
-          <Button>
+          <Button onClick={() => setNewMemberOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             New Member
           </Button>
@@ -241,21 +257,21 @@ const GymManagement = () => {
 
           {/* Quick Actions */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setMemberCheckInOpen(true)}>
               <CardContent className="p-6 text-center">
                 <Users className="h-12 w-12 mx-auto mb-4 text-primary" />
                 <h3 className="font-semibold mb-2">Member Check-in</h3>
                 <p className="text-sm text-muted-foreground">Quick member check-in and validation</p>
               </CardContent>
             </Card>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setBookTrainerOpen(true)}>
               <CardContent className="p-6 text-center">
                 <Calendar className="h-12 w-12 mx-auto mb-4 text-primary" />
                 <h3 className="font-semibold mb-2">Book Trainer</h3>
                 <p className="text-sm text-muted-foreground">Schedule personal training sessions</p>
               </CardContent>
             </Card>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setEquipmentStatusOpen(true)}>
               <CardContent className="p-6 text-center">
                 <Dumbbell className="h-12 w-12 mx-auto mb-4 text-primary" />
                 <h3 className="font-semibold mb-2">Equipment Status</h3>
@@ -321,7 +337,7 @@ const GymManagement = () => {
                       <Badge className={`${statusColors[member.status]} text-white`}>
                         {member.status}
                       </Badge>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => setMemberCheckInOpen(true)}>
                         <CheckCircle className="h-4 w-4" />
                       </Button>
                     </div>
@@ -385,10 +401,26 @@ const GymManagement = () => {
                       <span className="text-sm">{item.lastMaintenance}</span>
                     </div>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline" className="flex-1">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="flex-1"
+                        onClick={() => {
+                          setSelectedEquipment(item);
+                          setEquipmentStatusOpen(true);
+                        }}
+                      >
                         Update Status
                       </Button>
-                      <Button size="sm" variant="outline" className="flex-1">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="flex-1"
+                        onClick={() => {
+                          setSelectedEquipment(item);
+                          setEquipmentStatusOpen(true);
+                        }}
+                      >
                         Maintenance
                       </Button>
                     </div>
@@ -442,10 +474,25 @@ const GymManagement = () => {
                       <span className="font-semibold">${trainer.hourlyRate}</span>
                     </div>
                     <div className="flex gap-2">
-                      <Button size="sm" className="flex-1" disabled={trainer.availability !== "available"}>
+                      <Button 
+                        size="sm" 
+                        className="flex-1" 
+                        disabled={trainer.availability !== "available"}
+                        onClick={() => {
+                          setSelectedTrainer(trainer);
+                          setBookTrainerOpen(true);
+                        }}
+                      >
                         Book Session
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedTrainer(trainer);
+                          setTrainerScheduleOpen(true);
+                        }}
+                      >
                         View Schedule
                       </Button>
                     </div>
@@ -456,6 +503,40 @@ const GymManagement = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Modals */}
+      <LiveDashboardModal 
+        open={liveDashboardOpen} 
+        onOpenChange={setLiveDashboardOpen} 
+      />
+      
+      <NewMemberModal 
+        open={newMemberOpen} 
+        onOpenChange={setNewMemberOpen} 
+      />
+      
+      <MemberCheckInModal 
+        open={memberCheckInOpen} 
+        onOpenChange={setMemberCheckInOpen} 
+      />
+      
+      <BookTrainerModal 
+        open={bookTrainerOpen} 
+        onOpenChange={setBookTrainerOpen}
+        selectedTrainer={selectedTrainer || undefined}
+      />
+      
+      <EquipmentStatusModal 
+        open={equipmentStatusOpen} 
+        onOpenChange={setEquipmentStatusOpen}
+        equipment={selectedEquipment || undefined}
+      />
+      
+      <TrainerScheduleModal 
+        open={trainerScheduleOpen} 
+        onOpenChange={setTrainerScheduleOpen}
+        trainer={selectedTrainer || undefined}
+      />
     </div>
   );
 };
