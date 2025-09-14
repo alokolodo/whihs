@@ -45,6 +45,7 @@ const RestaurantPOS = () => {
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<string>("");
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+  const [isAddingItem, setIsAddingItem] = useState(false);
 
   const restaurantItems = getFoodAndBeverageItems();
 
@@ -82,11 +83,15 @@ const RestaurantPOS = () => {
   const selectedOrder = orders.find(o => o.id === selectedOrderId);
 
   const addToOrder = async (item: MenuItem) => {
-    if (!selectedOrderId) return;
+    if (!selectedOrderId || isAddingItem) return;
+    
+    setIsAddingItem(true);
     try {
       await addItemToOrder(selectedOrderId, item);
     } catch (error) {
       console.error('Error adding item to order:', error);
+    } finally {
+      setIsAddingItem(false);
     }
   };
 
@@ -437,10 +442,14 @@ const RestaurantPOS = () => {
                       {filteredItems.map((item) => (
                         <Card
                           key={item.id}
-                          className="cursor-pointer transition-all hover:shadow-lg hover:scale-105"
+                          className={`cursor-pointer transition-all hover:shadow-lg hover:scale-105 ${
+                            isAddingItem ? 'opacity-50 pointer-events-none' : ''
+                          }`}
                           onClick={() => {
-                            addToOrder(item);
-                            setActiveCategory("");
+                            if (!isAddingItem) {
+                              addToOrder(item);
+                              setActiveCategory("");
+                            }
                           }}
                         >
                           <CardContent className="p-4 text-center">
