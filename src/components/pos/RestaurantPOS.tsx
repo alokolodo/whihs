@@ -23,7 +23,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useMenuItems, MenuItem } from "@/hooks/useMenuItems";
 import { useRestaurantTables, RestaurantTable } from "@/hooks/useRestaurantTables";
 import { useOrders, Order } from "@/hooks/useOrders";

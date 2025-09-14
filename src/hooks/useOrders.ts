@@ -208,12 +208,17 @@ export const useOrders = () => {
         })));
       }
 
-      // Find and update order totals
-      const order = orders.find(o => 
-        o.order_items?.some(oi => oi.id === orderItemId)
-      );
-      if (order) {
-        await updateOrderTotals(order.id);
+      // Find and update order totals using fresh data
+      const orderToUpdate = await supabase
+        .from('orders')
+        .select('id')
+        .eq('id', orders.find(o => 
+          o.order_items?.some(oi => oi.id === orderItemId)
+        )?.id || '')
+        .single();
+        
+      if (orderToUpdate.data) {
+        await updateOrderTotals(orderToUpdate.data.id);
       }
 
     } catch (error) {
@@ -229,10 +234,15 @@ export const useOrders = () => {
 
   const updateOrderTotals = async (orderId: string) => {
     try {
-      const order = orders.find(o => o.id === orderId);
-      if (!order || !order.order_items) return;
+      // Fetch fresh order items from database to ensure accuracy
+      const { data: orderItems, error: itemsError } = await supabase
+        .from('order_items')
+        .select('*')
+        .eq('order_id', orderId);
 
-      const subtotal = order.order_items.reduce(
+      if (itemsError) throw itemsError;
+
+      const subtotal = (orderItems || []).reduce(
         (total, item) => total + (item.price * item.quantity), 
         0
       );
@@ -250,6 +260,7 @@ export const useOrders = () => {
 
       if (error) throw error;
 
+      // Update local state with calculated values
       setOrders(prev => prev.map(o => 
         o.id === orderId 
           ? { ...o, subtotal, tax_amount: taxAmount, total_amount: totalAmount }
