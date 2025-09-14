@@ -383,8 +383,11 @@ const RestaurantPOS = () => {
               return (
                 <Button
                   key={category.id}
-                  className={`${category.color} text-white border-0 rounded-lg h-24 flex flex-col items-center justify-center text-lg font-bold shadow-lg transition-all duration-200 hover:scale-105`}
-                  onClick={() => setActiveCategory(category.id)}
+                  className={`${category.color} text-white border-0 rounded-lg h-24 flex flex-col items-center justify-center text-lg font-bold shadow-lg transition-all duration-200 hover:scale-105 ${
+                    !selectedOrderId ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                  onClick={() => selectedOrderId && setActiveCategory(category.id)}
+                  disabled={!selectedOrderId}
                 >
                   <Icon className="h-8 w-8 mb-2" />
                   <span className="text-sm">{category.name}</span>
@@ -413,29 +416,38 @@ const RestaurantPOS = () => {
                 </div>
                 
                 <ScrollArea className="flex-1">
-                  <div className="grid grid-cols-3 gap-4">
-                    {filteredItems.map((item) => (
-                      <Card
-                        key={item.id}
-                        className="cursor-pointer transition-all hover:shadow-lg hover:scale-105"
-                        onClick={() => {
-                          addToOrder(item);
-                          setActiveCategory("");
-                        }}
-                      >
-                        <CardContent className="p-4 text-center">
-                          <h4 className="font-bold text-sm mb-2">{item.name}</h4>
-                          <div className="text-lg font-bold text-green-600 mb-1">
-                            ${item.price.toFixed(2)}
-                          </div>
-                          <div className="flex items-center justify-center gap-1 text-xs text-gray-500">
-                            <Clock className="h-3 w-3" />
-                            {item.preparationTime}min
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+                  {!selectedOrderId ? (
+                    <div className="flex items-center justify-center h-64">
+                      <div className="text-center">
+                        <h4 className="text-lg font-semibold text-gray-600 mb-2">No Order Selected</h4>
+                        <p className="text-gray-500">Please create an order first by clicking "Table" or "Guest"</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-4">
+                      {filteredItems.map((item) => (
+                        <Card
+                          key={item.id}
+                          className="cursor-pointer transition-all hover:shadow-lg hover:scale-105"
+                          onClick={() => {
+                            addToOrder(item);
+                            setActiveCategory("");
+                          }}
+                        >
+                          <CardContent className="p-4 text-center">
+                            <h4 className="font-bold text-sm mb-2">{item.name}</h4>
+                            <div className="text-lg font-bold text-green-600 mb-1">
+                              ${item.price.toFixed(2)}
+                            </div>
+                            <div className="flex items-center justify-center gap-1 text-xs text-gray-500">
+                              <Clock className="h-3 w-3" />
+                              {item.preparationTime}min
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
                 </ScrollArea>
               </div>
             </Card>
