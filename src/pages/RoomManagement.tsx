@@ -11,7 +11,9 @@ import {
   Search,
   Plus,
   Edit,
-  Trash2
+  Trash2,
+  LogOut,
+  LogIn
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +22,12 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AddRoomModal } from "@/components/room/AddRoomModal";
+import { EditRoomModal } from "@/components/room/EditRoomModal";
+import { RoomSettingsModal } from "@/components/room/RoomSettingsModal";
+import { RoomBookingModal } from "@/components/room/RoomBookingModal";
+import { useGuests } from "@/hooks/useGuests";
+import { toast } from "sonner";
 
 interface Room {
   id: string;
@@ -37,7 +45,7 @@ interface Room {
 }
 
 const RoomManagement = () => {
-  const [rooms] = useState<Room[]>([
+  const [rooms, setRooms] = useState<Room[]>([
     { 
       id: "1", 
       number: "101", 
@@ -137,6 +145,13 @@ const RoomManagement = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterFloor, setFilterFloor] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Modal states
+  const [showAddRoom, setShowAddRoom] = useState(false);
+  const [showEditRoom, setShowEditRoom] = useState(false);
+  const [showRoomSettings, setShowRoomSettings] = useState(false);
+  const [showRoomBooking, setShowRoomBooking] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
 
   const statusColors = {
     ready: "bg-green-500",
@@ -173,6 +188,72 @@ const RoomManagement = () => {
 
   const stats = getStatusStats();
 
+  const handleAddRoom = (newRoom: Room) => {
+    setRooms(prev => [...prev, newRoom]);
+  };
+
+  const handleEditRoom = (room: Room) => {
+    setSelectedRoom(room);
+    setShowEditRoom(true);
+  };
+
+  const handleRoomSettings = (room: Room) => {
+    setSelectedRoom(room);
+    setShowRoomSettings(true);
+  };
+
+  const handleBookRoom = (room: Room) => {
+    setSelectedRoom(room);
+    setShowRoomBooking(true);
+  };
+
+  const handleRoomUpdate = (updatedRoom: Room) => {
+    setRooms(prev => prev.map(room => 
+      room.id === updatedRoom.id ? updatedRoom : room
+    ));
+  };
+
+  const handleCheckOut = (room: Room) => {
+    const updatedRoom = {
+      ...room,
+      status: "vacant-dirty" as const,
+      guest: undefined,
+      checkIn: undefined,
+      checkOut: undefined
+    };
+    handleRoomUpdate(updatedRoom);
+    toast.success(`${room.guest} checked out from Room ${room.number}`);
+  };
+
+  const handleCheckIn = (room: Room) => {
+    // For now, just change status to occupied
+    // In a real app, this would open a check-in dialog
+    const updatedRoom = {
+      ...room,
+      status: "occupied" as const,
+      guest: "Walk-in Guest",
+      checkIn: new Date().toISOString().split('T')[0],
+      checkOut: new Date(Date.now() + 86400000).toISOString().split('T')[0]
+    };
+    handleRoomUpdate(updatedRoom);
+    toast.success(`Walk-in guest checked into Room ${room.number}`);
+  };
+
+  const handleBookingConfirm = (booking: any) => {
+    // Update room status to occupied
+    const room = rooms.find(r => r.id === booking.roomId);
+    if (room) {
+      const updatedRoom = {
+        ...room,
+        status: "occupied" as const,
+        guest: booking.guestName,
+        checkIn: booking.checkIn,
+        checkOut: booking.checkOut
+      };
+      handleRoomUpdate(updatedRoom);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -180,10 +261,16 @@ const RoomManagement = () => {
           <h1 className="text-3xl font-bold">Room Management</h1>
           <p className="text-muted-foreground">Manage hotel rooms, occupancy, and maintenance</p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Room
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowAddRoom(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Room
+          </Button>
+          <Button variant="outline">
+            <Calendar className="h-4 w-4 mr-2" />
+            View Calendar
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -324,21 +411,29 @@ const RoomManagement = () => {
                 </div>
 
                 <div className="flex gap-2 mt-4">
-                  <Button size="sm" variant="outline" className="flex-1">
+                  <Button size="sm" variant="outline" onClick={() => handleEditRoom(room)}>
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button size="sm" variant="outline" className="flex-1">
+                  <Button size="sm" variant="outline" onClick={() => handleRoomSettings(room)}>
                     <Settings className="h-4 w-4" />
                   </Button>
                   {room.status === "occupied" && (
-                    <Button size="sm" className="flex-1">
+                    <Button size="sm" onClick={() => handleCheckOut(room)}>
+                      <LogOut className="h-4 w-4 mr-1" />
                       Check Out
                     </Button>
                   )}
                   {room.status === "ready" && (
-                    <Button size="sm" className="flex-1">
-                      Check In
-                    </Button>
+                    <>
+                      <Button size="sm" variant="secondary" onClick={() => handleBookRoom(room)}>
+                        <Calendar className="h-4 w-4 mr-1" />
+                        Book
+                      </Button>
+                      <Button size="sm" onClick={() => handleCheckIn(room)}>
+                        <LogIn className="h-4 w-4 mr-1" />
+                        Check In
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>
@@ -346,6 +441,34 @@ const RoomManagement = () => {
           </Card>
         ))}
       </div>
+
+      {/* Modals */}
+      <AddRoomModal
+        open={showAddRoom}
+        onOpenChange={setShowAddRoom}
+        onRoomAdd={handleAddRoom}
+      />
+
+      <EditRoomModal
+        open={showEditRoom}
+        onOpenChange={setShowEditRoom}
+        room={selectedRoom}
+        onRoomUpdate={handleRoomUpdate}
+      />
+
+      <RoomSettingsModal
+        open={showRoomSettings}
+        onOpenChange={setShowRoomSettings}
+        room={selectedRoom}
+        onRoomUpdate={handleRoomUpdate}
+      />
+
+      <RoomBookingModal
+        open={showRoomBooking}
+        onOpenChange={setShowRoomBooking}
+        room={selectedRoom}
+        onBookingConfirm={handleBookingConfirm}
+      />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Plus,
   Minus,
@@ -345,6 +345,78 @@ const POSSystem = () => {
       description: `${newServiceItem.name} has been added to the menu`,
     });
   };
+
+  // Add global functions for external booking integrations
+  useEffect(() => {
+    // Global function to add hall bookings from Hall Management
+    (window as any).addHallBookingToOrder = (hallBooking: any, days: number) => {
+      const hallItem: POSItem & { quantity: number } = {
+        id: hallBooking.id,
+        name: hallBooking.name,
+        price: hallBooking.price,
+        category: hallBooking.category,
+        color: "bg-green-600",
+        isAvailable: true,
+        bookedDays: days,
+        quantity: days
+      };
+
+      // Find or create guest
+      const existingGuest = posGuests.find(g => g.name === hallBooking.guestName);
+      if (existingGuest) {
+        setPosGuests(prev => prev.map(guest =>
+          guest.name === hallBooking.guestName
+            ? { ...guest, items: [...guest.items, hallItem] }
+            : guest
+        ));
+      } else {
+        const newGuest: POSGuest = {
+          id: `guest-${Date.now()}-${hallBooking.guestName}`,
+          name: hallBooking.guestName,
+          registeredGuestId: registeredGuests.find(g => g.name === hallBooking.guestName)?.id,
+          items: [hallItem]
+        };
+        setPosGuests(prev => [...prev, newGuest]);
+      }
+    };
+
+    // Global function to add room bookings from Room Management
+    (window as any).addRoomBookingToOrder = (roomBooking: any, nights: number) => {
+      const roomItem: POSItem & { quantity: number } = {
+        id: roomBooking.id,
+        name: roomBooking.name,
+        price: roomBooking.price,
+        category: roomBooking.category,
+        color: "bg-blue-600",
+        isAvailable: true,
+        bookedDays: nights,
+        quantity: nights
+      };
+
+      // Find or create guest
+      const existingGuest = posGuests.find(g => g.name === roomBooking.guestName);
+      if (existingGuest) {
+        setPosGuests(prev => prev.map(guest =>
+          guest.name === roomBooking.guestName
+            ? { ...guest, items: [...guest.items, roomItem] }
+            : guest
+        ));
+      } else {
+        const newGuest: POSGuest = {
+          id: `guest-${Date.now()}-${roomBooking.guestName}`,
+          name: roomBooking.guestName,
+          registeredGuestId: registeredGuests.find(g => g.name === roomBooking.guestName)?.id,
+          items: [roomItem]
+        };
+        setPosGuests(prev => [...prev, newGuest]);
+      }
+    };
+
+    return () => {
+      delete (window as any).addHallBookingToOrder;
+      delete (window as any).addRoomBookingToOrder;
+    };
+  }, [posGuests, registeredGuests]);
 
   return (
     <div className="h-screen flex bg-background">
