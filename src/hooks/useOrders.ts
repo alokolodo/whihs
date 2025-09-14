@@ -387,7 +387,12 @@ export const useOrders = () => {
         },
         (payload) => {
           if (payload.eventType === 'INSERT') {
-            setOrders(prev => [{ ...payload.new as Order, order_items: [] }, ...prev]);
+            setOrders(prev => {
+              // Check if order already exists to prevent duplicates
+              const orderExists = prev.some(order => order.id === payload.new.id);
+              if (orderExists) return prev;
+              return [{ ...payload.new as Order, order_items: [] }, ...prev];
+            });
           } else if (payload.eventType === 'UPDATE') {
             setOrders(prev => prev.map(order => 
               order.id === payload.new.id ? { ...order, ...payload.new as Order } : order
@@ -410,14 +415,18 @@ export const useOrders = () => {
         },
         (payload) => {
           if (payload.eventType === 'INSERT') {
-            setOrders(prev => prev.map(order => 
-              order.id === payload.new.order_id
-                ? {
-                    ...order,
-                    order_items: [...(order.order_items || []), payload.new as OrderItem]
-                  }
-                : order
-            ));
+            setOrders(prev => prev.map(order => {
+              if (order.id === payload.new.order_id) {
+                // Check if item already exists to prevent duplicates
+                const itemExists = order.order_items?.some(item => item.id === payload.new.id);
+                if (itemExists) return order;
+                return {
+                  ...order,
+                  order_items: [...(order.order_items || []), payload.new as OrderItem]
+                };
+              }
+              return order;
+            }));
           } else if (payload.eventType === 'UPDATE') {
             setOrders(prev => prev.map(order => ({
               ...order,
