@@ -323,22 +323,10 @@ const RestaurantPOS = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-5 gap-4">
-            <Button variant="outline" className="h-16 flex flex-col items-center">
-              <Receipt className="h-6 w-6 mb-1" />
-              <span className="text-xs">NO RECEIPT</span>
-            </Button>
-            <Button variant="outline" className="h-16 flex flex-col items-center">
-              <Banknote className="h-6 w-6 mb-1" />
-              <span className="text-xs">BANK</span>
-            </Button>
+          <div className="grid grid-cols-2 gap-4">
             <Button className="h-16 flex flex-col items-center bg-green-600 hover:bg-green-700">
-              <DollarSign className="h-6 w-6 mb-1" />
-              <span className="text-xs">CASH</span>
-            </Button>
-            <Button variant="outline" className="h-16 flex flex-col items-center">
               <CreditCard className="h-6 w-6 mb-1" />
-              <span className="text-xs">CREDIT</span>
+              <span className="text-xs">CARD</span>
             </Button>
             <Button className="h-16 flex flex-col items-center bg-blue-600 hover:bg-blue-700">
               <Users className="h-6 w-6 mb-1" />

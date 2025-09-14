@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Menu, 
   Plus, 
@@ -25,6 +26,7 @@ import { useMenuItems, MenuItem } from "@/hooks/useMenuItems";
 
 const MenuManagement = () => {
   const { menuItems } = useMenuItems();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -241,7 +243,16 @@ const MenuManagement = () => {
               <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button className="button-luxury">
+              <Button 
+                className="button-luxury"
+                onClick={() => {
+                  toast({
+                    title: "Menu item saved",
+                    description: "New menu item has been added successfully."
+                  });
+                  setIsAddDialogOpen(false);
+                }}
+              >
                 Save Menu Item
               </Button>
             </div>
