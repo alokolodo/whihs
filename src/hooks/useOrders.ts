@@ -439,7 +439,7 @@ export const useOrders = () => {
       supabase.removeChannel(ordersChannel);
       supabase.removeChannel(itemsChannel);
     };
-  }, [orders]);
+  }, []); // Remove orders from dependency array to prevent infinite loop
 
   return {
     orders,
