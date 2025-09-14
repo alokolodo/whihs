@@ -14,7 +14,225 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      inventory: {
+        Row: {
+          category: string
+          cost_per_unit: number
+          created_at: string
+          current_quantity: number
+          id: string
+          item_name: string
+          last_restocked: string | null
+          max_threshold: number
+          min_threshold: number
+          supplier: string | null
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          cost_per_unit?: number
+          created_at?: string
+          current_quantity?: number
+          id?: string
+          item_name: string
+          last_restocked?: string | null
+          max_threshold?: number
+          min_threshold?: number
+          supplier?: string | null
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          cost_per_unit?: number
+          created_at?: string
+          current_quantity?: number
+          id?: string
+          item_name?: string
+          last_restocked?: string | null
+          max_threshold?: number
+          min_threshold?: number
+          supplier?: string | null
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      kitchen_orders: {
+        Row: {
+          created_at: string
+          estimated_time: number | null
+          guest_name: string
+          id: string
+          items: Json
+          order_id: string
+          priority: number
+          status: string
+          table_number: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          estimated_time?: number | null
+          guest_name: string
+          id?: string
+          items: Json
+          order_id: string
+          priority?: number
+          status?: string
+          table_number: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          estimated_time?: number | null
+          guest_name?: string
+          id?: string
+          items?: Json
+          order_id?: string
+          priority?: number
+          status?: string
+          table_number?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kitchen_orders_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          item_category: string
+          item_name: string
+          order_id: string
+          price: number
+          quantity: number
+          special_instructions: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_category: string
+          item_name: string
+          order_id: string
+          price: number
+          quantity?: number
+          special_instructions?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_category?: string
+          item_name?: string
+          order_id?: string
+          price?: number
+          quantity?: number
+          special_instructions?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string
+          guest_name: string
+          guest_type: string
+          id: string
+          payment_method: string | null
+          room_number: string | null
+          status: string
+          subtotal: number
+          table_id: string | null
+          tax_amount: number
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          guest_name: string
+          guest_type: string
+          id?: string
+          payment_method?: string | null
+          room_number?: string | null
+          status?: string
+          subtotal?: number
+          table_id?: string | null
+          tax_amount?: number
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          guest_name?: string
+          guest_type?: string
+          id?: string
+          payment_method?: string | null
+          room_number?: string | null
+          status?: string
+          subtotal?: number
+          table_id?: string | null
+          tax_amount?: number
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurant_tables: {
+        Row: {
+          created_at: string
+          id: string
+          seats: number
+          status: string
+          table_number: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          seats?: number
+          status?: string
+          table_number: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          seats?: number
+          status?: string
+          table_number?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

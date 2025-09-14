@@ -15,7 +15,8 @@ import {
   Banknote,
   DollarSign,
   Sandwich,
-  Fish
+  Fish,
+  Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,50 +24,26 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMenuItems, MenuItem } from "@/hooks/useMenuItems";
+import { useRestaurantTables, RestaurantTable } from "@/hooks/useRestaurantTables";
+import { useOrders, Order } from "@/hooks/useOrders";
+import AddTableModal from "./AddTableModal";
 
 interface OrderItem extends MenuItem {
   quantity: number;
   specialInstructions?: string;
 }
 
-interface Guest {
-  id: string;
-  name: string;
-  tableNumber?: string;
-  roomNumber?: string;
-  guestType: 'room' | 'table' | 'standalone';
-  items: OrderItem[];
-}
-
-interface Table {
-  id: string;
-  number: string;
-  seats: number;
-  status: 'available' | 'occupied' | 'reserved' | 'cleaning';
-  guest?: Guest;
-}
-
 const RestaurantPOS = () => {
   const { getFoodAndBeverageItems } = useMenuItems();
+  const { tables, loading: tablesLoading, updateTableStatus } = useRestaurantTables();
+  const { orders, loading: ordersLoading, createOrder, addItemToOrder, updateItemQuantity, processPayment } = useOrders();
+  
   const [activeCategory, setActiveCategory] = useState("");
   const [showTableView, setShowTableView] = useState(false);
   const [showGuestTypeModal, setShowGuestTypeModal] = useState(false);
+  const [showAddTableModal, setShowAddTableModal] = useState(false);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
-  
-  // Initialize tables
-  const [tables, setTables] = useState<Table[]>([
-    { id: "1", number: "1", seats: 4, status: "available" },
-    { id: "2", number: "2", seats: 2, status: "available" },
-    { id: "3", number: "3", seats: 6, status: "available" },
-    { id: "4", number: "4", seats: 4, status: "available" },
-    { id: "5", number: "5", seats: 8, status: "available" },
-    { id: "6", number: "6", seats: 2, status: "available" },
-    { id: "7", number: "7", seats: 4, status: "available" },
-    { id: "8", number: "8", seats: 6, status: "available" },
-  ]);
-
-  const [guests, setGuests] = useState<Guest[]>([]);
-  const [selectedGuestId, setSelectedGuestId] = useState<string>("");
+  const [selectedOrderId, setSelectedOrderId] = useState<string>("");
 
   const restaurantItems = getFoodAndBeverageItems();
 
@@ -101,97 +78,70 @@ const RestaurantPOS = () => {
     item.category === activeCategory
   );
 
-  const selectedGuest = guests.find(g => g.id === selectedGuestId);
+  const selectedOrder = orders.find(o => o.id === selectedOrderId);
 
-  const addToGuestOrder = (item: MenuItem) => {
-    setGuests(prev => prev.map(guest => {
-      if (guest.id === selectedGuestId) {
-        const existing = guest.items.find(orderItem => orderItem.id === item.id);
-        if (existing) {
-          return {
-            ...guest,
-            items: guest.items.map(orderItem =>
-              orderItem.id === item.id 
-                ? { ...orderItem, quantity: orderItem.quantity + 1 }
-                : orderItem
-            )
-          };
-        } else {
-          return {
-            ...guest,
-            items: [...guest.items, { ...item, quantity: 1 }]
-          };
-        }
-      }
-      return guest;
-    }));
+  const addToOrder = async (item: MenuItem) => {
+    if (!selectedOrderId) return;
+    try {
+      await addItemToOrder(selectedOrderId, item);
+    } catch (error) {
+      console.error('Error adding item to order:', error);
+    }
   };
 
-  const updateGuestItemQuantity = (guestId: string, itemId: string, quantity: number) => {
-    setGuests(prev => prev.map(guest => {
-      if (guest.id === guestId) {
-        if (quantity <= 0) {
-          return {
-            ...guest,
-            items: guest.items.filter(item => item.id !== itemId)
-          };
-        } else {
-          return {
-            ...guest,
-            items: guest.items.map(item =>
-              item.id === itemId ? { ...item, quantity } : item
-            )
-          };
-        }
-      }
-      return guest;
-    }));
+  const updateOrderItemQuantity = async (orderItemId: string, quantity: number) => {
+    try {
+      await updateItemQuantity(orderItemId, quantity);
+    } catch (error) {
+      console.error('Error updating item quantity:', error);
+    }
   };
 
-  const getGuestTotal = (guest: Guest) => {
-    return guest.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const getOrderTotal = (order: Order) => {
+    return order.total_amount || 0;
   };
 
   const getGrandTotal = () => {
-    return guests.reduce((total, guest) => total + getGuestTotal(guest), 0);
+    return orders.reduce((total, order) => total + getOrderTotal(order), 0);
   };
 
-  const clearGuestOrder = (guestId: string) => {
-    setGuests(prev => prev.map(guest =>
-      guest.id === guestId ? { ...guest, items: [] } : guest
-    ));
-  };
-
-  const createGuest = (type: 'room' | 'table' | 'standalone', tableId?: string, roomNumber?: string) => {
-    const newGuestId = Date.now().toString();
-    const newGuest: Guest = {
-      id: newGuestId,
-      name: type === 'room' ? `Room ${roomNumber}` : 
-            type === 'table' ? `Table ${tables.find(t => t.id === tableId)?.number}` :
-            `Guest ${guests.length + 1}`,
-      guestType: type,
-      tableNumber: type === 'table' ? tables.find(t => t.id === tableId)?.number : undefined,
-      roomNumber: type === 'room' ? roomNumber : undefined,
-      items: []
-    };
-
-    setGuests(prev => [...prev, newGuest]);
-    
-    if (type === 'table' && tableId) {
-      setTables(prev => prev.map(table => 
-        table.id === tableId 
-          ? { ...table, status: 'occupied', guest: newGuest }
-          : table
-      ));
+  const handlePayment = async (paymentMethod: string) => {
+    if (!selectedOrderId) return;
+    try {
+      await processPayment(selectedOrderId, paymentMethod);
+      setSelectedOrderId(""); // Clear selection after payment
+    } catch (error) {
+      console.error('Error processing payment:', error);
     }
-    
-    setSelectedGuestId(newGuestId);
-    setShowGuestTypeModal(false);
-    setShowTableView(false);
+  };
+
+  const createNewOrder = async (type: 'room' | 'table' | 'standalone', tableId?: string, roomNumber?: string) => {
+    try {
+      const guestName = type === 'room' ? `Room ${roomNumber}` : 
+                       type === 'table' ? `Table ${tables.find(t => t.id === tableId)?.table_number}` :
+                       `Guest ${orders.length + 1}`;
+      
+      const newOrder = await createOrder(guestName, type, tableId, roomNumber);
+      
+      if (type === 'table' && tableId) {
+        await updateTableStatus(tableId, 'occupied');
+      }
+      
+      setSelectedOrderId(newOrder.id);
+      setShowGuestTypeModal(false);
+      setShowTableView(false);
+    } catch (error) {
+      console.error('Error creating order:', error);
+    }
   };
 
   return (
     <div className="h-full flex bg-gray-50">
+      {/* Add Table Modal */}
+      {showAddTableModal && (
+        <AddTableModal onClose={() => setShowAddTableModal(false)} />
+      )}
+
       {/* Table Selection Modal */}
       {showTableView && (
         <div className="absolute inset-0 bg-black/50 z-20 flex items-center justify-center">
@@ -199,7 +149,17 @@ const RestaurantPOS = () => {
             <div className="p-6 h-full flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold">Select Table</h3>
-                <Button variant="ghost" onClick={() => setShowTableView(false)}>✕</Button>
+                <div className="flex gap-2">
+                  <Button 
+                    size="sm" 
+                    onClick={() => setShowAddTableModal(true)}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add Table
+                  </Button>
+                  <Button variant="ghost" onClick={() => setShowTableView(false)}>✕</Button>
+                </div>
               </div>
               
               <div className="grid grid-cols-4 gap-4 flex-1">
@@ -220,7 +180,7 @@ const RestaurantPOS = () => {
                     }}
                   >
                     <CardContent className="p-4 text-center h-24 flex flex-col justify-center">
-                      <h4 className="font-bold text-lg">Table {table.number}</h4>
+                      <h4 className="font-bold text-lg">Table {table.table_number}</h4>
                       <p className="text-sm text-gray-600">{table.seats} seats</p>
                       <Badge 
                         className={`mt-1 ${
@@ -257,7 +217,7 @@ const RestaurantPOS = () => {
                   onClick={() => {
                     const roomNumber = prompt("Enter room number:");
                     if (roomNumber) {
-                      createGuest('room', undefined, roomNumber);
+                      createNewOrder('room', undefined, roomNumber);
                     }
                   }}
                 >
@@ -269,7 +229,7 @@ const RestaurantPOS = () => {
                 
                 <Button
                   className="w-full h-16 flex items-center justify-center bg-green-600 hover:bg-green-700"
-                  onClick={() => createGuest('table', selectedTable || undefined)}
+                  onClick={() => createNewOrder('table', selectedTable || undefined)}
                 >
                   <div className="text-center">
                     <div className="font-bold">Charge to Table</div>
@@ -279,7 +239,7 @@ const RestaurantPOS = () => {
                 
                 <Button
                   className="w-full h-16 flex items-center justify-center bg-purple-600 hover:bg-purple-700"
-                  onClick={() => createGuest('standalone')}
+                  onClick={() => createNewOrder('standalone')}
                 >
                   <div className="text-center">
                     <div className="font-bold">Standalone Guest</div>
@@ -310,57 +270,57 @@ const RestaurantPOS = () => {
             </div>
           </div>
           <div className="text-sm text-gray-300">
-            SERVER: WAITER 1 • {selectedGuest ? 
-              selectedGuest.guestType === 'room' ? `ROOM: ${selectedGuest.roomNumber}` :
-              selectedGuest.guestType === 'table' ? `TABLE: ${selectedGuest.tableNumber}` :
+            SERVER: WAITER 1 • {selectedOrder ? 
+              selectedOrder.guest_type === 'room' ? `ROOM: ${selectedOrder.room_number}` :
+              selectedOrder.guest_type === 'table' ? `TABLE: ${tables.find(t => t.id === selectedOrder.table_id)?.table_number}` :
               'STANDALONE'
-              : 'NO GUEST SELECTED'}
+              : 'NO ORDER SELECTED'}
           </div>
         </div>
 
-        {/* Guest List */}
+        {/* Orders List */}
         <ScrollArea className="flex-1">
-          {guests.map((guest, index) => (
-            <div key={guest.id} className="border-b">
+          {orders.map((order, index) => (
+            <div key={order.id} className="border-b">
               <div 
                 className={`p-3 cursor-pointer transition-colors ${
-                  selectedGuestId === guest.id ? 'bg-teal-100' : 'hover:bg-gray-50'
+                  selectedOrderId === order.id ? 'bg-teal-100' : 'hover:bg-gray-50'
                 }`}
-                onClick={() => setSelectedGuestId(guest.id)}
+                onClick={() => setSelectedOrderId(order.id)}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <div className={`w-6 h-6 text-white rounded text-xs flex items-center justify-center font-bold ${
-                      guest.guestType === 'room' ? 'bg-blue-500' :
-                      guest.guestType === 'table' ? 'bg-green-500' :
+                      order.guest_type === 'room' ? 'bg-blue-500' :
+                      order.guest_type === 'table' ? 'bg-green-500' :
                       'bg-purple-500'
                     }`}>
-                      {guest.guestType === 'room' ? 'R' : guest.guestType === 'table' ? 'T' : 'S'}
+                      {order.guest_type === 'room' ? 'R' : order.guest_type === 'table' ? 'T' : 'S'}
                     </div>
                     <div>
-                      <h3 className="font-medium text-sm">{guest.name}</h3>
+                      <h3 className="font-medium text-sm">{order.guest_name}</h3>
                       <p className="text-xs text-gray-500">
-                        {guest.guestType === 'room' ? 'Room Service' :
-                         guest.guestType === 'table' ? 'Table Service' :
+                        {order.guest_type === 'room' ? 'Room Service' :
+                         order.guest_type === 'table' ? 'Table Service' :
                          'Walk-in'}
                       </p>
                     </div>
                   </div>
-                  {guest.items.length > 0 && (
+                  {order.order_items && order.order_items.length > 0 && (
                     <Badge variant="secondary" className="text-xs">
-                      {guest.items.length} items
+                      {order.order_items.length} items
                     </Badge>
                   )}
                 </div>
 
-                {/* Guest Items */}
-                {guest.items.length > 0 && (
+                {/* Order Items */}
+                {order.order_items && order.order_items.length > 0 && (
                   <div className="space-y-1 text-xs">
-                    {guest.items.map((item) => (
+                    {order.order_items.map((item) => (
                       <div key={item.id} className="flex justify-between items-center py-1">
                         <div className="flex items-center gap-2">
                           <span className="w-4 text-center font-medium">{item.quantity}</span>
-                          <span className="text-gray-700">{item.name}</span>
+                          <span className="text-gray-700">{item.item_name}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
@@ -370,7 +330,7 @@ const RestaurantPOS = () => {
                             className="h-5 w-5 p-0"
                             onClick={(e) => {
                               e.stopPropagation();
-                              updateGuestItemQuantity(guest.id, item.id, 0);
+                              updateOrderItemQuantity(item.id, 0);
                             }}
                           >
                             <Trash2 className="h-3 w-3" />
@@ -381,11 +341,19 @@ const RestaurantPOS = () => {
                   </div>
                 )}
 
-                {selectedGuestId === guest.id && guest.items.length > 0 && (
+                {selectedOrderId === order.id && order.order_items && order.order_items.length > 0 && (
                   <div className="mt-3 pt-2 border-t">
                     <div className="flex justify-between items-center text-sm font-bold">
                       <span>Subtotal:</span>
-                      <span>${getGuestTotal(guest).toFixed(2)}</span>
+                      <span>${order.subtotal?.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs text-gray-500">
+                      <span>Tax:</span>
+                      <span>${order.tax_amount?.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm font-bold border-t pt-1 mt-1">
+                      <span>Total:</span>
+                      <span>${order.total_amount?.toFixed(2)}</span>
                     </div>
                   </div>
                 )}
@@ -403,7 +371,7 @@ const RestaurantPOS = () => {
             <div className="flex-1 bg-gray-100 rounded-lg px-4 py-3">
               <div className="text-sm text-gray-600">SEARCH</div>
             </div>
-            <Badge className="bg-teal-500">{selectedGuest?.name || 'SELECT GUEST'}</Badge>
+            <Badge className="bg-teal-500">{selectedOrder?.guest_name || 'SELECT ORDER'}</Badge>
           </div>
         </div>
 
@@ -451,7 +419,7 @@ const RestaurantPOS = () => {
                         key={item.id}
                         className="cursor-pointer transition-all hover:shadow-lg hover:scale-105"
                         onClick={() => {
-                          addToGuestOrder(item);
+                          addToOrder(item);
                           setActiveCategory("");
                         }}
                       >
@@ -486,19 +454,37 @@ const RestaurantPOS = () => {
           </div>
 
           <div className="grid grid-cols-4 gap-4">
-            <Button className="h-16 flex flex-col items-center bg-green-600 hover:bg-green-700">
+            <Button 
+              className="h-16 flex flex-col items-center bg-green-600 hover:bg-green-700"
+              onClick={() => handlePayment('credit')}
+              disabled={!selectedOrderId}
+            >
               <CreditCard className="h-6 w-6 mb-1" />
               <span className="text-xs">CREDIT</span>
             </Button>
-            <Button className="h-16 flex flex-col items-center bg-blue-600 hover:bg-blue-700">
+            <Button 
+              className="h-16 flex flex-col items-center bg-blue-600 hover:bg-blue-700"
+              onClick={() => handlePayment('cash')}
+              disabled={!selectedOrderId}
+            >
               <DollarSign className="h-6 w-6 mb-1" />
               <span className="text-xs">CASH</span>
             </Button>
-            <Button variant="outline" className="h-16 flex flex-col items-center">
+            <Button 
+              variant="outline" 
+              className="h-16 flex flex-col items-center"
+              onClick={() => handlePayment('bank_transfer')}
+              disabled={!selectedOrderId}
+            >
               <Banknote className="h-6 w-6 mb-1" />
               <span className="text-xs">BANK TRANSFER</span>
             </Button>
-            <Button variant="outline" className="h-16 flex flex-col items-center">
+            <Button 
+              variant="outline" 
+              className="h-16 flex flex-col items-center"
+              onClick={() => handlePayment('no_receipt')}
+              disabled={!selectedOrderId}
+            >
               <Receipt className="h-6 w-6 mb-1" />
               <span className="text-xs">NO RECEIPT</span>
             </Button>
