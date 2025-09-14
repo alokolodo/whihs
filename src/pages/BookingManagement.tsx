@@ -196,7 +196,7 @@ const BookingManagement = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Booking Management</h1>
-          <p className="text-muted-foreground">Manage room and hall reservations</p>
+          <p className="text-muted-foreground">Manage room and hall bookings - showing present and future engagements to avoid booking conflicts</p>
         </div>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
@@ -206,7 +206,7 @@ const BookingManagement = () => {
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
-          <TabsTrigger value="reservations">All Reservations</TabsTrigger>
+          <TabsTrigger value="reservations">All Bookings</TabsTrigger>
           <TabsTrigger value="occupied">Occupied Rooms</TabsTrigger>
         </TabsList>
 
