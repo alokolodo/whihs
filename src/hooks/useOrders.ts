@@ -355,13 +355,11 @@ export const useOrders = () => {
 
       if (inventoryItems && inventoryItems.length > 0) {
         for (const item of inventoryItems) {
-          // Update inventory quantity
-          const { error } = await supabase
-            .from('inventory')
-            .update({ 
-              current_quantity: 'current_quantity - ' + item.quantity 
-            })
-            .eq('item_name', item.item_name);
+          // Update inventory quantity using RPC function
+          const { error } = await supabase.rpc('update_inventory_quantity', {
+            item_name_param: item.item_name,
+            quantity_change: -item.quantity
+          });
 
           if (error) {
             console.error(`Error updating inventory for ${item.item_name}:`, error);
