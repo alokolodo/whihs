@@ -147,6 +147,27 @@ const GuestManagement = () => {
 
   const stats = getGuestStats();
 
+  const handleAddNewGuest = () => {
+    toast({
+      title: "Add New Guest",
+      description: "Guest registration form will open here",
+    });
+  };
+
+  const handleViewHistory = (guestName: string) => {
+    toast({
+      title: "View History",
+      description: `Opening booking history for ${guestName}`,
+    });
+  };
+
+  const handleEditProfile = (guestName: string) => {
+    toast({
+      title: "Edit Profile",
+      description: `Opening profile editor for ${guestName}`,
+    });
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -154,7 +175,7 @@ const GuestManagement = () => {
           <h1 className="text-3xl font-bold text-foreground">Guest Management</h1>
           <p className="text-muted-foreground">Manage guest profiles and track customer relationships</p>
         </div>
-        <Button className="button-luxury">
+        <Button className="button-luxury" onClick={handleAddNewGuest}>
           <UserPlus className="h-4 w-4 mr-2" />
           Add New Guest
         </Button>
@@ -258,14 +279,11 @@ const GuestManagement = () => {
                   </div>
 
                   <div className="flex gap-2 mt-4 pt-4 border-t">
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={() => handleViewHistory(guest.name)}>
                       View History
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={() => handleEditProfile(guest.name)}>
                       Edit Profile
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      New Booking
                     </Button>
                   </div>
                 </CardContent>
