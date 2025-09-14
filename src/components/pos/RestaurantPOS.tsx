@@ -44,6 +44,7 @@ const RestaurantPOS = () => {
   const [showAddTableModal, setShowAddTableModal] = useState(false);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<string>("");
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
   const restaurantItems = getFoodAndBeverageItems();
 
@@ -116,6 +117,9 @@ const RestaurantPOS = () => {
   };
 
   const createNewOrder = async (type: 'room' | 'table' | 'standalone', tableId?: string, roomNumber?: string) => {
+    if (isCreatingOrder) return; // Prevent double-clicks
+    
+    setIsCreatingOrder(true);
     try {
       const guestName = type === 'room' ? `Room ${roomNumber}` : 
                        type === 'table' ? `Table ${tables.find(t => t.id === tableId)?.table_number}` :
@@ -132,6 +136,8 @@ const RestaurantPOS = () => {
       setShowTableView(false);
     } catch (error) {
       console.error('Error creating order:', error);
+    } finally {
+      setIsCreatingOrder(false);
     }
   };
 
@@ -214,6 +220,7 @@ const RestaurantPOS = () => {
               <div className="space-y-3">
                 <Button
                   className="w-full h-16 flex items-center justify-center bg-blue-600 hover:bg-blue-700"
+                  disabled={isCreatingOrder}
                   onClick={() => {
                     const roomNumber = prompt("Enter room number:");
                     if (roomNumber) {
@@ -229,6 +236,7 @@ const RestaurantPOS = () => {
                 
                 <Button
                   className="w-full h-16 flex items-center justify-center bg-green-600 hover:bg-green-700"
+                  disabled={isCreatingOrder}
                   onClick={() => createNewOrder('table', selectedTable || undefined)}
                 >
                   <div className="text-center">
@@ -239,6 +247,7 @@ const RestaurantPOS = () => {
                 
                 <Button
                   className="w-full h-16 flex items-center justify-center bg-purple-600 hover:bg-purple-700"
+                  disabled={isCreatingOrder}
                   onClick={() => createNewOrder('standalone')}
                 >
                   <div className="text-center">
@@ -316,8 +325,8 @@ const RestaurantPOS = () => {
                 {/* Order Items */}
                 {order.order_items && order.order_items.length > 0 && (
                   <div className="space-y-1 text-xs">
-                    {order.order_items.map((item) => (
-                      <div key={item.id} className="flex justify-between items-center py-1">
+                    {order.order_items.map((item, itemIndex) => (
+                      <div key={`${order.id}-${item.id}-${itemIndex}`} className="flex justify-between items-center py-1">
                         <div className="flex items-center gap-2">
                           <span className="w-4 text-center font-medium">{item.quantity}</span>
                           <span className="text-gray-700">{item.item_name}</span>
