@@ -107,6 +107,17 @@ const RestaurantPOS = () => {
     return order.total_amount || 0;
   };
 
+  const getSelectedOrderTotals = () => {
+    const order = selectedOrder;
+    if (!order) return { subtotal: 0, tax: 0, total: 0 };
+    
+    return {
+      subtotal: order.subtotal || 0,
+      tax: order.tax_amount || 0,
+      total: order.total_amount || 0
+    };
+  };
+
   const getGrandTotal = () => {
     return orders.reduce((total, order) => total + getOrderTotal(order), 0);
   };
@@ -330,8 +341,8 @@ const RestaurantPOS = () => {
                 {/* Order Items */}
                 {order.order_items && order.order_items.length > 0 && (
                   <div className="space-y-1 text-xs">
-                    {order.order_items.map((item, itemIndex) => (
-                      <div key={`${order.id}-${item.id}-${itemIndex}`} className="flex justify-between items-center py-1">
+                    {order.order_items.map((item) => (
+                      <div key={`${item.id}`} className="flex justify-between items-center py-1">
                         <div className="flex items-center gap-2">
                           <span className="w-4 text-center font-medium">{item.quantity}</span>
                           <span className="text-gray-700">{item.item_name}</span>
@@ -474,14 +485,28 @@ const RestaurantPOS = () => {
 
         {/* Bottom Payment Section */}
         <div className="bg-white border-t p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="text-3xl font-bold">
-              ${getGrandTotal().toFixed(2)}
+          {selectedOrderId ? (
+            <>
+              <div className="space-y-2 mb-4">
+                <div className="flex justify-between items-center text-sm">
+                  <span>Subtotal:</span>
+                  <span className="font-medium">${getSelectedOrderTotals().subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm text-gray-600">
+                  <span>Tax (8.5%):</span>
+                  <span>${getSelectedOrderTotals().tax.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center text-2xl font-bold border-t pt-2">
+                  <span>Total:</span>
+                  <span>${getSelectedOrderTotals().total.toFixed(2)}</span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="text-center text-gray-500 mb-4">
+              <p className="text-lg">Select an order to process payment</p>
             </div>
-            <div className="text-sm text-gray-600">
-              TAX ${(getGrandTotal() * 0.085).toFixed(2)}
-            </div>
-          </div>
+          )}
 
           <div className="grid grid-cols-4 gap-4">
             <Button 
