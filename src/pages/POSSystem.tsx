@@ -78,6 +78,8 @@ const POSSystem = () => {
   const [newItem, setNewItem] = useState({ name: "", price: "", category: "amenities" });
   const [selectedRegisteredGuest, setSelectedRegisteredGuest] = useState<RegisteredGuest | null>(null);
   const [showGuestSelection, setShowGuestSelection] = useState(false);
+  const [showWalkInForm, setShowWalkInForm] = useState(false);
+  const [walkInGuest, setWalkInGuest] = useState({ name: "", phone: "", email: "" });
   const [posGuests, setPosGuests] = useState<POSGuest[]>([]);
 
   // Check for hall bookings from localStorage and add to guest orders
@@ -346,6 +348,34 @@ const POSSystem = () => {
     });
   };
 
+  const addWalkInGuest = () => {
+    if (!walkInGuest.name.trim()) {
+      toast({
+        title: "Error",
+        description: "Guest name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newPosGuest: POSGuest = {
+      id: `walkin-${Date.now()}`,
+      name: walkInGuest.name.trim(),
+      table: `Guest ${posGuests.length + 1}`,
+      items: []
+    };
+
+    setPosGuests(prev => [...prev, newPosGuest]);
+    setSelectedGuest(newPosGuest.id);
+    setWalkInGuest({ name: "", phone: "", email: "" });
+    setShowWalkInForm(false);
+    
+    toast({
+      title: "Walk-in Guest Added",
+      description: `${walkInGuest.name} has been added to POS system`,
+    });
+  };
+
   // Add global functions for external booking integrations
   useEffect(() => {
     // Global function to add hall bookings from Hall Management
@@ -466,14 +496,24 @@ const POSSystem = () => {
             )}
           </div>
           
-          <Button
-            variant="outline"
-            className="w-full mt-2"
-            onClick={() => setShowGuestSelection(true)}
-          >
-            <UserPlus className="h-4 w-4 mr-2" />
-            Add Registered Guest
-          </Button>
+          <div className="space-y-2">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => setShowGuestSelection(true)}
+            >
+              <UserPlus className="h-4 w-4 mr-2" />
+              Add Registered Guest
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => setShowWalkInForm(true)}
+            >
+              <User className="h-4 w-4 mr-2" />
+              Add Walk-in Guest
+            </Button>
+          </div>
         </div>
 
         {/* Current Guest Order */}
@@ -859,6 +899,53 @@ const POSSystem = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowGuestSelection(false)}>
               Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Walk-in Guest Form Dialog */}
+      <Dialog open={showWalkInForm} onOpenChange={setShowWalkInForm}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Walk-in Guest</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="text-sm font-medium">Name *</label>
+              <Input
+                value={walkInGuest.name}
+                onChange={(e) => setWalkInGuest(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Enter guest name"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Phone (Optional)</label>
+              <Input
+                value={walkInGuest.phone}
+                onChange={(e) => setWalkInGuest(prev => ({ ...prev, phone: e.target.value }))}
+                placeholder="Enter phone number"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Email (Optional)</label>
+              <Input
+                type="email"
+                value={walkInGuest.email}
+                onChange={(e) => setWalkInGuest(prev => ({ ...prev, email: e.target.value }))}
+                placeholder="Enter email address"
+                className="mt-1"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowWalkInForm(false)}>
+              Cancel
+            </Button>
+            <Button onClick={addWalkInGuest} className="bg-primary hover:bg-primary/90">
+              Add Guest
             </Button>
           </DialogFooter>
         </DialogContent>
