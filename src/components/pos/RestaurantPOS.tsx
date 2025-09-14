@@ -131,11 +131,21 @@ const RestaurantPOS = () => {
 
   const handlePayment = async (paymentMethod: string) => {
     if (!selectedOrderId) return;
+    
     try {
       await processPayment(selectedOrderId, paymentMethod);
       setSelectedOrderId(""); // Clear selection after payment
+      toast({
+        title: "Payment Processed",
+        description: `Payment successful via ${paymentMethod}`,
+      });
     } catch (error) {
       console.error('Error processing payment:', error);
+      toast({
+        title: "Payment Failed", 
+        description: "Unable to process payment. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -146,7 +156,7 @@ const RestaurantPOS = () => {
     try {
       const guestName = type === 'room' ? `Room ${roomNumber}` : 
                        type === 'table' ? `Table ${tables.find(t => t.id === tableId)?.table_number}` :
-                       `Guest ${orders.length + 1}`;
+                       `Guest ${Date.now().toString().slice(-4)}`;
       
       const newOrder = await createOrder(guestName, type, tableId, roomNumber);
       
@@ -157,8 +167,18 @@ const RestaurantPOS = () => {
       setSelectedOrderId(newOrder.id);
       setShowGuestTypeModal(false);
       setShowTableView(false);
+      
+      toast({
+        title: "Order Created",
+        description: `New ${type} order created for ${guestName}`,
+      });
     } catch (error) {
       console.error('Error creating order:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create order. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsCreatingOrder(false);
     }
@@ -312,8 +332,8 @@ const RestaurantPOS = () => {
 
         {/* Orders List */}
         <ScrollArea className="flex-1">
-          {orders.map((order, index) => (
-            <div key={order.id} className="border-b">
+          {orders.map((order) => (
+            <div key={`order-${order.id}`} className="border-b">
               <div 
                 className={`p-3 cursor-pointer transition-colors ${
                   selectedOrderId === order.id ? 'bg-teal-100' : 'hover:bg-gray-50'
@@ -348,8 +368,8 @@ const RestaurantPOS = () => {
                 {/* Order Items */}
                 {order.order_items && order.order_items.length > 0 && (
                   <div className="space-y-1 text-xs">
-                    {order.order_items.map((item) => (
-                      <div key={`${item.id}`} className="flex justify-between items-center py-1">
+                    {order.order_items.map((item, itemIndex) => (
+                      <div key={`item-${item.id}-${order.id}-${itemIndex}`} className="flex justify-between items-center py-1">
                         <div className="flex items-center gap-2">
                           <span className="w-4 text-center font-medium">{item.quantity}</span>
                           <span className="text-gray-700">{item.item_name}</span>

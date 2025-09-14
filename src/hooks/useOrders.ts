@@ -209,16 +209,12 @@ export const useOrders = () => {
       }
 
       // Find and update order totals using fresh data
-      const orderToUpdate = await supabase
-        .from('orders')
-        .select('id')
-        .eq('id', orders.find(o => 
-          o.order_items?.some(oi => oi.id === orderItemId)
-        )?.id || '')
-        .single();
-        
-      if (orderToUpdate.data) {
-        await updateOrderTotals(orderToUpdate.data.id);
+      const ordersToUpdate = orders.filter(o => 
+        o.order_items?.some(oi => oi.id === orderItemId)
+      );
+      
+      for (const order of ordersToUpdate) {
+        await updateOrderTotals(order.id);
       }
 
     } catch (error) {
@@ -396,22 +392,27 @@ export const useOrders = () => {
           schema: 'public',
           table: 'orders'
         },
-        (payload) => {
-          if (payload.eventType === 'INSERT') {
-            setOrders(prev => {
-              // Check if order already exists to prevent duplicates
-              const orderExists = prev.some(order => order.id === payload.new.id);
-              if (orderExists) return prev;
-              return [{ ...payload.new as Order, order_items: [] }, ...prev];
-            });
-          } else if (payload.eventType === 'UPDATE') {
-            setOrders(prev => prev.map(order => 
-              order.id === payload.new.id ? { ...order, ...payload.new as Order } : order
-            ));
-          } else if (payload.eventType === 'DELETE') {
-            setOrders(prev => prev.filter(order => order.id !== payload.old.id));
-          }
-        }
+         (payload) => {
+           console.log('Orders realtime event:', payload.eventType, payload.new);
+           if (payload.eventType === 'INSERT' && payload.new) {
+             setOrders(prev => {
+               // Check if order already exists to prevent duplicates
+               const orderExists = prev.some(order => order.id === (payload.new as any).id);
+               if (orderExists) {
+                 console.log('Duplicate order prevented:', (payload.new as any).id);
+                 return prev;
+               }
+               console.log('Adding new order:', (payload.new as any).id);
+               return [{ ...payload.new as Order, order_items: [] }, ...prev];
+             });
+           } else if (payload.eventType === 'UPDATE' && payload.new) {
+             setOrders(prev => prev.map(order => 
+               order.id === (payload.new as any).id ? { ...order, ...payload.new as Order } : order
+             ));
+           } else if (payload.eventType === 'DELETE' && payload.old) {
+             setOrders(prev => prev.filter(order => order.id !== (payload.old as any).id));
+           }
+         }
       )
       .subscribe();
 
@@ -424,34 +425,39 @@ export const useOrders = () => {
           schema: 'public',
           table: 'order_items'
         },
-        (payload) => {
-          if (payload.eventType === 'INSERT') {
-            setOrders(prev => prev.map(order => {
-              if (order.id === payload.new.order_id) {
-                // Check if item already exists to prevent duplicates
-                const itemExists = order.order_items?.some(item => item.id === payload.new.id);
-                if (itemExists) return order;
-                return {
-                  ...order,
-                  order_items: [...(order.order_items || []), payload.new as OrderItem]
-                };
-              }
-              return order;
-            }));
-          } else if (payload.eventType === 'UPDATE') {
-            setOrders(prev => prev.map(order => ({
-              ...order,
-              order_items: order.order_items?.map(item => 
-                item.id === payload.new.id ? payload.new as OrderItem : item
-              ) || []
-            })));
-          } else if (payload.eventType === 'DELETE') {
-            setOrders(prev => prev.map(order => ({
-              ...order,
-              order_items: order.order_items?.filter(item => item.id !== payload.old.id) || []
-            })));
-          }
-        }
+         (payload) => {
+           console.log('Order items realtime event:', payload.eventType, payload.new);
+           if (payload.eventType === 'INSERT' && payload.new) {
+             setOrders(prev => prev.map(order => {
+               if (order.id === (payload.new as any).order_id) {
+                 // Check if item already exists to prevent duplicates
+                 const itemExists = order.order_items?.some(item => item.id === (payload.new as any).id);
+                 if (itemExists) {
+                   console.log('Duplicate item prevented:', (payload.new as any).id);
+                   return order;
+                 }
+                 console.log('Adding item:', (payload.new as any).id, 'to order:', order.id);
+                 return {
+                   ...order,
+                   order_items: [...(order.order_items || []), payload.new as OrderItem]
+                 };
+               }
+               return order;
+             }));
+           } else if (payload.eventType === 'UPDATE' && payload.new) {
+             setOrders(prev => prev.map(order => ({
+               ...order,
+               order_items: order.order_items?.map(item => 
+                 item.id === (payload.new as any).id ? payload.new as OrderItem : item
+               ) || []
+             })));
+           } else if (payload.eventType === 'DELETE' && payload.old) {
+             setOrders(prev => prev.map(order => ({
+               ...order,
+               order_items: order.order_items?.filter(item => item.id !== (payload.old as any).id) || []
+             })));
+           }
+         }
       )
       .subscribe();
 
