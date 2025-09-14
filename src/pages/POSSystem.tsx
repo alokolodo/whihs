@@ -78,38 +78,7 @@ const POSSystem = () => {
   const [newItem, setNewItem] = useState({ name: "", price: "", category: "amenities" });
   const [selectedRegisteredGuest, setSelectedRegisteredGuest] = useState<RegisteredGuest | null>(null);
   const [showGuestSelection, setShowGuestSelection] = useState(false);
-  const [posGuests, setPosGuests] = useState<POSGuest[]>([
-    { 
-      id: "1", 
-      name: "John Smith", 
-      registeredGuestId: "G001",
-      table: "Room 205",
-      items: [
-        { id: "room", name: "ROOM", price: 150.00, category: "accommodation", color: "bg-blue-600", quantity: 1 },
-        { id: "gym", name: "GYM", price: 25.00, category: "facilities", color: "bg-green-500", quantity: 1 }
-      ]
-    },
-    { 
-      id: "2", 
-      name: "Sarah Johnson", 
-      registeredGuestId: "G002",
-      table: "Room 310",
-      items: [
-        { id: "laundry", name: "LAUNDRY", price: 20.00, category: "amenities", color: "bg-purple-500", quantity: 2 },
-        { id: "extra-towel", name: "EXTRA TOWEL", price: 5.00, category: "amenities", color: "bg-purple-600", quantity: 3 }
-      ]
-    },
-    { 
-      id: "3", 
-      name: "Michael Brown", 
-      registeredGuestId: "G003",
-      table: "Walk-in",
-      items: [
-        { id: "hall", name: "HALL", price: 200.00, category: "facilities", color: "bg-green-600", quantity: 1 },
-        { id: "game-center", name: "GAME CENTER", price: 15.00, category: "facilities", color: "bg-green-700", quantity: 1 }
-      ]
-    }
-  ]);
+  const [posGuests, setPosGuests] = useState<POSGuest[]>([]);
 
   const categories = [
     { id: "all", name: "ALL SERVICES", color: "bg-gray-500" },
@@ -355,21 +324,28 @@ const POSSystem = () => {
             <span className="font-medium">GUEST {posGuests.length} OF 3</span>
           </div>
           <div className="space-y-2">
-            {posGuests.map((guest, index) => (
-              <Button
-                key={guest.id}
-                variant={selectedGuest === guest.id ? "default" : "outline"}
-                className={`w-full justify-start ${
-                  selectedGuest === guest.id ? "bg-accent text-accent-foreground" : ""
-                }`}
-                onClick={() => setSelectedGuest(guest.id)}
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span>{guest.name}</span>
-                </div>
-              </Button>
-            ))}
+            {posGuests.length > 0 ? (
+              posGuests.map((guest, index) => (
+                <Button
+                  key={guest.id}
+                  variant={selectedGuest === guest.id ? "default" : "outline"}
+                  className={`w-full justify-start ${
+                    selectedGuest === guest.id ? "bg-accent text-accent-foreground" : ""
+                  }`}
+                  onClick={() => setSelectedGuest(guest.id)}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span>{guest.name}</span>
+                  </div>
+                </Button>
+              ))
+            ) : (
+              <div className="text-center py-4 text-muted-foreground">
+                <p className="text-sm">No guests added yet</p>
+                <p className="text-xs">Add a registered guest to start an order</p>
+              </div>
+            )}
           </div>
           
           <Button
@@ -396,7 +372,12 @@ const POSSystem = () => {
                         <span className="font-medium text-sm">{item.name}</span>
                       </div>
                       <div className="text-xs text-muted-foreground ml-4">
-                        ${item.price.toFixed(2)} each
+                        ${item.price.toFixed(2)} {item.category === "accommodation" && item.quantity > 1 ? "per night" : "each"}
+                        {item.category === "accommodation" && item.quantity > 1 && (
+                          <span className="block text-green-600">
+                            {item.quantity} consecutive nights from payment date
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -409,7 +390,12 @@ const POSSystem = () => {
                         >
                           <Minus className="h-3 w-3" />
                         </Button>
-                        <span className="w-6 text-center text-sm">{item.quantity}</span>
+                        <span className="w-8 text-center text-sm">
+                          {item.category === "accommodation" && item.quantity > 1 
+                            ? `${item.quantity}d` 
+                            : item.quantity
+                          }
+                        </span>
                         <Button
                           size="sm"
                           variant="outline"
