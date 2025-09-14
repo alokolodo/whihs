@@ -26,6 +26,7 @@ import { AddRoomModal } from "@/components/room/AddRoomModal";
 import { EditRoomModal } from "@/components/room/EditRoomModal";
 import { RoomSettingsModal } from "@/components/room/RoomSettingsModal";
 import { RoomBookingModal } from "@/components/room/RoomBookingModal";
+import { CheckInModal } from "@/components/room/CheckInModal";
 import { useGuests } from "@/hooks/useGuests";
 import { toast } from "sonner";
 
@@ -151,6 +152,7 @@ const RoomManagement = () => {
   const [showEditRoom, setShowEditRoom] = useState(false);
   const [showRoomSettings, setShowRoomSettings] = useState(false);
   const [showRoomBooking, setShowRoomBooking] = useState(false);
+  const [showCheckIn, setShowCheckIn] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
 
   const statusColors = {
@@ -226,17 +228,22 @@ const RoomManagement = () => {
   };
 
   const handleCheckIn = (room: Room) => {
-    // For now, just change status to occupied
-    // In a real app, this would open a check-in dialog
-    const updatedRoom = {
-      ...room,
-      status: "occupied" as const,
-      guest: "Walk-in Guest",
-      checkIn: new Date().toISOString().split('T')[0],
-      checkOut: new Date(Date.now() + 86400000).toISOString().split('T')[0]
-    };
-    handleRoomUpdate(updatedRoom);
-    toast.success(`Walk-in guest checked into Room ${room.number}`);
+    setSelectedRoom(room);
+    setShowCheckIn(true);
+  };
+
+  const handleCheckInConfirm = (checkInData: any) => {
+    const room = rooms.find(r => r.id === checkInData.roomId);
+    if (room) {
+      const updatedRoom = {
+        ...room,
+        status: "occupied" as const,
+        guest: checkInData.guestName,
+        checkIn: checkInData.checkIn,
+        checkOut: checkInData.checkOut
+      };
+      handleRoomUpdate(updatedRoom);
+    }
   };
 
   const handleBookingConfirm = (booking: any) => {
@@ -468,6 +475,13 @@ const RoomManagement = () => {
         onOpenChange={setShowRoomBooking}
         room={selectedRoom}
         onBookingConfirm={handleBookingConfirm}
+      />
+
+      <CheckInModal
+        open={showCheckIn}
+        onOpenChange={setShowCheckIn}
+        room={selectedRoom}
+        onCheckInConfirm={handleCheckInConfirm}
       />
     </div>
   );
