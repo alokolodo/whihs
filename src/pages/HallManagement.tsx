@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { 
-  Calendar,
+  Calendar as CalendarIcon,
   Users,
   Clock,
   MapPin,
@@ -19,6 +19,15 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
+import { useHalls } from "@/hooks/useHalls";
+import { useGuests } from "@/hooks/useGuests";
+import { toast } from "@/hooks/use-toast";
+import { format, differenceInDays } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface Hall {
   id: string;
@@ -45,44 +54,8 @@ interface Booking {
 }
 
 const HallManagement = () => {
-  const [halls] = useState<Hall[]>([
-    {
-      id: "1",
-      name: "Grand Ballroom",
-      capacity: 500,
-      location: "Ground Floor",
-      hourlyRate: 300,
-      amenities: ["Stage", "Sound System", "Lighting", "AC", "Catering Kitchen"],
-      availability: "available"
-    },
-    {
-      id: "2", 
-      name: "Conference Hall A",
-      capacity: 100,
-      location: "First Floor",
-      hourlyRate: 150,
-      amenities: ["Projector", "WiFi", "Whiteboard", "AC", "Coffee Station"],
-      availability: "booked"
-    },
-    {
-      id: "3",
-      name: "Banquet Hall",
-      capacity: 200,
-      location: "Ground Floor", 
-      hourlyRate: 200,
-      amenities: ["Dance Floor", "Bar Counter", "Kitchen Access", "Garden View"],
-      availability: "available"
-    },
-    {
-      id: "4",
-      name: "Meeting Room B",
-      capacity: 50,
-      location: "Second Floor",
-      hourlyRate: 80,
-      amenities: ["Video Conferencing", "WiFi", "Presentation Screen"],
-      availability: "maintenance"
-    }
-  ]);
+  const { halls } = useHalls();
+  const { guests: registeredGuests } = useGuests();
 
   const [bookings] = useState<Booking[]>([
     {
@@ -129,6 +102,13 @@ const HallManagement = () => {
   const [activeTab, setActiveTab] = useState("halls");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [showNewBooking, setShowNewBooking] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [endDate, setEndDate] = useState<Date | undefined>();
+  const [selectedGuest, setSelectedGuest] = useState("");
+  const [selectedHall, setSelectedHall] = useState("");
+  const [event, setEvent] = useState("");
 
   const statusColors = {
     available: "bg-green-500",
@@ -160,6 +140,51 @@ const HallManagement = () => {
   const hallStats = getHallStats();
   const bookingStats = getBookingStats();
 
+  const handleNewBooking = () => {
+    if (!selectedGuest || !selectedHall || !selectedDate || !event.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all booking details",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const hall = halls.find(h => h.id === selectedHall);
+    if (!hall) return;
+
+    const days = endDate && selectedDate ? differenceInDays(endDate, selectedDate) + 1 : 1;
+    const guest = registeredGuests.find(g => g.id === selectedGuest);
+    
+    // Add booking to hotel services by storing in localStorage
+    const bookingData = {
+      id: `hall-${hall.id}`,
+      name: hall.name,
+      guestName: guest?.name || "Unknown Guest",
+      days: days,
+      price: hall.hourlyRate,
+      category: "facilities",
+      timestamp: Date.now()
+    };
+    
+    const existingBookings = JSON.parse(localStorage.getItem('hallBookings') || '[]');
+    existingBookings.push(bookingData);
+    localStorage.setItem('hallBookings', JSON.stringify(existingBookings));
+
+    toast({
+      title: "Booking Created",
+      description: `${hall.name} booked for ${guest?.name} for ${days} day(s). Added to Hotel Services order list.`,
+    });
+
+    // Reset form
+    setSelectedGuest("");
+    setSelectedHall("");
+    setSelectedDate(new Date());
+    setEndDate(undefined);
+    setEvent("");
+    setShowNewBooking(false);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -168,11 +193,11 @@ const HallManagement = () => {
           <p className="text-muted-foreground">Manage event halls and bookings</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
-            <Calendar className="h-4 w-4 mr-2" />
+          <Button variant="outline" onClick={() => setShowCalendar(true)}>
+            <CalendarIcon className="h-4 w-4 mr-2" />
             View Calendar
           </Button>
-          <Button>
+          <Button onClick={() => setShowNewBooking(true)}>
             <Plus className="h-4 w-4 mr-2" />
             New Booking
           </Button>
@@ -270,11 +295,26 @@ const HallManagement = () => {
                       <Button size="sm" variant="outline" className="flex-1">
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button size="sm" variant="outline" className="flex-1">
-                        <Calendar className="h-4 w-4" />
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="flex-1"
+                        onClick={() => {
+                          setSelectedHall(hall.id);
+                          setShowNewBooking(true);
+                        }}
+                      >
+                        <CalendarIcon className="h-4 w-4" />
                       </Button>
                       {hall.availability === "available" && (
-                        <Button size="sm" className="flex-1">
+                        <Button 
+                          size="sm" 
+                          className="flex-1"
+                          onClick={() => {
+                            setSelectedHall(hall.id);
+                            setShowNewBooking(true);
+                          }}
+                        >
                           Book Now
                         </Button>
                       )}
@@ -375,15 +415,207 @@ const HallManagement = () => {
         <TabsContent value="calendar">
           <Card>
             <CardContent className="p-6">
-              <div className="text-center py-12">
-                <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold mb-2">Calendar View</h3>
-                <p className="text-muted-foreground">Calendar integration would be implemented here</p>
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Hall Booking Calendar</h3>
+                  <Button onClick={() => setShowNewBooking(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    New Booking
+                  </Button>
+                </div>
+                
+                <div className="flex justify-center">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    className="rounded-md border"
+                  />
+                </div>
+                
+                <div className="space-y-4">
+                  <h4 className="font-medium">Bookings for {selectedDate ? format(selectedDate, "PPP") : "Select a date"}</h4>
+                  <div className="space-y-2">
+                    {bookings
+                      .filter(booking => booking.date === (selectedDate ? format(selectedDate, "yyyy-MM-dd") : ""))
+                      .map(booking => (
+                        <div key={booking.id} className="p-3 border rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="font-medium">{booking.event}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {booking.hallName} • {booking.startTime}-{booking.endTime}
+                              </div>
+                            </div>
+                            <Badge className={`${statusColors[booking.status]} text-white`}>
+                              {booking.status}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))
+                    }
+                    {selectedDate && bookings.filter(booking => 
+                      booking.date === format(selectedDate, "yyyy-MM-dd")
+                    ).length === 0 && (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <CalendarIcon className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p>No bookings for this date</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Calendar Dialog */}
+      <Dialog open={showCalendar} onOpenChange={setShowCalendar}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Calendar View</DialogTitle>
+          </DialogHeader>
+          <div className="flex justify-center">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={setSelectedDate}
+              className="rounded-md border"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* New Booking Dialog */}
+      <Dialog open={showNewBooking} onOpenChange={setShowNewBooking}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Create New Hall Booking</DialogTitle>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="guest">Select Guest</Label>
+                <Select value={selectedGuest} onValueChange={setSelectedGuest}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a registered guest" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {registeredGuests.map((guest) => (
+                      <SelectItem key={guest.id} value={guest.id}>
+                        {guest.name} - {guest.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="hall">Select Hall</Label>
+                <Select value={selectedHall} onValueChange={setSelectedHall}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a hall" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {halls.filter(hall => hall.availability === "available").map((hall) => (
+                      <SelectItem key={hall.id} value={hall.id}>
+                        {hall.name} - ${hall.hourlyRate}/hr
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="event">Event Name</Label>
+              <Input
+                id="event"
+                placeholder="Enter event name"
+                value={event}
+                onChange={(e) => setEvent(e.target.value)}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Start Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !selectedDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {selectedDate ? format(selectedDate, "PPP") : "Pick start date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={setSelectedDate}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div className="space-y-2">
+                <Label>End Date (Optional)</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !endDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {endDate ? format(endDate, "PPP") : "Same day booking"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={endDate}
+                      onSelect={setEndDate}
+                      initialFocus
+                      disabled={(date) => selectedDate ? date < selectedDate : false}
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+
+            {selectedDate && endDate && (
+              <div className="p-3 bg-muted rounded-lg">
+                <div className="text-sm">
+                  <span className="font-medium">Booking Duration: </span>
+                  {differenceInDays(endDate, selectedDate) + 1} day(s)
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowNewBooking(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleNewBooking}>
+              Book Now
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

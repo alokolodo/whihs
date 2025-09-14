@@ -80,6 +80,52 @@ const POSSystem = () => {
   const [showGuestSelection, setShowGuestSelection] = useState(false);
   const [posGuests, setPosGuests] = useState<POSGuest[]>([]);
 
+  // Check for hall bookings from localStorage and add to guest orders
+  useState(() => {
+    const hallBookings = JSON.parse(localStorage.getItem('hallBookings') || '[]');
+    if (hallBookings.length > 0) {
+      hallBookings.forEach((booking: any) => {
+        const existingGuest = posGuests.find(g => g.name === booking.guestName);
+        const hallItem: POSItem & { quantity: number } = {
+          id: booking.id,
+          name: booking.name,
+          price: booking.price,
+          category: booking.category,
+          color: "bg-green-600",
+          isAvailable: true,
+          bookedDays: booking.days,
+          quantity: booking.days
+        };
+
+        if (existingGuest) {
+          // Add to existing guest
+          setPosGuests(prev => prev.map(guest =>
+            guest.name === booking.guestName
+              ? { ...guest, items: [...guest.items, hallItem] }
+              : guest
+          ));
+        } else {
+          // Create new guest
+          const newGuest: POSGuest = {
+            id: `guest-${Date.now()}-${booking.guestName}`,
+            name: booking.guestName,
+            registeredGuestId: registeredGuests.find(g => g.name === booking.guestName)?.id,
+            items: [hallItem]
+          };
+          setPosGuests(prev => [...prev, newGuest]);
+        }
+      });
+      
+      // Clear localStorage after adding to orders
+      localStorage.removeItem('hallBookings');
+      
+      toast({
+        title: "Hall Bookings Added",
+        description: `${hallBookings.length} hall booking(s) added to order list`,
+      });
+    }
+  });
+
   const categories = [
     { id: "all", name: "ALL SERVICES", color: "bg-gray-500" },
     { id: "accommodation", name: "ACCOMMODATION", color: "bg-blue-600" },
