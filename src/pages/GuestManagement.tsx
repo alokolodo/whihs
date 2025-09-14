@@ -5,6 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import AddGuestModal from "@/components/guest/AddGuestModal";
+import GuestHistoryModal from "@/components/guest/GuestHistoryModal";
+import EditGuestModal from "@/components/guest/EditGuestModal";
 import {
   Users, 
   Search,
@@ -50,6 +53,11 @@ const GuestManagement = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("guests");
   const [searchTerm, setSearchTerm] = useState("");
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedGuestName, setSelectedGuestName] = useState("");
+  const [selectedGuestId, setSelectedGuestId] = useState("");
 
   const [guests] = useState<Guest[]>([
     {
@@ -148,24 +156,18 @@ const GuestManagement = () => {
   const stats = getGuestStats();
 
   const handleAddNewGuest = () => {
-    toast({
-      title: "Add New Guest",
-      description: "Guest registration form will open here",
-    });
+    setShowAddModal(true);
   };
 
   const handleViewHistory = (guestName: string) => {
-    toast({
-      title: "View History",
-      description: `Opening booking history for ${guestName}`,
-    });
+    setSelectedGuestName(guestName);
+    setShowHistoryModal(true);
   };
 
-  const handleEditProfile = (guestName: string) => {
-    toast({
-      title: "Edit Profile",
-      description: `Opening profile editor for ${guestName}`,
-    });
+  const handleEditProfile = (guest: Guest) => {
+    setSelectedGuestId(guest.id);
+    setSelectedGuestName(guest.name);
+    setShowEditModal(true);
   };
 
   return (
@@ -282,7 +284,7 @@ const GuestManagement = () => {
                     <Button variant="outline" size="sm" onClick={() => handleViewHistory(guest.name)}>
                       View History
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleEditProfile(guest.name)}>
+                    <Button variant="outline" size="sm" onClick={() => handleEditProfile(guest)}>
                       Edit Profile
                     </Button>
                   </div>
@@ -385,6 +387,25 @@ const GuestManagement = () => {
           </div>
         </TabsContent>
       </Tabs>
+      
+      {/* Modals */}
+      <AddGuestModal
+        open={showAddModal}
+        onOpenChange={setShowAddModal}
+      />
+      
+      <GuestHistoryModal
+        open={showHistoryModal}
+        onOpenChange={setShowHistoryModal}
+        guestName={selectedGuestName}
+      />
+      
+      <EditGuestModal
+        open={showEditModal}
+        onOpenChange={setShowEditModal}
+        guestId={selectedGuestId}
+        guestName={selectedGuestName}
+      />
     </div>
   );
 };
