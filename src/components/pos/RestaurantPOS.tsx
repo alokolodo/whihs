@@ -23,6 +23,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/components/ui/use-toast";
 import { useMenuItems, MenuItem } from "@/hooks/useMenuItems";
 import { useRestaurantTables, RestaurantTable } from "@/hooks/useRestaurantTables";
 import { useOrders, Order } from "@/hooks/useOrders";
@@ -37,6 +38,7 @@ const RestaurantPOS = () => {
   const { getFoodAndBeverageItems } = useMenuItems();
   const { tables, loading: tablesLoading, updateTableStatus } = useRestaurantTables();
   const { orders, loading: ordersLoading, createOrder, addItemToOrder, updateItemQuantity, processPayment } = useOrders();
+  const { toast } = useToast();
   
   const [activeCategory, setActiveCategory] = useState("");
   const [showTableView, setShowTableView] = useState(false);
@@ -87,9 +89,14 @@ const RestaurantPOS = () => {
     
     setIsAddingItem(true);
     try {
-      await addItemToOrder(selectedOrderId, item);
+      await addItemToOrder(selectedOrderId, item, 1); // Always add quantity of 1
     } catch (error) {
       console.error('Error adding item to order:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add item to order",
+        variant: "destructive",
+      });
     } finally {
       setIsAddingItem(false);
     }
