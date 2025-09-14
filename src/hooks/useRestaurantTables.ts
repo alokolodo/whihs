@@ -24,7 +24,7 @@ export const useRestaurantTables = () => {
         .order('table_number');
 
       if (error) throw error;
-      setTables(data || []);
+      setTables((data || []) as RestaurantTable[]);
     } catch (error) {
       console.error('Error fetching tables:', error);
       toast({
@@ -51,7 +51,7 @@ export const useRestaurantTables = () => {
 
       if (error) throw error;
       
-      setTables(prev => [...prev, data]);
+      setTables(prev => [...prev, data as RestaurantTable]);
       toast({
         title: "Success",
         description: `Table ${tableNumber} added successfully`,

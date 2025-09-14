@@ -318,17 +318,17 @@ export const useOrders = () => {
       if (kitchenItems && kitchenItems.length > 0) {
         const { error } = await supabase
           .from('kitchen_orders')
-          .insert([{
+          .insert({
             order_id: orderId,
             table_number: order.table_id ? 
               `Table ${orders.find(o => o.table_id === order.table_id)?.table_id || ''}` : 
               order.guest_type === 'room' ? `Room ${order.room_number}` : 'Standalone',
             guest_name: order.guest_name,
-            items: kitchenItems,
+            items: kitchenItems as any,
             status: 'received',
             priority: 1,
             estimated_time: kitchenItems.length * 10 // Estimate 10 mins per item
-          }]);
+          });
 
         if (error) throw error;
       }
@@ -356,10 +356,12 @@ export const useOrders = () => {
       if (inventoryItems && inventoryItems.length > 0) {
         for (const item of inventoryItems) {
           // Update inventory quantity
-          const { error } = await supabase.rpc('update_inventory_quantity', {
-            item_name_param: item.item_name,
-            quantity_change: -item.quantity
-          });
+          const { error } = await supabase
+            .from('inventory')
+            .update({ 
+              current_quantity: 'current_quantity - ' + item.quantity 
+            })
+            .eq('item_name', item.item_name);
 
           if (error) {
             console.error(`Error updating inventory for ${item.item_name}:`, error);
