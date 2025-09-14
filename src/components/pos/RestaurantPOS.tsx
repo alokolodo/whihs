@@ -33,18 +33,40 @@ interface Guest {
   id: string;
   name: string;
   tableNumber?: string;
+  roomNumber?: string;
+  guestType: 'room' | 'table' | 'standalone';
   items: OrderItem[];
+}
+
+interface Table {
+  id: string;
+  number: string;
+  seats: number;
+  status: 'available' | 'occupied' | 'reserved' | 'cleaning';
+  guest?: Guest;
 }
 
 const RestaurantPOS = () => {
   const { getFoodAndBeverageItems } = useMenuItems();
   const [activeCategory, setActiveCategory] = useState("Main Course");
-  const [guests, setGuests] = useState<Guest[]>([
-    { id: "1", name: "GUEST 1", tableNumber: "1", items: [] },
-    { id: "2", name: "GUEST 2", tableNumber: "2", items: [] },
-    { id: "3", name: "GUEST 3", tableNumber: "3", items: [] }
+  const [showTableView, setShowTableView] = useState(false);
+  const [showGuestTypeModal, setShowGuestTypeModal] = useState(false);
+  const [selectedTable, setSelectedTable] = useState<string | null>(null);
+  
+  // Initialize tables
+  const [tables, setTables] = useState<Table[]>([
+    { id: "1", number: "1", seats: 4, status: "available" },
+    { id: "2", number: "2", seats: 2, status: "available" },
+    { id: "3", number: "3", seats: 6, status: "available" },
+    { id: "4", number: "4", seats: 4, status: "available" },
+    { id: "5", number: "5", seats: 8, status: "available" },
+    { id: "6", number: "6", seats: 2, status: "available" },
+    { id: "7", number: "7", seats: 4, status: "available" },
+    { id: "8", number: "8", seats: 6, status: "available" },
   ]);
-  const [selectedGuestId, setSelectedGuestId] = useState("1");
+
+  const [guests, setGuests] = useState<Guest[]>([]);
+  const [selectedGuestId, setSelectedGuestId] = useState<string>("");
 
   const restaurantItems = getFoodAndBeverageItems();
 
@@ -140,30 +162,159 @@ const RestaurantPOS = () => {
     ));
   };
 
-  const addNewGuest = () => {
-    const newGuestNum = guests.length + 1;
-    setGuests(prev => [...prev, {
-      id: newGuestNum.toString(),
-      name: `GUEST ${newGuestNum}`,
+  const createGuest = (type: 'room' | 'table' | 'standalone', tableId?: string, roomNumber?: string) => {
+    const newGuestId = Date.now().toString();
+    const newGuest: Guest = {
+      id: newGuestId,
+      name: type === 'room' ? `Room ${roomNumber}` : 
+            type === 'table' ? `Table ${tables.find(t => t.id === tableId)?.number}` :
+            `Guest ${guests.length + 1}`,
+      guestType: type,
+      tableNumber: type === 'table' ? tables.find(t => t.id === tableId)?.number : undefined,
+      roomNumber: type === 'room' ? roomNumber : undefined,
       items: []
-    }]);
+    };
+
+    setGuests(prev => [...prev, newGuest]);
+    
+    if (type === 'table' && tableId) {
+      setTables(prev => prev.map(table => 
+        table.id === tableId 
+          ? { ...table, status: 'occupied', guest: newGuest }
+          : table
+      ));
+    }
+    
+    setSelectedGuestId(newGuestId);
+    setShowGuestTypeModal(false);
+    setShowTableView(false);
   };
 
   return (
     <div className="h-full flex bg-gray-50">
+      {/* Table Selection Modal */}
+      {showTableView && (
+        <div className="absolute inset-0 bg-black/50 z-20 flex items-center justify-center">
+          <Card className="w-4/5 h-4/5 bg-white">
+            <div className="p-6 h-full flex flex-col">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold">Select Table</h3>
+                <Button variant="ghost" onClick={() => setShowTableView(false)}>✕</Button>
+              </div>
+              
+              <div className="grid grid-cols-4 gap-4 flex-1">
+                {tables.map((table) => (
+                  <Card
+                    key={table.id}
+                    className={`cursor-pointer transition-all hover:shadow-lg ${
+                      table.status === 'available' ? 'border-green-500 hover:bg-green-50' :
+                      table.status === 'occupied' ? 'border-red-500 bg-red-50' :
+                      table.status === 'reserved' ? 'border-yellow-500 bg-yellow-50' :
+                      'border-gray-400 bg-gray-100'
+                    }`}
+                    onClick={() => {
+                      if (table.status === 'available') {
+                        setSelectedTable(table.id);
+                        setShowGuestTypeModal(true);
+                      }
+                    }}
+                  >
+                    <CardContent className="p-4 text-center h-24 flex flex-col justify-center">
+                      <h4 className="font-bold text-lg">Table {table.number}</h4>
+                      <p className="text-sm text-gray-600">{table.seats} seats</p>
+                      <Badge 
+                        className={`mt-1 ${
+                          table.status === 'available' ? 'bg-green-500' :
+                          table.status === 'occupied' ? 'bg-red-500' :
+                          table.status === 'reserved' ? 'bg-yellow-500' :
+                          'bg-gray-500'
+                        }`}
+                      >
+                        {table.status.toUpperCase()}
+                      </Badge>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Guest Type Selection Modal */}
+      {showGuestTypeModal && (
+        <div className="absolute inset-0 bg-black/50 z-30 flex items-center justify-center">
+          <Card className="w-96 bg-white">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold">Select Guest Type</h3>
+                <Button variant="ghost" onClick={() => setShowGuestTypeModal(false)}>✕</Button>
+              </div>
+              
+              <div className="space-y-3">
+                <Button
+                  className="w-full h-16 flex items-center justify-center bg-blue-600 hover:bg-blue-700"
+                  onClick={() => {
+                    const roomNumber = prompt("Enter room number:");
+                    if (roomNumber) {
+                      createGuest('room', undefined, roomNumber);
+                    }
+                  }}
+                >
+                  <div className="text-center">
+                    <div className="font-bold">Charge to Room</div>
+                    <div className="text-xs">Hotel guest room charge</div>
+                  </div>
+                </Button>
+                
+                <Button
+                  className="w-full h-16 flex items-center justify-center bg-green-600 hover:bg-green-700"
+                  onClick={() => createGuest('table', selectedTable || undefined)}
+                >
+                  <div className="text-center">
+                    <div className="font-bold">Charge to Table</div>
+                    <div className="text-xs">Restaurant table service</div>
+                  </div>
+                </Button>
+                
+                <Button
+                  className="w-full h-16 flex items-center justify-center bg-purple-600 hover:bg-purple-700"
+                  onClick={() => createGuest('standalone')}
+                >
+                  <div className="text-center">
+                    <div className="font-bold">Standalone Guest</div>
+                    <div className="text-xs">Walk-in customer</div>
+                  </div>
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
       {/* Left Panel - Guest Orders */}
       <div className="w-80 bg-white border-r flex flex-col">
         {/* Header */}
         <div className="p-4 bg-gray-800 text-white">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold">ORDERS</h2>
-            <Button size="sm" onClick={addNewGuest} className="bg-blue-600 hover:bg-blue-700">
-              <Plus className="h-4 w-4 mr-1" />
-              Guest
-            </Button>
+            <div className="flex gap-2">
+              <Button size="sm" onClick={() => setShowTableView(true)} className="bg-green-600 hover:bg-green-700">
+                <Plus className="h-4 w-4 mr-1" />
+                Table
+              </Button>
+              <Button size="sm" onClick={() => setShowGuestTypeModal(true)} className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="h-4 w-4 mr-1" />
+                Guest
+              </Button>
+            </div>
           </div>
           <div className="text-sm text-gray-300">
-            SERVER: WAITER 1 • TABLE: {selectedGuest?.tableNumber || 'N/A'}
+            SERVER: WAITER 1 • {selectedGuest ? 
+              selectedGuest.guestType === 'room' ? `ROOM: ${selectedGuest.roomNumber}` :
+              selectedGuest.guestType === 'table' ? `TABLE: ${selectedGuest.tableNumber}` :
+              'STANDALONE'
+              : 'NO GUEST SELECTED'}
           </div>
         </div>
 
@@ -179,10 +330,21 @@ const RestaurantPOS = () => {
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-teal-500 text-white rounded text-xs flex items-center justify-center font-bold">
-                      {index + 1}
+                    <div className={`w-6 h-6 text-white rounded text-xs flex items-center justify-center font-bold ${
+                      guest.guestType === 'room' ? 'bg-blue-500' :
+                      guest.guestType === 'table' ? 'bg-green-500' :
+                      'bg-purple-500'
+                    }`}>
+                      {guest.guestType === 'room' ? 'R' : guest.guestType === 'table' ? 'T' : 'S'}
                     </div>
-                    <h3 className="font-medium text-sm">{guest.name}</h3>
+                    <div>
+                      <h3 className="font-medium text-sm">{guest.name}</h3>
+                      <p className="text-xs text-gray-500">
+                        {guest.guestType === 'room' ? 'Room Service' :
+                         guest.guestType === 'table' ? 'Table Service' :
+                         'Walk-in'}
+                      </p>
+                    </div>
                   </div>
                   {guest.items.length > 0 && (
                     <Badge variant="secondary" className="text-xs">
