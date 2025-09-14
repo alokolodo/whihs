@@ -20,6 +20,7 @@ import MemberCheckInModal from "@/components/gym/MemberCheckInModal";
 import BookTrainerModal from "@/components/gym/BookTrainerModal";
 import EquipmentStatusModal from "@/components/gym/EquipmentStatusModal";
 import TrainerScheduleModal from "@/components/gym/TrainerScheduleModal";
+import AddEquipmentModal from "@/components/gym/AddEquipmentModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -158,6 +159,7 @@ const GymManagement = () => {
   const [bookTrainerOpen, setBookTrainerOpen] = useState(false);
   const [equipmentStatusOpen, setEquipmentStatusOpen] = useState(false);
   const [trainerScheduleOpen, setTrainerScheduleOpen] = useState(false);
+  const [addEquipmentOpen, setAddEquipmentOpen] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
   const [selectedTrainer, setSelectedTrainer] = useState<Trainer | null>(null);
 
@@ -349,6 +351,18 @@ const GymManagement = () => {
         </TabsContent>
 
         <TabsContent value="equipment" className="space-y-6">
+          {/* Equipment Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold">Equipment Management</h2>
+              <p className="text-muted-foreground">Monitor and manage gym equipment</p>
+            </div>
+            <Button onClick={() => setAddEquipmentOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Equipment
+            </Button>
+          </div>
+
           {/* Equipment Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
@@ -536,6 +550,11 @@ const GymManagement = () => {
         open={trainerScheduleOpen} 
         onOpenChange={setTrainerScheduleOpen}
         trainer={selectedTrainer || undefined}
+      />
+      
+      <AddEquipmentModal 
+        open={addEquipmentOpen} 
+        onOpenChange={setAddEquipmentOpen}
       />
     </div>
   );
