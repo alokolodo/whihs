@@ -10,7 +10,8 @@ import {
   EyeOff,
   DollarSign,
   Star,
-  TrendingUp
+  TrendingUp,
+  Settings
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMenuItems, MenuItem } from "@/hooks/useMenuItems";
+import EditMenuItemModal from "@/components/menu/EditMenuItemModal";
+import DeleteMenuItemModal from "@/components/menu/DeleteMenuItemModal";
+import MenuSettingsModal from "@/components/menu/MenuSettingsModal";
 
 const MenuManagement = () => {
   const { menuItems } = useMenuItems();
@@ -30,6 +34,10 @@ const MenuManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
 
   const categories = [
     "Appetizers", "Main Course", "Desserts", "Salads", "Soups", "Sides",
@@ -61,10 +69,24 @@ const MenuManagement = () => {
             <CardDescription className="mt-1">{item.description}</CardDescription>
           </div>
           <div className="flex gap-2">
-            <Button size="sm" variant="outline">
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={() => {
+                setSelectedItem(item);
+                setIsEditDialogOpen(true);
+              }}
+            >
               <Edit className="h-4 w-4" />
             </Button>
-            <Button size="sm" variant="outline">
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={() => {
+                setSelectedItem(item);
+                setIsDeleteDialogOpen(true);
+              }}
+            >
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
@@ -139,13 +161,21 @@ const MenuManagement = () => {
           </h1>
           <p className="text-muted-foreground">Manage your restaurant menu items and pricing</p>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="button-luxury">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Menu Item
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline"
+            onClick={() => setIsSettingsDialogOpen(true)}
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            Settings
+          </Button>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="button-luxury">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Menu Item
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add New Menu Item</DialogTitle>
@@ -258,6 +288,7 @@ const MenuManagement = () => {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Filters */}
@@ -348,6 +379,30 @@ const MenuManagement = () => {
           <p className="text-muted-foreground">Try adjusting your search or add a new menu item</p>
         </div>
       )}
+
+      {/* Modals */}
+      <EditMenuItemModal 
+        isOpen={isEditDialogOpen}
+        onClose={() => {
+          setIsEditDialogOpen(false);
+          setSelectedItem(null);
+        }}
+        item={selectedItem}
+      />
+      
+      <DeleteMenuItemModal 
+        isOpen={isDeleteDialogOpen}
+        onClose={() => {
+          setIsDeleteDialogOpen(false);
+          setSelectedItem(null);
+        }}
+        item={selectedItem}
+      />
+      
+      <MenuSettingsModal 
+        isOpen={isSettingsDialogOpen}
+        onClose={() => setIsSettingsDialogOpen(false)}
+      />
     </div>
   );
 };
