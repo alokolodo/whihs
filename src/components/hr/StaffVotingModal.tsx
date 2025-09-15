@@ -33,7 +33,7 @@ export const StaffVotingModal = ({ isOpen, onClose }: StaffVotingModalProps) => 
     queryKey: ['staff-votes', currentMonth],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('staff_votes')
+        .from('staff_votes' as any)
         .select(`
           *,
           employees!inner (
@@ -46,7 +46,7 @@ export const StaffVotingModal = ({ isOpen, onClose }: StaffVotingModalProps) => 
         .eq('voting_period', currentMonth);
 
       if (error) throw error;
-      return data;
+      return data as any[];
     }
   });
 
@@ -56,7 +56,7 @@ export const StaffVotingModal = ({ isOpen, onClose }: StaffVotingModalProps) => 
       if (!voterName) return;
       
       const { data } = await supabase
-        .from('staff_votes')
+        .from('staff_votes' as any)
         .select('id')
         .eq('voting_period', currentMonth)
         .eq('voter_name', voterName)
@@ -72,7 +72,7 @@ export const StaffVotingModal = ({ isOpen, onClose }: StaffVotingModalProps) => 
     mutationFn: async (voteData: any) => {
       // First check if voter has already voted
       const { data: existingVote } = await supabase
-        .from('staff_votes')
+        .from('staff_votes' as any)
         .select('id')
         .eq('voting_period', currentMonth)
         .eq('voter_name', voterName)
@@ -83,7 +83,7 @@ export const StaffVotingModal = ({ isOpen, onClose }: StaffVotingModalProps) => 
       }
 
       const { data, error } = await supabase
-        .from('staff_votes')  
+        .from('staff_votes' as any)
         .insert([voteData])
         .select()
         .single();
@@ -129,7 +129,7 @@ export const StaffVotingModal = ({ isOpen, onClose }: StaffVotingModalProps) => 
   };
 
   // Calculate vote counts
-  const voteCounts = votes.reduce((acc, vote) => {
+  const voteCounts = votes.reduce((acc: any, vote: any) => {
     const key = vote.employee_id;
     acc[key] = (acc[key] || 0) + 1;
     return acc;

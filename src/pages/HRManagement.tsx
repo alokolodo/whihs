@@ -21,6 +21,9 @@ import { EmployeeProfileModal } from "@/components/hr/EmployeeProfileModal";
 import { EditEmployeeModal } from "@/components/hr/EditEmployeeModal";
 import { EmployeePayrollModal } from "@/components/hr/EmployeePayrollModal";
 import { ProcessPayrollModal } from "@/components/hr/ProcessPayrollModal";
+import { LoanRequestModal } from "@/components/hr/LoanRequestModal";
+import { LoanApprovalModal } from "@/components/hr/LoanApprovalModal";
+import { StaffVotingModal } from "@/components/hr/StaffVotingModal";
 import {
   Users,
   Search,
@@ -37,7 +40,8 @@ import {
   Phone,
   Mail,
   MapPin,
-  Loader2
+  Loader2,
+  Vote
 } from "lucide-react";
 
 const HRManagement = () => {
@@ -50,7 +54,11 @@ const HRManagement = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isPayrollModalOpen, setIsPayrollModalOpen] = useState(false);
   const [isProcessPayrollModalOpen, setIsProcessPayrollModalOpen] = useState(false);
+  const [isLoanRequestModalOpen, setIsLoanRequestModalOpen] = useState(false);
+  const [isLoanApprovalModalOpen, setIsLoanApprovalModalOpen] = useState(false);
+  const [isVotingModalOpen, setIsVotingModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeType | null>(null);
+  const [selectedLoan, setSelectedLoan] = useState<any>(null);
 
   const { data: employeeData = [], isLoading: employeesLoading } = useEmployees();
   const { data: leaveData = [], isLoading: leavesLoading } = useLeaveRequests();
@@ -130,6 +138,11 @@ const HRManagement = () => {
 
   const handleProcessSalary = () => {
     setIsProcessPayrollModalOpen(true);
+  };
+
+  const handleApproveLoan = (loan: any) => {
+    setSelectedLoan(loan);
+    setIsLoanApprovalModalOpen(true);
   };
 
   if (summaryLoading || employeesLoading) {
@@ -457,9 +470,17 @@ const HRManagement = () => {
         </TabsContent>
 
         <TabsContent value="loans" className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h3 className="text-xl font-bold">Employee Loans</h3>
+            <Button onClick={() => setIsLoanRequestModalOpen(true)}>
+              <DollarSign className="h-4 w-4 mr-2" />
+              New Loan Request
+            </Button>
+          </div>
+
           <Card className="card-luxury">
             <CardHeader>
-              <CardTitle>Employee Loans</CardTitle>
+              <CardTitle>Loan Requests & Management</CardTitle>
               <CardDescription>Track and manage employee loan requests</CardDescription>
             </CardHeader>
             <CardContent>
@@ -477,9 +498,24 @@ const HRManagement = () => {
                             <p className="text-muted-foreground">{loan.purpose}</p>
                           </div>
                         </div>
-                        <Badge className={loan.status === 'active' ? 'bg-success text-success-foreground' : 'bg-muted text-muted-foreground'}>
-                          {loan.status.toUpperCase()}
-                        </Badge>
+                        <div className="flex gap-2">
+                          <Badge className={
+                            loan.status === 'active' ? 'bg-success text-success-foreground' : 
+                            loan.status === 'pending' ? 'bg-warning text-warning-foreground' :
+                            'bg-muted text-muted-foreground'
+                          }>
+                            {loan.status.toUpperCase()}
+                          </Badge>
+                          {loan.status === 'pending' && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleApproveLoan(loan)}
+                            >
+                              Review
+                            </Button>
+                          )}
+                        </div>
                       </div>
                       
                       <div className="grid md:grid-cols-4 gap-4">
@@ -500,24 +536,89 @@ const HRManagement = () => {
                           <p className="font-medium">{loan.start_date}</p>
                         </div>
                       </div>
+                      
+                      {loan.notes && (
+                        <div className="mt-4 pt-4 border-t">
+                          <p className="text-sm text-muted-foreground">Notes</p>
+                          <p className="text-sm">{loan.notes}</p>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 ))}
+                
+                {loanData.length === 0 && (
+                  <div className="text-center py-8">
+                    <DollarSign className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground">No loan requests found</p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="staff-month" className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h3 className="text-xl font-bold">Staff of the Month</h3>
+            <Button onClick={() => setIsVotingModalOpen(true)} className="button-luxury">
+              <Vote className="h-4 w-4 mr-2" />
+              Vote Now
+            </Button>
+          </div>
+
           <Card className="card-luxury">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Star className="h-5 w-5 text-warning" />
-                Staff of the Month
+                Staff of the Month Program
               </CardTitle>
-              <CardDescription>Recognize outstanding employee performance</CardDescription>
+              <CardDescription>Recognize outstanding employee performance through voting</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h4 className="font-semibold">Current Month Voting</h4>
+                  <div className="p-4 border rounded-lg">
+                    <p className="text-lg font-bold mb-2">
+                      {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                    </p>
+                    <p className="text-muted-foreground mb-4">
+                      Vote for the employee who has shown exceptional performance, dedication, and positive attitude this month.
+                    </p>
+                    <Button 
+                      onClick={() => setIsVotingModalOpen(true)}
+                      className="w-full button-luxury"
+                    >
+                      <Vote className="h-4 w-4 mr-2" />
+                      Cast Your Vote
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h4 className="font-semibold">Voting Rules</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 text-success mt-0.5" />
+                      <span>Both staff and guests can vote</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 text-success mt-0.5" />
+                      <span>One vote per person per month</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 text-success mt-0.5" />
+                      <span>All active employees are eligible</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 text-success mt-0.5" />
+                      <span>Results announced at month end</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-4">
                 <h4 className="font-semibold">Recent Winners</h4>
                 <div className="grid gap-4">
@@ -543,6 +644,13 @@ const HRManagement = () => {
                       </CardContent>
                     </Card>
                   ))}
+                  
+                  {recognitionData.length === 0 && (
+                    <div className="text-center py-8">
+                      <Star className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                      <p className="text-muted-foreground">No winners announced yet</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -661,6 +769,25 @@ const HRManagement = () => {
       <ProcessPayrollModal
         isOpen={isProcessPayrollModalOpen}
         onClose={() => setIsProcessPayrollModalOpen(false)}
+      />
+
+      <LoanRequestModal
+        isOpen={isLoanRequestModalOpen}
+        onClose={() => setIsLoanRequestModalOpen(false)}
+      />
+
+      <LoanApprovalModal
+        isOpen={isLoanApprovalModalOpen}
+        onClose={() => {
+          setIsLoanApprovalModalOpen(false);
+          setSelectedLoan(null);
+        }}
+        loan={selectedLoan}
+      />
+
+      <StaffVotingModal
+        isOpen={isVotingModalOpen}
+        onClose={() => setIsVotingModalOpen(false)}
       />
     </div>
   );
