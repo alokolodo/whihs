@@ -5,6 +5,18 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  useEmployees, 
+  useLeaveRequests, 
+  useEmployeeLoans, 
+  useStaffRecognition, 
+  useHRSummary,
+  useApproveLeaveRequest,
+  useRejectLeaveRequest,
+  Employee as EmployeeType
+} from "@/hooks/useHR";
+import { AddEmployeeModal } from "@/components/hr/AddEmployeeModal";
+import { LeaveRequestModal } from "@/components/hr/LeaveRequestModal";
 import {
   Users,
   Search,
@@ -20,199 +32,42 @@ import {
   Star,
   Phone,
   Mail,
-  MapPin
+  MapPin,
+  Loader2
 } from "lucide-react";
-
-interface Employee {
-  id: string;
-  name: string;
-  position: string;
-  department: 'front-desk' | 'housekeeping' | 'kitchen' | 'maintenance' | 'management' | 'security';
-  email: string;
-  phone: string;
-  address: string;
-  hireDate: string;
-  salary: number;
-  employmentType: 'full-time' | 'part-time' | 'contract';
-  status: 'active' | 'on-leave' | 'terminated';
-  emergencyContact: string;
-  emergencyPhone: string;
-  totalLeaves: number;
-  usedLeaves: number;
-}
-
-interface LeaveRequest {
-  id: string;
-  employeeId: string;
-  employeeName: string;
-  leaveType: 'annual' | 'sick' | 'maternity' | 'emergency' | 'unpaid';
-  startDate: string;
-  endDate: string;
-  days: number;
-  reason: string;
-  status: 'pending' | 'approved' | 'rejected';
-  appliedOn: string;
-}
-
-interface Loan {
-  id: string;
-  employeeId: string;
-  employeeName: string;
-  amount: number;
-  purpose: string;
-  approvedDate: string;
-  monthlyDeduction: number;
-  remainingAmount: number;
-  status: 'active' | 'completed' | 'pending';
-}
-
-interface StaffVote {
-  id: string;
-  month: string;
-  nominees: { employeeId: string; name: string; votes: number; department: string }[];
-  winner?: { employeeId: string; name: string; department: string };
-  votingOpen: boolean;
-}
 
 const HRManagement = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("employees");
   const [searchTerm, setSearchTerm] = useState("");
+  const [isAddEmployeeModalOpen, setIsAddEmployeeModalOpen] = useState(false);
+  const [isLeaveRequestModalOpen, setIsLeaveRequestModalOpen] = useState(false);
 
-  const [employees] = useState<Employee[]>([
-    {
-      id: "EMP001",
-      name: "Maria Santos",
-      position: "Housekeeping Supervisor",
-      department: 'housekeeping',
-      email: "maria.santos@hotel.com",
-      phone: "+1 (555) 123-4567",
-      address: "123 Main St, City, State 12345",
-      hireDate: "2022-03-15",
-      salary: 45000,
-      employmentType: 'full-time',
-      status: 'active',
-      emergencyContact: "Carlos Santos",
-      emergencyPhone: "+1 (555) 765-4321",
-      totalLeaves: 25,
-      usedLeaves: 8
-    },
-    {
-      id: "EMP002",
-      name: "James Wilson",
-      position: "Front Desk Manager", 
-      department: 'front-desk',
-      email: "james.wilson@hotel.com",
-      phone: "+1 (555) 234-5678",
-      address: "456 Oak Ave, City, State 12345",
-      hireDate: "2021-07-20",
-      salary: 52000,
-      employmentType: 'full-time',
-      status: 'active',
-      emergencyContact: "Sarah Wilson",
-      emergencyPhone: "+1 (555) 876-5432",
-      totalLeaves: 25,
-      usedLeaves: 12
-    },
-    {
-      id: "EMP003",
-      name: "Chef Martinez",
-      position: "Executive Chef",
-      department: 'kitchen',
-      email: "chef.martinez@hotel.com",
-      phone: "+1 (555) 345-6789",
-      address: "789 Pine St, City, State 12345",
-      hireDate: "2020-01-10",
-      salary: 65000,
-      employmentType: 'full-time',
-      status: 'active',
-      emergencyContact: "Elena Martinez",
-      emergencyPhone: "+1 (555) 987-6543",
-      totalLeaves: 28,
-      usedLeaves: 15
-    }
-  ]);
+  const { data: employeeData = [], isLoading: employeesLoading } = useEmployees();
+  const { data: leaveData = [], isLoading: leavesLoading } = useLeaveRequests();
+  const { data: loanData = [], isLoading: loansLoading } = useEmployeeLoans();
+  const { data: recognitionData = [], isLoading: recognitionLoading } = useStaffRecognition();
+  const { data: stats, isLoading: summaryLoading } = useHRSummary();
 
-  const [leaveRequests] = useState<LeaveRequest[]>([
-    {
-      id: "LR001",
-      employeeId: "EMP001",
-      employeeName: "Maria Santos",
-      leaveType: 'annual',
-      startDate: "2024-02-15",
-      endDate: "2024-02-20",
-      days: 6,
-      reason: "Family vacation",
-      status: 'pending',
-      appliedOn: "2024-01-15"
-    },
-    {
-      id: "LR002",
-      employeeId: "EMP002", 
-      employeeName: "James Wilson",
-      leaveType: 'sick',
-      startDate: "2024-01-18",
-      endDate: "2024-01-19",
-      days: 2,
-      reason: "Medical appointment and recovery",
-      status: 'approved',
-      appliedOn: "2024-01-17"
-    }
-  ]);
+  const approveLeaveRequestMutation = useApproveLeaveRequest();
+  const rejectLeaveRequestMutation = useRejectLeaveRequest();
 
-  const [loans] = useState<Loan[]>([
-    {
-      id: "LN001",
-      employeeId: "EMP003",
-      employeeName: "Chef Martinez",
-      amount: 5000,
-      purpose: "Home renovation",
-      approvedDate: "2023-12-01",
-      monthlyDeduction: 500,
-      remainingAmount: 2500,
-      status: 'active'
-    },
-    {
-      id: "LN002",
-      employeeId: "EMP001",
-      employeeName: "Maria Santos", 
-      amount: 2000,
-      purpose: "Medical expenses",
-      approvedDate: "2024-01-05",
-      monthlyDeduction: 200,
-      remainingAmount: 1800,
-      status: 'active'
-    }
-  ]);
-
-  const [staffVoting] = useState<StaffVote>({
-    id: "SV001",
-    month: "January 2024",
-    nominees: [
-      { employeeId: "EMP001", name: "Maria Santos", votes: 12, department: "Housekeeping" },
-      { employeeId: "EMP002", name: "James Wilson", votes: 8, department: "Front Desk" },
-      { employeeId: "EMP003", name: "Chef Martinez", votes: 15, department: "Kitchen" }
-    ],
-    winner: { employeeId: "EMP003", name: "Chef Martinez", department: "Kitchen" },
-    votingOpen: false
-  });
-
-  const filteredEmployees = employees.filter(emp =>
-    emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    emp.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    emp.department.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredEmployees = employeeData.filter(emp =>
+    `${emp.first_name} ${emp.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    emp.employee_positions?.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    emp.departments?.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getDepartmentColor = (dept: string) => {
-    const colors = {
-      'front-desk': 'bg-blue-500 text-white',
-      'housekeeping': 'bg-purple-500 text-white', 
-      'kitchen': 'bg-green-500 text-white',
-      'maintenance': 'bg-orange-500 text-white',
-      'management': 'bg-accent text-accent-foreground',
-      'security': 'bg-gray-600 text-white'
+  const getDepartmentColor = (deptName: string) => {
+    const colors: { [key: string]: string } = {
+      'Front Desk': 'bg-blue-500 text-white',
+      'Housekeeping': 'bg-purple-500 text-white', 
+      'Kitchen': 'bg-green-500 text-white',
+      'Maintenance': 'bg-orange-500 text-white',
+      'Management': 'bg-accent text-accent-foreground',
+      'Security': 'bg-gray-600 text-white'
     };
-    return colors[dept as keyof typeof colors] || 'bg-gray-500 text-white';
+    return colors[deptName] || 'bg-gray-500 text-white';
   };
 
   const getStatusColor = (status: string) => {
@@ -220,6 +75,7 @@ const HRManagement = () => {
       case 'active': return 'bg-success text-success-foreground';
       case 'on-leave': return 'bg-warning text-warning-foreground';
       case 'terminated': return 'bg-destructive text-destructive-foreground';
+      case 'suspended': return 'bg-muted text-muted-foreground';
       default: return 'bg-muted text-muted-foreground';
     }
   };
@@ -232,19 +88,20 @@ const HRManagement = () => {
     }
   };
 
-  const handleApproveLeave = (leaveId: string) => {
-    toast({
-      title: "Leave Approved",
-      description: "Employee has been notified of the leave approval.",
-    });
+  const handleApproveLeave = async (leaveId: string) => {
+    try {
+      await approveLeaveRequestMutation.mutateAsync(leaveId);
+    } catch (error) {
+      console.error('Error approving leave:', error);
+    }
   };
 
-  const handleRejectLeave = (leaveId: string) => {
-    toast({
-      title: "Leave Rejected", 
-      description: "Employee has been notified of the leave rejection.",
-      variant: "destructive"
-    });
+  const handleRejectLeave = async (leaveId: string) => {
+    try {
+      await rejectLeaveRequestMutation.mutateAsync({ leaveId });
+    } catch (error) {
+      console.error('Error rejecting leave:', error);
+    }
   };
 
   const handleProcessSalary = () => {
@@ -254,18 +111,13 @@ const HRManagement = () => {
     });
   };
 
-  const getHRStats = () => {
-    const total = employees.length;
-    const active = employees.filter(e => e.status === 'active').length;
-    const onLeave = employees.filter(e => e.status === 'on-leave').length;
-    const pendingLeaves = leaveRequests.filter(lr => lr.status === 'pending').length;
-    const activeLoans = loans.filter(l => l.status === 'active').length;
-    const totalSalaries = employees.reduce((sum, e) => sum + e.salary, 0);
-
-    return { total, active, onLeave, pendingLeaves, activeLoans, totalSalaries };
-  };
-
-  const stats = getHRStats();
+  if (summaryLoading || employeesLoading) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -274,7 +126,7 @@ const HRManagement = () => {
           <h1 className="text-3xl font-bold text-foreground">HR Management</h1>
           <p className="text-muted-foreground">Manage staff, salaries, leaves, and employee welfare</p>
         </div>
-        <Button className="button-luxury">
+        <Button className="button-luxury" onClick={() => setIsAddEmployeeModalOpen(true)}>
           <UserPlus className="h-4 w-4 mr-2" />
           Add Employee
         </Button>
@@ -313,14 +165,14 @@ const HRManagement = () => {
                         <Users className="h-6 w-6 text-primary-foreground" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold">{employee.name}</h3>
-                        <p className="text-muted-foreground">{employee.position}</p>
-                        <p className="text-sm text-muted-foreground">Employee ID: {employee.id}</p>
+                        <h3 className="text-xl font-bold">{employee.first_name} {employee.last_name}</h3>
+                        <p className="text-muted-foreground">{employee.employee_positions?.title}</p>
+                        <p className="text-sm text-muted-foreground">Employee ID: {employee.employee_id}</p>
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Badge className={getDepartmentColor(employee.department)}>
-                        {employee.department.replace('-', ' ').toUpperCase()}
+                      <Badge className={getDepartmentColor(employee.departments?.name || '')}>
+                        {employee.departments?.name?.toUpperCase()}
                       </Badge>
                       <Badge className={getStatusColor(employee.status)}>
                         {employee.status.toUpperCase()}
@@ -352,11 +204,11 @@ const HRManagement = () => {
                       <div className="space-y-1">
                         <div className="text-sm">
                           <span className="text-muted-foreground">Hire Date:</span>
-                          <p className="font-medium">{employee.hireDate}</p>
+                          <p className="font-medium">{employee.hire_date}</p>
                         </div>
                         <div className="text-sm">
                           <span className="text-muted-foreground">Type:</span>
-                          <p className="capitalize">{employee.employmentType}</p>
+                          <p className="capitalize">{employee.employment_type}</p>
                         </div>
                         <div className="text-sm">
                           <span className="text-muted-foreground">Salary:</span>
@@ -370,15 +222,15 @@ const HRManagement = () => {
                       <div className="space-y-1">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Total Leaves</span>
-                          <span className="font-medium">{employee.totalLeaves}</span>
+                          <span className="font-medium">{employee.total_leave_days}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Used</span>
-                          <span className="font-medium">{employee.usedLeaves}</span>
+                          <span className="font-medium">{employee.used_leave_days}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Remaining</span>
-                          <span className="font-bold text-success">{employee.totalLeaves - employee.usedLeaves}</span>
+                          <span className="font-bold text-success">{employee.total_leave_days - employee.used_leave_days}</span>
                         </div>
                       </div>
                     </div>
@@ -388,11 +240,11 @@ const HRManagement = () => {
                       <div className="space-y-1">
                         <div className="text-sm">
                           <span className="text-muted-foreground">Contact:</span>
-                          <p className="font-medium">{employee.emergencyContact}</p>
+                          <p className="font-medium">{employee.emergency_contact_name}</p>
                         </div>
                         <div className="text-sm">
                           <span className="text-muted-foreground">Phone:</span>
-                          <p>{employee.emergencyPhone}</p>
+                          <p>{employee.emergency_contact_phone}</p>
                         </div>
                       </div>
                     </div>
@@ -428,19 +280,19 @@ const HRManagement = () => {
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Total Employees</span>
-                      <span className="font-bold">{stats.total}</span>
+                      <span className="font-bold">{stats?.total || 0}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Total Salaries</span>
-                      <span className="font-bold">${stats.totalSalaries.toLocaleString()}</span>
+                      <span className="font-bold">${stats?.totalSalaries.toLocaleString() || '0'}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Active Loan Deductions</span>
-                      <span className="font-bold text-warning">${loans.filter(l => l.status === 'active').reduce((sum, l) => sum + l.monthlyDeduction, 0)}</span>
+                      <span className="font-bold text-warning">${loanData.filter(l => l.status === 'active').reduce((sum, l) => sum + l.monthly_deduction, 0).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-lg font-bold border-t pt-2">
                       <span>Net Payroll</span>
-                      <span>${(stats.totalSalaries - loans.filter(l => l.status === 'active').reduce((sum, l) => sum + l.monthlyDeduction, 0)).toLocaleString()}</span>
+                      <span>${((stats?.totalSalaries || 0) - loanData.filter(l => l.status === 'active').reduce((sum, l) => sum + l.monthly_deduction, 0)).toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
@@ -465,19 +317,23 @@ const HRManagement = () => {
               </div>
 
               <div className="space-y-4">
-                <h4 className="font-semibold">Individual Salaries</h4>
-                <div className="grid gap-3">
-                  {employees.map((employee) => (
-                    <div key={employee.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
-                      <div>
-                        <p className="font-medium">{employee.name}</p>
-                        <p className="text-sm text-muted-foreground">{employee.position}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold">${(employee.salary / 12).toFixed(0)}</p>
-                        <p className="text-xs text-muted-foreground">Monthly</p>
-                      </div>
-                    </div>
+                <h4 className="font-semibold">Individual Salary Details</h4>
+                <div className="grid gap-4">
+                  {employeeData.slice(0, 5).map((employee) => (
+                    <Card key={employee.id}>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h5 className="font-bold">{employee.first_name} {employee.last_name}</h5>
+                            <p className="text-sm text-muted-foreground">{employee.employee_positions?.title}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold">${employee.salary.toLocaleString()}/year</p>
+                            <p className="text-sm text-muted-foreground">${(employee.salary / 12).toFixed(0)}/month</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               </div>
@@ -486,68 +342,77 @@ const HRManagement = () => {
         </TabsContent>
 
         <TabsContent value="leaves" className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h3 className="text-xl font-bold">Leave Management</h3>
+            <Button onClick={() => setIsLeaveRequestModalOpen(true)}>
+              <Calendar className="h-4 w-4 mr-2" />
+              New Leave Request
+            </Button>
+          </div>
+
           <div className="grid gap-4">
-            {leaveRequests.map((leave) => (
+            {leaveData.map((leave: any) => (
               <Card key={leave.id} className="card-luxury">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-accent rounded-full flex items-center justify-center">
-                        <Calendar className="h-6 w-6 text-accent-foreground" />
+                      <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
+                        <Calendar className="h-6 w-6 text-primary-foreground" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold">{leave.employeeName}</h3>
-                        <p className="text-muted-foreground capitalize">{leave.leaveType} Leave • {leave.days} days</p>
+                        <h3 className="text-xl font-bold">{leave.employees?.first_name} {leave.employees?.last_name}</h3>
+                        <p className="text-muted-foreground capitalize">{leave.leave_type} Leave • {leave.total_days} days</p>
                       </div>
                     </div>
                     <Badge className={getLeaveStatusColor(leave.status)}>
-                      {leave.status === 'pending' ? <Clock className="h-3 w-3 mr-1" /> : 
-                       leave.status === 'approved' ? <CheckCircle className="h-3 w-3 mr-1" /> : 
-                       <AlertCircle className="h-3 w-3 mr-1" />}
                       {leave.status.toUpperCase()}
                     </Badge>
                   </div>
-
-                  <div className="grid md:grid-cols-4 gap-4 mb-4">
+                  
+                  <div className="grid md:grid-cols-4 gap-4">
                     <div>
                       <p className="text-sm text-muted-foreground">Start Date</p>
-                      <p className="font-medium">{leave.startDate}</p>
+                      <p className="font-medium">{leave.start_date}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">End Date</p>
-                      <p className="font-medium">{leave.endDate}</p>
+                      <p className="font-medium">{leave.end_date}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Applied On</p>
-                      <p className="font-medium">{leave.appliedOn}</p>
+                      <p className="font-medium">{new Date(leave.applied_at).toLocaleDateString()}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Duration</p>
-                      <p className="font-medium">{leave.days} days</p>
+                      <p className="font-medium">{leave.total_days} days</p>
                     </div>
                   </div>
 
-                  <div className="mb-4">
+                  <div className="mt-4">
                     <p className="text-sm text-muted-foreground">Reason</p>
-                    <p className="font-medium">{leave.reason}</p>
+                    <p className="text-sm">{leave.reason}</p>
                   </div>
 
                   {leave.status === 'pending' && (
-                    <div className="flex gap-2">
-                      <Button 
-                        size="sm" 
+                    <div className="flex gap-2 mt-4 pt-4 border-t">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-success hover:bg-success hover:text-success-foreground"
                         onClick={() => handleApproveLeave(leave.id)}
-                        className="button-luxury"
+                        disabled={approveLeaveRequestMutation.isPending}
                       >
-                        <CheckCircle className="h-4 w-4 mr-2" />
+                        <CheckCircle className="h-4 w-4 mr-1" />
                         Approve
                       </Button>
-                      <Button 
-                        variant="destructive" 
+                      <Button
+                        variant="outline"
                         size="sm"
+                        className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
                         onClick={() => handleRejectLeave(leave.id)}
+                        disabled={rejectLeaveRequestMutation.isPending}
                       >
-                        <AlertCircle className="h-4 w-4 mr-2" />
+                        <AlertCircle className="h-4 w-4 mr-1" />
                         Reject
                       </Button>
                     </div>
@@ -559,151 +424,92 @@ const HRManagement = () => {
         </TabsContent>
 
         <TabsContent value="loans" className="space-y-6">
-          <div className="grid gap-4">
-            {loans.map((loan) => (
-              <Card key={loan.id} className="card-luxury">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
-                        <DollarSign className="h-6 w-6 text-primary-foreground" />
+          <Card className="card-luxury">
+            <CardHeader>
+              <CardTitle>Employee Loans</CardTitle>
+              <CardDescription>Track and manage employee loan requests</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4">
+                {loanData.map((loan: any) => (
+                  <Card key={loan.id}>
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
+                            <DollarSign className="h-6 w-6 text-primary-foreground" />
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold">{loan.employees?.first_name} {loan.employees?.last_name}</h3>
+                            <p className="text-muted-foreground">{loan.purpose}</p>
+                          </div>
+                        </div>
+                        <Badge className={loan.status === 'active' ? 'bg-success text-success-foreground' : 'bg-muted text-muted-foreground'}>
+                          {loan.status.toUpperCase()}
+                        </Badge>
                       </div>
-                      <div>
-                        <h3 className="text-xl font-bold">{loan.employeeName}</h3>
-                        <p className="text-muted-foreground">{loan.purpose}</p>
+                      
+                      <div className="grid md:grid-cols-4 gap-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Loan Amount</p>
+                          <p className="font-bold">${loan.loan_amount.toLocaleString()}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Monthly Deduction</p>
+                          <p className="font-medium">${loan.monthly_deduction.toLocaleString()}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Remaining</p>
+                          <p className="font-medium text-warning">${loan.remaining_amount.toLocaleString()}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Start Date</p>
+                          <p className="font-medium">{loan.start_date}</p>
+                        </div>
                       </div>
-                    </div>
-                    <Badge className={loan.status === 'active' ? 'bg-warning text-warning-foreground' : 'bg-success text-success-foreground'}>
-                      {loan.status.toUpperCase()}
-                    </Badge>
-                  </div>
-
-                  <div className="grid md:grid-cols-4 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Loan Amount</p>
-                      <p className="font-bold text-lg">${loan.amount.toLocaleString()}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Monthly Deduction</p>
-                      <p className="font-bold text-warning">${loan.monthlyDeduction}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Remaining Balance</p>
-                      <p className="font-bold">${loan.remainingAmount.toLocaleString()}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Approved Date</p>
-                      <p className="font-medium">{loan.approvedDate}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="staff-month" className="space-y-6">
           <Card className="card-luxury">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Award className="h-5 w-5" />
-                Staff of the Month - {staffVoting.month}
+                <Star className="h-5 w-5 text-warning" />
+                Staff of the Month
               </CardTitle>
-              <CardDescription>
-                {staffVoting.votingOpen ? "Voting is currently open" : "Voting has concluded"}
-              </CardDescription>
+              <CardDescription>Recognize outstanding employee performance</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {staffVoting.winner && !staffVoting.votingOpen && (
-                <div className="bg-accent/10 p-6 rounded-lg border border-accent/20">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center">
-                      <Award className="h-8 w-8 text-primary-foreground" />
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-bold text-accent">🎉 {staffVoting.winner.name}</h3>
-                      <p className="text-lg text-muted-foreground">{staffVoting.winner.department} Department</p>
-                      <p className="text-sm text-muted-foreground">Winner of {staffVoting.month}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
               <div className="space-y-4">
-                <h4 className="font-semibold">Voting Results</h4>
-                <div className="space-y-3">
-                  {staffVoting.nominees.map((nominee, index) => (
-                    <div key={nominee.employeeId} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
-                      <div className="flex items-center gap-4">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${index === 0 ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground'}`}>
-                          {index + 1}
+                <h4 className="font-semibold">Recent Winners</h4>
+                <div className="grid gap-4">
+                  {recognitionData.map((recognition: any) => (
+                    <Card key={recognition.id} className="bg-gradient-to-r from-warning/10 to-warning/5 border-warning/20">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Award className="h-8 w-8 text-warning" />
+                            <div>
+                              <h5 className="font-bold">{recognition.employees?.first_name} {recognition.employees?.last_name}</h5>
+                              <p className="text-sm text-muted-foreground">
+                                {recognition.employees?.departments?.name} • {new Date(recognition.month_year).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-warning">{recognition.votes} votes</p>
+                            <p className="text-sm text-muted-foreground">Winner</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium">{nominee.name}</p>
-                          <p className="text-sm text-muted-foreground">{nominee.department}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Star className="h-4 w-4 text-accent" />
-                        <span className="font-bold">{nominee.votes} votes</span>
-                      </div>
-                    </div>
+                        <p className="text-sm mt-2">{recognition.description}</p>
+                      </CardContent>
+                    </Card>
                   ))}
-                </div>
-              </div>
-
-              {staffVoting.votingOpen && (
-                <Button className="button-luxury">
-                  <Award className="h-4 w-4 mr-2" />
-                  Close Voting & Announce Winner
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="card-luxury">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="h-5 w-5" />
-                Employee Wellness
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <h4 className="font-semibold">Health & Wellness</h4>
-                  <div className="space-y-2">
-                    <Button variant="outline" className="w-full justify-start">
-                      <Heart className="h-4 w-4 mr-2" />
-                      Medical Insurance Claims
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Health Checkup Schedule
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start">
-                      <AlertCircle className="h-4 w-4 mr-2" />
-                      Emergency Contacts
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <h4 className="font-semibold">Work Schedule</h4>
-                  <div className="space-y-2">
-                    <Button variant="outline" className="w-full justify-start">
-                      <Clock className="h-4 w-4 mr-2" />
-                      Shift Management
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Off Day Schedule
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start">
-                      <Users className="h-4 w-4 mr-2" />
-                      Department Roster
-                    </Button>
-                  </div>
                 </div>
               </div>
             </CardContent>
@@ -714,79 +520,65 @@ const HRManagement = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <Card className="card-luxury">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Total Employees
-                </CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Employees</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.total}</div>
-                <p className="text-xs text-muted-foreground">
-                  {stats.active} active • {stats.onLeave} on leave
-                </p>
+                <div className="text-2xl font-bold">{stats?.total || 0}</div>
+                <p className="text-xs text-muted-foreground">Active workforce</p>
               </CardContent>
             </Card>
 
             <Card className="card-luxury">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Pending Leaves
-                </CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Active Staff</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-warning">{stats.pendingLeaves}</div>
-                <p className="text-xs text-muted-foreground">
-                  Require approval
-                </p>
+                <div className="text-2xl font-bold text-success">{stats?.active || 0}</div>
+                <p className="text-xs text-muted-foreground">Currently working</p>
               </CardContent>
             </Card>
 
             <Card className="card-luxury">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Active Loans
-                </CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Pending Leaves</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.activeLoans}</div>
-                <p className="text-xs text-muted-foreground">
-                  ${loans.filter(l => l.status === 'active').reduce((sum, l) => sum + l.remainingAmount, 0).toLocaleString()} outstanding
-                </p>
+                <div className="text-2xl font-bold text-warning">{stats?.pendingLeaves || 0}</div>
+                <p className="text-xs text-muted-foreground">Awaiting approval</p>
               </CardContent>
             </Card>
 
             <Card className="card-luxury">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Monthly Payroll
-                </CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Payroll</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${(stats.totalSalaries / 12).toFixed(0)}</div>
-                <p className="text-xs text-muted-foreground">
-                  Average monthly cost
-                </p>
+                <div className="text-2xl font-bold">${((stats?.totalSalaries || 0) / 12).toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground">Monthly cost</p>
               </CardContent>
             </Card>
           </div>
 
           <Card className="card-luxury">
             <CardHeader>
-              <CardTitle>Department Distribution</CardTitle>
+              <CardTitle>Department Overview</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {['front-desk', 'housekeeping', 'kitchen', 'maintenance', 'management', 'security'].map(dept => {
-                  const count = employees.filter(e => e.department === dept).length;
-                  const percentage = (count / employees.length) * 100;
+              <div className="space-y-4">
+                {Array.from(new Set(employeeData.map(emp => emp.departments?.name))).filter(Boolean).map((deptName) => {
+                  const deptEmployees = employeeData.filter(emp => emp.departments?.name === deptName);
+                  const avgSalary = deptEmployees.reduce((sum, emp) => sum + emp.salary, 0) / deptEmployees.length;
+                  
                   return (
-                    <div key={dept} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Badge className={getDepartmentColor(dept)} variant="outline">
-                          {dept.replace('-', ' ').toUpperCase()}
-                        </Badge>
-                        <span className="text-sm">{count} employees</span>
+                    <div key={deptName} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div>
+                        <h4 className="font-semibold">{deptName}</h4>
+                        <p className="text-sm text-muted-foreground">{deptEmployees.length} employees</p>
                       </div>
-                      <span className="text-sm font-medium">{percentage.toFixed(1)}%</span>
+                      <div className="text-right">
+                        <p className="font-bold">${avgSalary.toLocaleString()}</p>
+                        <p className="text-sm text-muted-foreground">Avg. salary</p>
+                      </div>
                     </div>
                   );
                 })}
@@ -795,6 +587,16 @@ const HRManagement = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <AddEmployeeModal 
+        isOpen={isAddEmployeeModalOpen}
+        onClose={() => setIsAddEmployeeModalOpen(false)}
+      />
+      
+      <LeaveRequestModal
+        isOpen={isLeaveRequestModalOpen}
+        onClose={() => setIsLeaveRequestModalOpen(false)}
+      />
     </div>
   );
 };

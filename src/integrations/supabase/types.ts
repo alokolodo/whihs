@@ -179,6 +179,263 @@ export type Database = {
           },
         ]
       }
+      departments: {
+        Row: {
+          budget: number | null
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          manager_id: string | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          budget?: number | null
+          code: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          manager_id?: string | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          budget?: number | null
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          manager_id?: string | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_departments_manager"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_loans: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          employee_id: string
+          expected_end_date: string | null
+          id: string
+          loan_amount: number
+          monthly_deduction: number
+          notes: string | null
+          purpose: string
+          remaining_amount: number
+          start_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          employee_id: string
+          expected_end_date?: string | null
+          id?: string
+          loan_amount: number
+          monthly_deduction: number
+          notes?: string | null
+          purpose: string
+          remaining_amount: number
+          start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          employee_id?: string
+          expected_end_date?: string | null
+          id?: string
+          loan_amount?: number
+          monthly_deduction?: number
+          notes?: string | null
+          purpose?: string
+          remaining_amount?: number
+          start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_loans_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_loans_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_positions: {
+        Row: {
+          created_at: string
+          department_id: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          max_salary: number | null
+          min_salary: number | null
+          requirements: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          department_id?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_salary?: number | null
+          min_salary?: number | null
+          requirements?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          department_id?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_salary?: number | null
+          min_salary?: number | null
+          requirements?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_positions_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employees: {
+        Row: {
+          address: string | null
+          bank_account: string | null
+          created_at: string
+          date_of_birth: string | null
+          department_id: string | null
+          email: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          employee_id: string
+          employment_type: string
+          first_name: string
+          hire_date: string
+          id: string
+          last_name: string
+          manager_id: string | null
+          national_id: string | null
+          notes: string | null
+          phone: string | null
+          position_id: string | null
+          salary: number
+          status: string
+          total_leave_days: number | null
+          updated_at: string
+          used_leave_days: number | null
+        }
+        Insert: {
+          address?: string | null
+          bank_account?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          department_id?: string | null
+          email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          employee_id: string
+          employment_type?: string
+          first_name: string
+          hire_date?: string
+          id?: string
+          last_name: string
+          manager_id?: string | null
+          national_id?: string | null
+          notes?: string | null
+          phone?: string | null
+          position_id?: string | null
+          salary: number
+          status?: string
+          total_leave_days?: number | null
+          updated_at?: string
+          used_leave_days?: number | null
+        }
+        Update: {
+          address?: string | null
+          bank_account?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          department_id?: string | null
+          email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          employee_id?: string
+          employment_type?: string
+          first_name?: string
+          hire_date?: string
+          id?: string
+          last_name?: string
+          manager_id?: string | null
+          national_id?: string | null
+          notes?: string | null
+          phone?: string | null
+          position_id?: string | null
+          salary?: number
+          status?: string
+          total_leave_days?: number | null
+          updated_at?: string
+          used_leave_days?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employees_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_position_id_fkey"
+            columns: ["position_id"]
+            isOneToOne: false
+            referencedRelation: "employee_positions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_reports: {
         Row: {
           created_at: string
@@ -304,6 +561,72 @@ export type Database = {
           },
         ]
       }
+      leave_requests: {
+        Row: {
+          applied_at: string
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          employee_id: string
+          end_date: string
+          id: string
+          leave_type: string
+          reason: string
+          rejection_reason: string | null
+          start_date: string
+          status: string
+          total_days: number
+          updated_at: string
+        }
+        Insert: {
+          applied_at?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          employee_id: string
+          end_date: string
+          id?: string
+          leave_type: string
+          reason: string
+          rejection_reason?: string | null
+          start_date: string
+          status?: string
+          total_days: number
+          updated_at?: string
+        }
+        Update: {
+          applied_at?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          employee_id?: string
+          end_date?: string
+          id?: string
+          leave_type?: string
+          reason?: string
+          rejection_reason?: string | null
+          start_date?: string
+          status?: string
+          total_days?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leave_requests_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           created_at: string
@@ -404,6 +727,162 @@ export type Database = {
           },
         ]
       }
+      payroll_records: {
+        Row: {
+          base_salary: number
+          bonus: number | null
+          created_at: string
+          employee_id: string
+          gross_pay: number
+          id: string
+          loan_deduction: number | null
+          net_pay: number
+          other_deductions: number | null
+          overtime_hours: number | null
+          overtime_rate: number | null
+          pay_period_end: string
+          pay_period_start: string
+          processed_at: string | null
+          processed_by: string | null
+          status: string
+          tax_deduction: number | null
+        }
+        Insert: {
+          base_salary: number
+          bonus?: number | null
+          created_at?: string
+          employee_id: string
+          gross_pay: number
+          id?: string
+          loan_deduction?: number | null
+          net_pay: number
+          other_deductions?: number | null
+          overtime_hours?: number | null
+          overtime_rate?: number | null
+          pay_period_end: string
+          pay_period_start: string
+          processed_at?: string | null
+          processed_by?: string | null
+          status?: string
+          tax_deduction?: number | null
+        }
+        Update: {
+          base_salary?: number
+          bonus?: number | null
+          created_at?: string
+          employee_id?: string
+          gross_pay?: number
+          id?: string
+          loan_deduction?: number | null
+          net_pay?: number
+          other_deductions?: number | null
+          overtime_hours?: number | null
+          overtime_rate?: number | null
+          pay_period_end?: string
+          pay_period_start?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          status?: string
+          tax_deduction?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_records_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payroll_records_processed_by_fkey"
+            columns: ["processed_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      performance_reviews: {
+        Row: {
+          areas_for_improvement: string | null
+          comments: string | null
+          communication: number | null
+          completed_at: string | null
+          created_at: string
+          due_date: string | null
+          employee_id: string
+          goals_achievement: number | null
+          goals_next_period: string | null
+          id: string
+          leadership: number | null
+          overall_rating: number | null
+          review_period_end: string
+          review_period_start: string
+          reviewer_id: string
+          status: string
+          strengths: string | null
+          teamwork: number | null
+          updated_at: string
+        }
+        Insert: {
+          areas_for_improvement?: string | null
+          comments?: string | null
+          communication?: number | null
+          completed_at?: string | null
+          created_at?: string
+          due_date?: string | null
+          employee_id: string
+          goals_achievement?: number | null
+          goals_next_period?: string | null
+          id?: string
+          leadership?: number | null
+          overall_rating?: number | null
+          review_period_end: string
+          review_period_start: string
+          reviewer_id: string
+          status?: string
+          strengths?: string | null
+          teamwork?: number | null
+          updated_at?: string
+        }
+        Update: {
+          areas_for_improvement?: string | null
+          comments?: string | null
+          communication?: number | null
+          completed_at?: string | null
+          created_at?: string
+          due_date?: string | null
+          employee_id?: string
+          goals_achievement?: number | null
+          goals_next_period?: string | null
+          id?: string
+          leadership?: number | null
+          overall_rating?: number | null
+          review_period_end?: string
+          review_period_start?: string
+          reviewer_id?: string
+          status?: string
+          strengths?: string | null
+          teamwork?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "performance_reviews_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "performance_reviews_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       restaurant_tables: {
         Row: {
           created_at: string
@@ -430,6 +909,63 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      staff_recognition: {
+        Row: {
+          award_date: string | null
+          created_at: string
+          description: string | null
+          employee_id: string
+          id: string
+          is_public: boolean | null
+          month_year: string | null
+          nominated_by: string | null
+          recognition_type: string
+          title: string
+          votes: number | null
+        }
+        Insert: {
+          award_date?: string | null
+          created_at?: string
+          description?: string | null
+          employee_id: string
+          id?: string
+          is_public?: boolean | null
+          month_year?: string | null
+          nominated_by?: string | null
+          recognition_type: string
+          title: string
+          votes?: number | null
+        }
+        Update: {
+          award_date?: string | null
+          created_at?: string
+          description?: string | null
+          employee_id?: string
+          id?: string
+          is_public?: boolean | null
+          month_year?: string | null
+          nominated_by?: string | null
+          recognition_type?: string
+          title?: string
+          votes?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_recognition_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_recognition_nominated_by_fkey"
+            columns: ["nominated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       supplier_order_items: {
         Row: {
