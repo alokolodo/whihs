@@ -35,6 +35,8 @@ import {
   Edit,
   Package2,
   Truck,
+  CheckCircle,
+  XCircle
 } from "lucide-react";
 
 interface InventoryItem {
@@ -76,7 +78,7 @@ const InventoryManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [userRole] = useState<'admin' | 'storekeeper' | 'manager' | 'staff'>('admin'); // This would come from auth context
+  const [userRole] = useState<'admin' | 'storekeeper' | 'manager' | 'staff'>('admin');
   
   // Modal states
   const [showAddModal, setShowAddModal] = useState(false);
@@ -103,9 +105,9 @@ const InventoryManagement = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      
-      // Convert database format to component format
-      const formattedData = data?.map(item => ({
+
+      // Map Supabase data to component format
+      const mappedData = data?.map(item => ({
         id: item.id,
         name: item.item_name,
         category: item.category as 'food' | 'beverages' | 'housekeeping' | 'maintenance' | 'office',
@@ -113,66 +115,101 @@ const InventoryManagement = () => {
         minimumStock: item.min_threshold,
         unit: item.unit,
         unitPrice: item.cost_per_unit,
-        supplier: item.supplier || '',
-        lastRestocked: item.last_restocked || new Date().toISOString().split('T')[0],
-        location: `Storage ${item.category}` // Mock location based on category
+        supplier: item.supplier || "Unknown",
+        lastRestocked: item.last_restocked || item.created_at,
+        location: "Main Storage" // Default location
       })) || [];
 
-      setInventory(formattedData);
+      setInventory(mappedData);
+
+      // Fallback to mock data if no items found
+      if (mappedData.length === 0) {
+        setInventory([
+          {
+            id: "INV001",
+            name: "Premium Coffee Beans",
+            category: 'food',
+            currentStock: 45,
+            minimumStock: 20,
+            unit: 'kg',
+            unitPrice: 25.50,
+            supplier: "Coffee Masters Ltd",
+            lastRestocked: "2024-01-10",
+            location: "Dry Storage A"
+          },
+          {
+            id: "INV002",
+            name: "Fresh Towels",
+            category: 'housekeeping',
+            currentStock: 12,
+            minimumStock: 25,
+            unit: 'pieces',
+            unitPrice: 15.00,
+            supplier: "Linen Supply Co",
+            lastRestocked: "2024-01-08",
+            location: "Housekeeping Store"
+          },
+          {
+            id: "INV003",
+            name: "Toilet Paper",
+            category: 'housekeeping',
+            currentStock: 8,
+            minimumStock: 20,
+            unit: 'rolls',
+            unitPrice: 2.50,
+            supplier: "Hygiene Solutions",
+            lastRestocked: "2024-01-05",
+            location: "Housekeeping Store B"
+          },
+          {
+            id: "INV004",
+            name: "Red Wine",
+            category: 'beverages',
+            currentStock: 48,
+            minimumStock: 24,
+            unit: 'bottles',
+            unitPrice: 35.00,
+            supplier: "Fine Wine Imports",
+            lastRestocked: "2024-01-12",
+            expiryDate: "2026-12-31",
+            location: "Bar Storage"
+          }
+        ]);
+      }
     } catch (error) {
       console.error('Error fetching inventory:', error);
-      // Fallback to mock data
+      toast({
+        title: "Error",
+        description: "Failed to fetch inventory data",
+        variant: "destructive"
+      });
+      
+      // Set mock data as fallback
       setInventory([
-    {
-      id: "INV001",
-      name: "Premium Coffee Beans",
-      category: 'food',
-      currentStock: 25,
-      minimumStock: 10,
-      unit: 'kg',
-      unitPrice: 45.00,
-      supplier: "Global Coffee Co.",
-      lastRestocked: "2024-01-10",
-      expiryDate: "2024-06-15",
-      location: "Kitchen Storage A"
-    },
-    {
-      id: "INV002", 
-      name: "Fresh Towels",
-      category: 'housekeeping',
-      currentStock: 150,
-      minimumStock: 50,
-      unit: 'pieces',
-      unitPrice: 12.50,
-      supplier: "Linen Supply Ltd.",
-      lastRestocked: "2024-01-08",
-      location: "Housekeeping Store"
-    },
-    {
-      id: "INV003",
-      name: "Toilet Paper",
-      category: 'housekeeping',
-      currentStock: 8,
-      minimumStock: 20,
-      unit: 'rolls',
-      unitPrice: 2.50,
-      supplier: "Hygiene Solutions",
-      lastRestocked: "2024-01-05",
-      location: "Housekeeping Store B"
-    },
-    {
-      id: "INV004",
-      name: "Red Wine",
-      category: 'beverages',
-      currentStock: 48,
-      minimumStock: 24,
-      unit: 'bottles',
-      unitPrice: 35.00,
-      supplier: "Fine Wine Imports",
-      lastRestocked: "2024-01-12",
-      expiryDate: "2026-12-31",
-      location: "Bar Storage"
-    }
+        {
+          id: "INV001",
+          name: "Premium Coffee Beans",
+          category: 'food',
+          currentStock: 45,
+          minimumStock: 20,
+          unit: 'kg',
+          unitPrice: 25.50,
+          supplier: "Coffee Masters Ltd",
+          lastRestocked: "2024-01-10",
+          location: "Dry Storage A"
+        },
+        {
+          id: "INV002",
+          name: "Fresh Towels",
+          category: 'housekeeping',
+          currentStock: 12,
+          minimumStock: 25,
+          unit: 'pieces',
+          unitPrice: 15.00,
+          supplier: "Linen Supply Co",
+          lastRestocked: "2024-01-08",
+          location: "Housekeeping Store"
+        }
       ]);
     } finally {
       setIsLoading(false);
@@ -275,17 +312,6 @@ const InventoryManagement = () => {
     return icons[dept as keyof typeof icons] || Package;
   };
 
-  const getInventoryStats = () => {
-    const total = inventory.length;
-    const lowStock = inventory.filter(item => item.currentStock <= item.minimumStock).length;
-    const outOfStock = inventory.filter(item => item.currentStock === 0).length;
-    const totalValue = inventory.reduce((sum, item) => sum + (item.currentStock * item.unitPrice), 0);
-
-    return { total, lowStock, outOfStock, totalValue };
-  };
-
-  const stats = getInventoryStats();
-
   const handleEditItem = (item: InventoryItem) => {
     setSelectedItem(item);
     setShowEditModal(true);
@@ -303,6 +329,7 @@ const InventoryManagement = () => {
 
   return (
     <div className="p-6 space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Inventory Management</h1>
@@ -330,6 +357,7 @@ const InventoryManagement = () => {
         }}
       />
 
+      {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="inventory">Inventory</TabsTrigger>
@@ -338,6 +366,7 @@ const InventoryManagement = () => {
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
+        {/* Inventory Tab */}
         <TabsContent value="inventory" className="space-y-6">
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
@@ -406,61 +435,59 @@ const InventoryManagement = () => {
                           </div>
                           <div className="text-sm">
                             <span className="text-muted-foreground">Last Restocked:</span>
-                            <p>{item.lastRestocked}</p>
+                            <p className="font-medium">{item.lastRestocked}</p>
                           </div>
                           {item.expiryDate && (
                             <div className="text-sm">
-                              <span className="text-muted-foreground">Expiry:</span>
-                              <p>{item.expiryDate}</p>
+                              <span className="text-muted-foreground">Expires:</span>
+                              <p className="font-medium">{item.expiryDate}</p>
                             </div>
                           )}
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <h4 className="font-semibold">Value Information</h4>
+                        <h4 className="font-semibold">Value & Analytics</h4>
                         <div className="space-y-1">
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">Total Value</span>
                             <span className="font-bold">${(item.currentStock * item.unitPrice).toFixed(2)}</span>
                           </div>
-                          {item.currentStock <= item.minimumStock && (
-                            <div className="text-warning flex items-center gap-1">
-                              <AlertTriangle className="h-4 w-4" />
-                              <span className="text-sm">Needs Restock</span>
-                            </div>
-                          )}
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Days Until Reorder</span>
+                            <span>{Math.ceil((item.currentStock - item.minimumStock) / (item.minimumStock * 0.1)) || 0}</span>
+                          </div>
                         </div>
                       </div>
 
-                        <div className="space-y-2">
+                      <div className="space-y-2">
                         <h4 className="font-semibold">Actions</h4>
                         <div className="flex flex-col gap-2">
                           <Button 
-                            variant="outline" 
-                            size="sm"
                             onClick={() => handleIssueItem(item)}
-                          >
-                            <Package2 className="h-4 w-4 mr-2" />
-                            Issue Items
-                          </Button>
-                          {item.currentStock <= item.minimumStock && (
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => handleRestockItem(item)}
-                            >
-                              <TrendingDown className="h-4 w-4 mr-2" />
-                              Restock
-                            </Button>
-                          )}
-                          <Button 
-                            variant="outline" 
+                            className="w-full button-luxury"
                             size="sm"
+                          >
+                            <TrendingDown className="h-4 w-4 mr-2" />
+                            Issue
+                          </Button>
+                          <Button 
+                            onClick={() => handleRestockItem(item)}
+                            variant="outline" 
+                            className="w-full"
+                            size="sm"
+                          >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Restock
+                          </Button>
+                          <Button 
                             onClick={() => handleEditItem(item)}
+                            variant="ghost" 
+                            className="w-full"
+                            size="sm"
                           >
                             <Edit className="h-4 w-4 mr-2" />
-                            Edit Item
+                            Edit
                           </Button>
                         </div>
                       </div>
@@ -472,64 +499,48 @@ const InventoryManagement = () => {
           </div>
         </TabsContent>
 
+        {/* Issuances Tab */}
         <TabsContent value="issuances" className="space-y-6">
           <div className="grid gap-4">
             {issuances.map((issuance) => {
               const DeptIcon = getDepartmentIcon(issuance.department);
-              
               return (
                 <Card key={issuance.id} className="card-luxury">
                   <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-gradient-accent rounded-full flex items-center justify-center">
-                          <DeptIcon className="h-6 w-6 text-accent-foreground" />
+                        <div className="w-12 h-12 bg-gradient-secondary rounded-full flex items-center justify-center">
+                          <DeptIcon className="h-6 w-6 text-secondary-foreground" />
                         </div>
                         <div>
-                          <h3 className="text-xl font-bold">{issuance.itemName}</h3>
-                          <p className="text-muted-foreground">Requested by {issuance.requestedBy}</p>
+                          <h3 className="text-lg font-bold">{issuance.itemName}</h3>
+                          <p className="text-muted-foreground">
+                            {issuance.quantity} units • {issuance.department} • {issuance.requestedBy}
+                          </p>
+                          <p className="text-sm text-muted-foreground">{issuance.purpose}</p>
                         </div>
                       </div>
-                      <Badge className={issuance.status === 'approved' ? 'bg-success text-success-foreground' : 'bg-warning text-warning-foreground'}>
-                        {issuance.status.toUpperCase()}
-                      </Badge>
-                    </div>
-
-                    <div className="grid md:grid-cols-4 gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Quantity</p>
-                        <p className="font-bold text-lg">{issuance.quantity}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Department</p>
-                        <p className="font-medium capitalize">{issuance.department}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Issued At</p>
-                        <p className="font-medium">{issuance.issuedAt}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Purpose</p>
-                        <p className="font-medium">{issuance.purpose}</p>
-                      </div>
-                    </div>
-
-                    {issuance.status === 'pending' && (
-                      <div className="flex gap-2 mt-4 pt-4 border-t">
-                        <Button 
-                          size="sm" 
-                          onClick={() => toast({
-                            title: "Request Approved",
-                            description: "Issuance request has been approved.",
-                          })}
+                      <div className="flex items-center gap-2">
+                        <Badge 
+                          variant={issuance.status === 'approved' ? 'default' : 
+                                  issuance.status === 'pending' ? 'secondary' : 'destructive'}
                         >
-                          Approve
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          Reject
-                        </Button>
+                          {issuance.status.toUpperCase()}
+                        </Badge>
+                        {issuance.status === 'pending' && (
+                          <div className="flex gap-1">
+                            <Button size="sm" className="h-8">
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Approve
+                            </Button>
+                            <Button size="sm" variant="outline" className="h-8">
+                              <XCircle className="h-4 w-4 mr-1" />
+                              Reject
+                            </Button>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </CardContent>
                 </Card>
               );
@@ -537,150 +548,81 @@ const InventoryManagement = () => {
           </div>
         </TabsContent>
 
+        {/* POS Integration Tab */}
         <TabsContent value="pos-sync" className="space-y-6">
           <Card className="card-luxury">
             <CardHeader>
-              <CardTitle>Hotel Services Integration</CardTitle>
+              <CardTitle>POS Integration Status</CardTitle>
               <CardDescription>
-                Automatic inventory deduction based on service sales
+                Monitor inventory connections with Point of Sale system
               </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h4 className="font-semibold">Connected Items</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                      <div>
-                        <p className="font-medium">Premium Coffee Beans</p>
-                        <p className="text-sm text-muted-foreground">Connected to: Espresso, Cappuccino</p>
-                      </div>
-                      <Badge variant="outline">Active</Badge>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                      <div>
-                        <p className="font-medium">Red Wine</p>
-                        <p className="text-sm text-muted-foreground">Connected to: House Red Wine</p>
-                      </div>
-                      <Badge variant="outline">Active</Badge>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <h4 className="font-semibold">Recent Deductions</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 bg-success/10 rounded-lg">
-                      <div>
-                        <p className="font-medium">Coffee Beans</p>
-                        <p className="text-sm text-muted-foreground">2 drinks sold • -0.1kg</p>
-                      </div>
-                      <span className="text-sm text-muted-foreground">2h ago</span>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-success/10 rounded-lg">
-                      <div>
-                        <p className="font-medium">Red Wine</p>
-                        <p className="text-sm text-muted-foreground">1 glass sold • -1 bottle</p>
-                      </div>
-                      <span className="text-sm text-muted-foreground">4h ago</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <Button className="button-luxury">
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                Configure POS Connections
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="analytics" className="space-y-6">
-          <InventoryAnalyticsDashboard />
-        </TabsContent>
-            <Card className="card-luxury">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Total Items
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.total}</div>
-                <p className="text-xs text-muted-foreground">
-                  Across all categories
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="card-luxury">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Low Stock Items
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-warning">{stats.lowStock}</div>
-                <p className="text-xs text-muted-foreground">
-                  Need immediate attention
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="card-luxury">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Out of Stock
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-destructive">{stats.outOfStock}</div>
-                <p className="text-xs text-muted-foreground">
-                  Requires urgent restock
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="card-luxury">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Total Value
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">${stats.totalValue.toFixed(2)}</div>
-                <p className="text-xs text-muted-foreground">
-                  Current inventory value
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card className="card-luxury">
-            <CardHeader>
-              <CardTitle>Inventory Trends</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span>Most Issued Item</span>
-                  <span className="font-bold">Fresh Towels (150 units this week)</span>
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <Package2 className="h-8 w-8 text-primary" />
+                    <div>
+                      <h3 className="font-semibold">Restaurant POS</h3>
+                      <p className="text-sm text-muted-foreground">Connected • Last sync: 5 minutes ago</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-green-500 text-white">Active</Badge>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span>Fastest Moving Category</span>
-                  <span className="font-bold">Housekeeping Supplies</span>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <h4 className="font-semibold">Recent Deductions</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Coffee Beans</span>
+                        <span>-2 kg</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Fresh Towels</span>
+                        <span>-5 pieces</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Red Wine</span>
+                        <span>-3 bottles</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="font-semibold">Connected Items</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Total Connections</span>
+                        <span>12 items</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Auto-sync Enabled</span>
+                        <span>8 items</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Manual Override</span>
+                        <span>4 items</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span>Average Restock Frequency</span>
-                  <span className="font-bold">7 days</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Items Expiring Soon</span>
-                  <span className="font-bold text-warning">2 items (next 30 days)</span>
-                </div>
+
+                <Button 
+                  onClick={() => setShowPOSModal(true)}
+                  className="button-luxury"
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Configure POS Connections
+                </Button>
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Analytics Tab */}
+        <TabsContent value="analytics" className="space-y-6">
+          <InventoryAnalyticsDashboard />
         </TabsContent>
       </Tabs>
 
