@@ -41,7 +41,7 @@ import {
   Mail,
   MapPin,
   Loader2,
-  Vote
+  ThumbsUp
 } from "lucide-react";
 
 const HRManagement = () => {
@@ -562,7 +562,7 @@ const HRManagement = () => {
           <div className="flex justify-between items-center">
             <h3 className="text-xl font-bold">Staff of the Month</h3>
             <Button onClick={() => setIsVotingModalOpen(true)} className="button-luxury">
-              <Vote className="h-4 w-4 mr-2" />
+              <ThumbsUp className="h-4 w-4 mr-2" />
               Vote Now
             </Button>
           </div>
@@ -590,7 +590,7 @@ const HRManagement = () => {
                       onClick={() => setIsVotingModalOpen(true)}
                       className="w-full button-luxury"
                     >
-                      <Vote className="h-4 w-4 mr-2" />
+                      <ThumbsUp className="h-4 w-4 mr-2" />
                       Cast Your Vote
                     </Button>
                   </div>

@@ -10,7 +10,7 @@ import { useEmployees } from "@/hooks/useHR";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Vote, Star, Users, Calendar, CheckCircle, Clock } from "lucide-react";
+import { ThumbsUp, Star, Users, Calendar, CheckCircle, Clock } from "lucide-react";
 
 interface StaffVotingModalProps {
   isOpen: boolean;
@@ -159,7 +159,7 @@ export const StaffVotingModal = ({ isOpen, onClose }: StaffVotingModalProps) => 
           <div className="grid md:grid-cols-3 gap-4">
             <Card>
               <CardContent className="p-4 text-center">
-                <Vote className="h-8 w-8 mx-auto mb-2 text-primary" />
+                <ThumbsUp className="h-8 w-8 mx-auto mb-2 text-primary" />
                 <p className="text-2xl font-bold">{totalVotes}</p>
                 <p className="text-sm text-muted-foreground">Total Votes</p>
               </CardContent>
@@ -299,7 +299,7 @@ export const StaffVotingModal = ({ isOpen, onClose }: StaffVotingModalProps) => 
                   </>
                 ) : (
                   <>
-                    <Vote className="h-4 w-4 mr-2" />
+                    <ThumbsUp className="h-4 w-4 mr-2" />
                     Submit Vote
                   </>
                 )}
