@@ -1,10 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import AddInventoryItemModal from "@/components/inventory/AddInventoryItemModal";
+import EditInventoryItemModal from "@/components/inventory/EditInventoryItemModal";
+import IssueInventoryModal from "@/components/inventory/IssueInventoryModal";
+import RestockModal from "@/components/inventory/RestockModal";
+import InventoryTemplateModal from "@/components/inventory/InventoryTemplateModal";
+import POSConnectionModal from "@/components/inventory/POSConnectionModal";
+import InventoryReportModal from "@/components/inventory/InventoryReportModal";
 import {
   Package,
   Search,
@@ -15,7 +23,13 @@ import {
   Users,
   Utensils,
   ClipboardList,
-  BarChart3
+  BarChart3,
+  Download,
+  Upload,
+  FileText,
+  Settings,
+  Edit,
+  Package2
 } from "lucide-react";
 
 interface InventoryItem {
@@ -55,8 +69,53 @@ const InventoryManagement = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("inventory");
   const [searchTerm, setSearchTerm] = useState("");
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Modal states
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showIssueModal, setShowIssueModal] = useState(false);
+  const [showRestockModal, setShowRestockModal] = useState(false);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [showPOSModal, setShowPOSModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
 
-  const [inventory] = useState<InventoryItem[]>([
+  // Initialize with mock data and fetch from Supabase
+  useEffect(() => {
+    fetchInventory();
+  }, []);
+
+  const fetchInventory = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('inventory')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      
+      // Convert database format to component format
+      const formattedData = data?.map(item => ({
+        id: item.id,
+        name: item.item_name,
+        category: item.category as 'food' | 'beverages' | 'housekeeping' | 'maintenance' | 'office',
+        currentStock: item.current_quantity,
+        minimumStock: item.min_threshold,
+        unit: item.unit,
+        unitPrice: item.cost_per_unit,
+        supplier: item.supplier || '',
+        lastRestocked: item.last_restocked || new Date().toISOString().split('T')[0],
+        location: `Storage ${item.category}` // Mock location based on category
+      })) || [];
+
+      setInventory(formattedData);
+    } catch (error) {
+      console.error('Error fetching inventory:', error);
+      // Fallback to mock data
+      setInventory([
     {
       id: "INV001",
       name: "Premium Coffee Beans",
@@ -107,7 +166,37 @@ const InventoryManagement = () => {
       expiryDate: "2026-12-31",
       location: "Bar Storage"
     }
-  ]);
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleImportData = async (items: any[]) => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('inventory')
+        .insert(items);
+
+      if (error) throw error;
+
+      toast({
+        title: "Items Imported",
+        description: `${items.length} inventory items imported successfully.`,
+      });
+
+      fetchInventory(); // Refresh the list
+    } catch (error) {
+      toast({
+        title: "Import Error",
+        description: "Failed to import items. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const [issuances] = useState<IssuanceRecord[]>([
     {
@@ -190,18 +279,19 @@ const InventoryManagement = () => {
 
   const stats = getInventoryStats();
 
-  const handleIssueItems = (itemId: string, quantity: number) => {
-    toast({
-      title: "Items Issued",
-      description: `${quantity} units have been issued successfully.`,
-    });
+  const handleEditItem = (item: InventoryItem) => {
+    setSelectedItem(item);
+    setShowEditModal(true);
   };
 
-  const handleRestock = (itemId: string) => {
-    toast({
-      title: "Restock Order Created",
-      description: "Purchase order has been generated and sent to supplier.",
-    });
+  const handleIssueItem = (item: InventoryItem) => {
+    setSelectedItem(item);
+    setShowIssueModal(true);
+  };
+
+  const handleRestockItem = (item: InventoryItem) => {
+    setSelectedItem(item);
+    setShowRestockModal(true);
   };
 
   return (
@@ -211,10 +301,20 @@ const InventoryManagement = () => {
           <h1 className="text-3xl font-bold text-foreground">Inventory Management</h1>
           <p className="text-muted-foreground">Track stock levels and manage supply chain operations</p>
         </div>
-        <Button className="button-luxury">
-          <Plus className="h-4 w-4 mr-2" />
-          Add New Item
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowTemplateModal(true)} variant="outline">
+            <Upload className="h-4 w-4 mr-2" />
+            Template
+          </Button>
+          <Button onClick={() => setShowReportModal(true)} variant="outline">
+            <FileText className="h-4 w-4 mr-2" />
+            Reports
+          </Button>
+          <Button onClick={() => setShowAddModal(true)} className="button-luxury">
+            <Plus className="h-4 w-4 mr-2" />
+            Add New Item
+          </Button>
+        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -320,22 +420,33 @@ const InventoryManagement = () => {
                         </div>
                       </div>
 
-                      <div className="space-y-2">
+                        <div className="space-y-2">
                         <h4 className="font-semibold">Actions</h4>
                         <div className="flex flex-col gap-2">
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleIssueItem(item)}
+                          >
+                            <Package2 className="h-4 w-4 mr-2" />
                             Issue Items
                           </Button>
                           {item.currentStock <= item.minimumStock && (
                             <Button 
                               variant="outline" 
                               size="sm"
-                              onClick={() => handleRestock(item.id)}
+                              onClick={() => handleRestockItem(item)}
                             >
+                              <TrendingDown className="h-4 w-4 mr-2" />
                               Restock
                             </Button>
                           )}
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleEditItem(item)}
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
                             Edit Item
                           </Button>
                         </div>
@@ -394,7 +505,10 @@ const InventoryManagement = () => {
                       <div className="flex gap-2 mt-4 pt-4 border-t">
                         <Button 
                           size="sm" 
-                          onClick={() => handleIssueItems(issuance.itemId, issuance.quantity)}
+                          onClick={() => toast({
+                            title: "Request Approved",
+                            description: "Issuance request has been approved.",
+                          })}
                         >
                           Approve
                         </Button>
