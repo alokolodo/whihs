@@ -922,7 +922,9 @@ export type Database = {
           nominated_by: string | null
           recognition_type: string
           title: string
+          total_votes: number | null
           votes: number | null
+          voting_period: string | null
         }
         Insert: {
           award_date?: string | null
@@ -935,7 +937,9 @@ export type Database = {
           nominated_by?: string | null
           recognition_type: string
           title: string
+          total_votes?: number | null
           votes?: number | null
+          voting_period?: string | null
         }
         Update: {
           award_date?: string | null
@@ -948,7 +952,9 @@ export type Database = {
           nominated_by?: string | null
           recognition_type?: string
           title?: string
+          total_votes?: number | null
           votes?: number | null
+          voting_period?: string | null
         }
         Relationships: [
           {
@@ -966,6 +972,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      staff_votes: {
+        Row: {
+          created_at: string
+          employee_id: string
+          id: string
+          voted_at: string
+          voter_name: string
+          voter_type: string
+          voting_period: string
+        }
+        Insert: {
+          created_at?: string
+          employee_id: string
+          id?: string
+          voted_at?: string
+          voter_name: string
+          voter_type: string
+          voting_period: string
+        }
+        Update: {
+          created_at?: string
+          employee_id?: string
+          id?: string
+          voted_at?: string
+          voter_name?: string
+          voter_type?: string
+          voting_period?: string
+        }
+        Relationships: []
       }
       supplier_order_items: {
         Row: {
