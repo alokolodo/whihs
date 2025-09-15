@@ -14,12 +14,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import AddRecipeModal from "@/components/recipe/AddRecipeModal";
+import EditRecipeModal from "@/components/recipe/EditRecipeModal";
+import DeleteRecipeModal from "@/components/recipe/DeleteRecipeModal";
 
 interface Recipe {
   id: string;
@@ -40,63 +39,97 @@ const RecipeManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
 
   const categories = [
     "Appetizers", "Main Course", "Desserts", "Beverages", "Salads", "Soups", "Sides"
   ];
 
-  const mockRecipes: Recipe[] = [
-    {
-      id: "1",
-      name: "Grilled Salmon with Herbs",
-      description: "Fresh Atlantic salmon grilled to perfection with herb seasoning",
-      category: "Main Course",
-      prepTime: 15,
-      cookTime: 20,
-      servings: 4,
-      cost: 18.50,
-      difficulty: "Medium",
-      ingredients: [
-        { name: "Salmon Fillet", quantity: 4, unit: "pieces", cost: 12.00 },
-        { name: "Fresh Herbs", quantity: 2, unit: "tbsp", cost: 1.50 },
-        { name: "Olive Oil", quantity: 3, unit: "tbsp", cost: 1.00 },
-        { name: "Lemon", quantity: 1, unit: "piece", cost: 0.50 },
-        { name: "Salt & Pepper", quantity: 1, unit: "tsp", cost: 0.10 }
-      ],
-      instructions: [
-        "Preheat grill to medium-high heat",
-        "Season salmon with herbs, salt, and pepper",
-        "Brush with olive oil",
-        "Grill for 6-8 minutes per side",
-        "Serve with lemon wedges"
-      ]
-    },
-    {
-      id: "2",
-      name: "Caesar Salad",
-      description: "Classic Caesar salad with homemade dressing and croutons",
-      category: "Salads",
-      prepTime: 20,
-      cookTime: 0,
-      servings: 6,
-      cost: 8.75,
-      difficulty: "Easy",
-      ingredients: [
-        { name: "Romaine Lettuce", quantity: 2, unit: "heads", cost: 3.00 },
-        { name: "Parmesan Cheese", quantity: 100, unit: "g", cost: 2.50 },
-        { name: "Croutons", quantity: 1, unit: "cup", cost: 1.25 },
-        { name: "Caesar Dressing", quantity: 0.5, unit: "cup", cost: 2.00 }
-      ],
-      instructions: [
-        "Wash and chop romaine lettuce",
-        "Toss with Caesar dressing",
-        "Add croutons and parmesan",
-        "Serve immediately"
-      ]
-    }
-  ];
+  // Initialize with mock data
+  useState(() => {
+    const mockRecipes: Recipe[] = [
+      {
+        id: "1",
+        name: "Grilled Salmon with Herbs",
+        description: "Fresh Atlantic salmon grilled to perfection with herb seasoning",
+        category: "Main Course",
+        prepTime: 15,
+        cookTime: 20,
+        servings: 4,
+        cost: 18.50,
+        difficulty: "Medium",
+        ingredients: [
+          { name: "Salmon Fillet", quantity: 4, unit: "pieces", cost: 12.00 },
+          { name: "Fresh Herbs", quantity: 2, unit: "tbsp", cost: 1.50 },
+          { name: "Olive Oil", quantity: 3, unit: "tbsp", cost: 1.00 },
+          { name: "Lemon", quantity: 1, unit: "piece", cost: 0.50 },
+          { name: "Salt & Pepper", quantity: 1, unit: "tsp", cost: 0.10 }
+        ],
+        instructions: [
+          "Preheat grill to medium-high heat",
+          "Season salmon with herbs, salt, and pepper",
+          "Brush with olive oil",
+          "Grill for 6-8 minutes per side",
+          "Serve with lemon wedges"
+        ]
+      },
+      {
+        id: "2",
+        name: "Caesar Salad",
+        description: "Classic Caesar salad with homemade dressing and croutons",
+        category: "Salads",
+        prepTime: 20,
+        cookTime: 0,
+        servings: 6,
+        cost: 8.75,
+        difficulty: "Easy",
+        ingredients: [
+          { name: "Romaine Lettuce", quantity: 2, unit: "heads", cost: 3.00 },
+          { name: "Parmesan Cheese", quantity: 100, unit: "g", cost: 2.50 },
+          { name: "Croutons", quantity: 1, unit: "cup", cost: 1.25 },
+          { name: "Caesar Dressing", quantity: 0.5, unit: "cup", cost: 2.00 }
+        ],
+        instructions: [
+          "Wash and chop romaine lettuce",
+          "Toss with Caesar dressing",
+          "Add croutons and parmesan",
+          "Serve immediately"
+        ]
+      }
+    ];
+    
+    setRecipes(mockRecipes);
+  });
 
-  const filteredRecipes = mockRecipes.filter(recipe => {
+  // Handler functions
+  const handleAddRecipe = (newRecipe: Recipe) => {
+    setRecipes(prev => [...prev, newRecipe]);
+  };
+
+  const handleEditRecipe = (updatedRecipe: Recipe) => {
+    setRecipes(prev => prev.map(recipe => 
+      recipe.id === updatedRecipe.id ? updatedRecipe : recipe
+    ));
+  };
+
+  const handleDeleteRecipe = (recipeId: string) => {
+    setRecipes(prev => prev.filter(recipe => recipe.id !== recipeId));
+  };
+
+  const openEditDialog = (recipe: Recipe) => {
+    setSelectedRecipe(recipe);
+    setIsEditDialogOpen(true);
+  };
+
+  const openDeleteDialog = (recipe: Recipe) => {
+    setSelectedRecipe(recipe);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const filteredRecipes = recipes.filter(recipe => {
     const matchesSearch = recipe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          recipe.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "all" || recipe.category === selectedCategory;
@@ -112,10 +145,10 @@ const RecipeManagement = () => {
             <CardDescription className="mt-1">{recipe.description}</CardDescription>
           </div>
           <div className="flex gap-2">
-            <Button size="sm" variant="outline">
+            <Button size="sm" variant="outline" onClick={() => openEditDialog(recipe)}>
               <Edit className="h-4 w-4" />
             </Button>
-            <Button size="sm" variant="outline">
+            <Button size="sm" variant="outline" onClick={() => openDeleteDialog(recipe)}>
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
@@ -182,84 +215,10 @@ const RecipeManagement = () => {
           </h1>
           <p className="text-muted-foreground">Manage your restaurant recipes and ingredient costs</p>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="button-luxury">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Recipe
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Add New Recipe</DialogTitle>
-              <DialogDescription>Create a new recipe for your restaurant menu</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Recipe Name</Label>
-                  <Input placeholder="Enter recipe name" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Category</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map(category => (
-                        <SelectItem key={category} value={category}>{category}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea placeholder="Describe the recipe..." />
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label>Prep Time (min)</Label>
-                  <Input type="number" placeholder="15" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Cook Time (min)</Label>
-                  <Input type="number" placeholder="30" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Servings</Label>
-                  <Input type="number" placeholder="4" />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Difficulty</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select difficulty" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Easy">Easy</SelectItem>
-                    <SelectItem value="Medium">Medium</SelectItem>
-                    <SelectItem value="Hard">Hard</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button className="button-luxury">
-                  Save Recipe
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <Button className="button-luxury" onClick={() => setIsAddDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Recipe
+        </Button>
       </div>
 
       {/* Filters */}
@@ -293,7 +252,7 @@ const RecipeManagement = () => {
             <div className="flex items-center gap-3">
               <BookOpen className="h-8 w-8 text-accent" />
               <div>
-                <p className="text-2xl font-bold">{mockRecipes.length}</p>
+                <p className="text-2xl font-bold">{recipes.length}</p>
                 <p className="text-sm text-muted-foreground">Total Recipes</p>
               </div>
             </div>
@@ -348,6 +307,27 @@ const RecipeManagement = () => {
           <p className="text-muted-foreground">Try adjusting your search or add a new recipe</p>
         </div>
       )}
+
+      {/* Modals */}
+      <AddRecipeModal
+        isOpen={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
+        onAdd={handleAddRecipe}
+      />
+
+      <EditRecipeModal
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        recipe={selectedRecipe}
+        onSave={handleEditRecipe}
+      />
+
+      <DeleteRecipeModal
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        recipe={selectedRecipe}
+        onDelete={handleDeleteRecipe}
+      />
     </div>
   );
 };
