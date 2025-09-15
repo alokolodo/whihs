@@ -99,7 +99,7 @@ export const useEmployees = () => {
         .from('employees')
         .select(`
           *,
-          departments (name, code),
+          departments!employees_department_id_fkey (name, code),
           employee_positions (title)
         `)
         .order('first_name');
