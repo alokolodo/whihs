@@ -17,6 +17,10 @@ import {
 } from "@/hooks/useHR";
 import { AddEmployeeModal } from "@/components/hr/AddEmployeeModal";
 import { LeaveRequestModal } from "@/components/hr/LeaveRequestModal";
+import { EmployeeProfileModal } from "@/components/hr/EmployeeProfileModal";
+import { EditEmployeeModal } from "@/components/hr/EditEmployeeModal";
+import { EmployeePayrollModal } from "@/components/hr/EmployeePayrollModal";
+import { ProcessPayrollModal } from "@/components/hr/ProcessPayrollModal";
 import {
   Users,
   Search,
@@ -42,6 +46,11 @@ const HRManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddEmployeeModalOpen, setIsAddEmployeeModalOpen] = useState(false);
   const [isLeaveRequestModalOpen, setIsLeaveRequestModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isPayrollModalOpen, setIsPayrollModalOpen] = useState(false);
+  const [isProcessPayrollModalOpen, setIsProcessPayrollModalOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<EmployeeType | null>(null);
 
   const { data: employeeData = [], isLoading: employeesLoading } = useEmployees();
   const { data: leaveData = [], isLoading: leavesLoading } = useLeaveRequests();
@@ -104,11 +113,23 @@ const HRManagement = () => {
     }
   };
 
+  const handleViewProfile = (employee: EmployeeType) => {
+    setSelectedEmployee(employee);
+    setIsProfileModalOpen(true);
+  };
+
+  const handleEditDetails = (employee: EmployeeType) => {
+    setSelectedEmployee(employee);
+    setIsEditModalOpen(true);
+  };
+
+  const handlePayroll = (employee: EmployeeType) => {
+    setSelectedEmployee(employee);
+    setIsPayrollModalOpen(true);
+  };
+
   const handleProcessSalary = () => {
-    toast({
-      title: "Salary Processing Started",
-      description: "Monthly salary processing has been initiated.",
-    });
+    setIsProcessPayrollModalOpen(true);
   };
 
   if (summaryLoading || employeesLoading) {
@@ -251,13 +272,25 @@ const HRManagement = () => {
                   </div>
 
                   <div className="flex gap-2 mt-4 pt-4 border-t">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleViewProfile(employee)}
+                    >
                       View Profile
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleEditDetails(employee)}
+                    >
                       Edit Details
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handlePayroll(employee)}
+                    >
                       Payroll
                     </Button>
                   </div>
@@ -596,6 +629,38 @@ const HRManagement = () => {
       <LeaveRequestModal
         isOpen={isLeaveRequestModalOpen}
         onClose={() => setIsLeaveRequestModalOpen(false)}
+      />
+
+      <EmployeeProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => {
+          setIsProfileModalOpen(false);
+          setSelectedEmployee(null);
+        }}
+        employee={selectedEmployee}
+      />
+
+      <EditEmployeeModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedEmployee(null);
+        }}
+        employee={selectedEmployee}
+      />
+
+      <EmployeePayrollModal
+        isOpen={isPayrollModalOpen}
+        onClose={() => {
+          setIsPayrollModalOpen(false);
+          setSelectedEmployee(null);
+        }}
+        employee={selectedEmployee}
+      />
+
+      <ProcessPayrollModal
+        isOpen={isProcessPayrollModalOpen}
+        onClose={() => setIsProcessPayrollModalOpen(false)}
       />
     </div>
   );

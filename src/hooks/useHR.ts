@@ -20,6 +20,9 @@ export interface Employee {
   emergency_contact_phone: string;
   total_leave_days: number;
   used_leave_days: number;
+  bank_account?: string;
+  national_id?: string;
+  notes?: string;
   departments?: {
     name: string;
     code: string;
