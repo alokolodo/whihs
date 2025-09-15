@@ -26,20 +26,17 @@ import {
   Loader2
 } from "lucide-react";
 
-// Interfaces are now imported from useAccounting hook
-
 const AccountingModule = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [selectedPeriod, setSelectedPeriod] = useState("current-month");
   const [isAddEntryModalOpen, setIsAddEntryModalOpen] = useState(false);
 
   const { data: entries = [], isLoading: entriesLoading } = useAccountEntries();
-  const { data: financialSummary, isLoading: summaryLoading } = useFinancialSummary();
+  const { data: summary, isLoading: summaryLoading } = useFinancialSummary();
   const { data: budgets = [], isLoading: budgetsLoading } = useBudgets();
 
-  // Mock previous period data for comparison (in real app, this would come from database)
-  const previousPeriodSummary = {
+  // Previous period data for comparison
+  const previousPeriod = {
     revenue: 52100.00,
     expenses: 31200.00,
     netIncome: 20900.00,
@@ -88,9 +85,9 @@ const AccountingModule = () => {
     });
   };
 
-  const revenueChange = financialSummary ? calculateChange(financialSummary.revenue, previousPeriodSummary.revenue) : 0;
-  const expenseChange = financialSummary ? calculateChange(financialSummary.expenses, previousPeriodSummary.expenses) : 0;
-  const netIncomeChange = financialSummary ? calculateChange(financialSummary.netIncome, previousPeriodSummary.netIncome) : 0;
+  const revenueChange = summary ? calculateChange(summary.revenue, previousPeriod.revenue) : 0;
+  const expenseChange = summary ? calculateChange(summary.expenses, previousPeriod.expenses) : 0;
+  const netIncomeChange = summary ? calculateChange(summary.netIncome, previousPeriod.netIncome) : 0;
 
   if (summaryLoading || entriesLoading) {
     return (
@@ -140,7 +137,7 @@ const AccountingModule = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-success">
-                  ${financialSummary?.revenue.toLocaleString() || '0'}
+                  ${summary?.revenue.toLocaleString() || '0'}
                 </div>
                 <p className={`text-xs flex items-center gap-1 ${revenueChange >= 0 ? 'text-success' : 'text-destructive'}`}>
                   {revenueChange >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
@@ -158,7 +155,7 @@ const AccountingModule = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-destructive">
-                  ${financialSummary?.expenses.toLocaleString() || '0'}
+                  ${summary?.expenses.toLocaleString() || '0'}
                 </div>
                 <p className={`text-xs flex items-center gap-1 ${expenseChange <= 0 ? 'text-success' : 'text-destructive'}`}>
                   {expenseChange <= 0 ? <TrendingDown className="h-3 w-3" /> : <TrendingUp className="h-3 w-3" />}
@@ -176,7 +173,7 @@ const AccountingModule = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-accent">
-                  ${financialSummary?.netIncome.toLocaleString() || '0'}
+                  ${summary?.netIncome.toLocaleString() || '0'}
                 </div>
                 <p className={`text-xs flex items-center gap-1 ${netIncomeChange >= 0 ? 'text-success' : 'text-destructive'}`}>
                   {netIncomeChange >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
@@ -193,15 +190,15 @@ const AccountingModule = () => {
                 <CardTitle>Assets</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${financialSummary?.assets.toLocaleString() || '0'}</div>
+                <div className="text-2xl font-bold">${summary?.assets.toLocaleString() || '0'}</div>
                 <div className="space-y-2 mt-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Current Assets</span>
-                    <span>${Math.round((financialSummary?.assets || 0) * 0.4).toLocaleString()}</span>
+                    <span>${Math.round((summary?.assets || 0) * 0.4).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Fixed Assets</span>
-                    <span>${Math.round((financialSummary?.assets || 0) * 0.6).toLocaleString()}</span>
+                    <span>${Math.round((summary?.assets || 0) * 0.6).toLocaleString()}</span>
                   </div>
                 </div>
               </CardContent>
@@ -212,15 +209,15 @@ const AccountingModule = () => {
                 <CardTitle>Liabilities</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${financialSummary?.liabilities.toLocaleString() || '0'}</div>
+                <div className="text-2xl font-bold">${summary?.liabilities.toLocaleString() || '0'}</div>
                 <div className="space-y-2 mt-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Current Liabilities</span>
-                    <span>${Math.round((financialSummary?.liabilities || 0) * 0.4).toLocaleString()}</span>
+                    <span>${Math.round((summary?.liabilities || 0) * 0.4).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Long-term Debt</span>
-                    <span>${Math.round((financialSummary?.liabilities || 0) * 0.6).toLocaleString()}</span>
+                    <span>${Math.round((summary?.liabilities || 0) * 0.6).toLocaleString()}</span>
                   </div>
                 </div>
               </CardContent>
@@ -231,15 +228,15 @@ const AccountingModule = () => {
                 <CardTitle>Equity</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${financialSummary?.equity.toLocaleString() || '0'}</div>
+                <div className="text-2xl font-bold">${summary?.equity.toLocaleString() || '0'}</div>
                 <div className="space-y-2 mt-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Retained Earnings</span>
-                    <span>${Math.round((financialSummary?.equity || 0) * 0.8).toLocaleString()}</span>
+                    <span>${Math.round((summary?.equity || 0) * 0.8).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Capital</span>
-                    <span>${Math.round((financialSummary?.equity || 0) * 0.2).toLocaleString()}</span>
+                    <span>${Math.round((summary?.equity || 0) * 0.2).toLocaleString()}</span>
                   </div>
                 </div>
               </CardContent>
@@ -329,55 +326,23 @@ const AccountingModule = () => {
             <Card className="card-luxury">
               <CardHeader>
                 <CardTitle>Profit & Loss Statement</CardTitle>
-                <CardDescription>January 2024</CardDescription>
+                <CardDescription>Current Period</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center pb-2 border-b">
                     <span className="font-semibold">Revenue</span>
-                    <span className="font-bold text-success">${financialSummary?.revenue.toLocaleString() || '0'}</span>
-                  </div>
-                  <div className="ml-4 space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Room Revenue</span>
-                      <span>$32,500</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">F&B Revenue</span>
-                      <span>$8,450</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Other Services</span>
-                      <span>$4,280</span>
-                    </div>
+                    <span className="font-bold text-success">${summary?.revenue.toLocaleString() || '0'}</span>
                   </div>
                   
                   <div className="flex justify-between items-center pb-2 border-b">
                     <span className="font-semibold">Expenses</span>
-                    <span className="font-bold text-destructive">${financialSummary?.expenses.toLocaleString() || '0'}</span>
-                  </div>
-                  <div className="ml-4 space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Payroll</span>
-                      <span>$15,200</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Utilities</span>
-                      <span>$4,500</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Maintenance</span>
-                      <span>$3,750</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Other Operating</span>
-                      <span>$5,000</span>
-                    </div>
+                    <span className="font-bold text-destructive">${summary?.expenses.toLocaleString() || '0'}</span>
                   </div>
                   
                   <div className="flex justify-between items-center pt-4 border-t border-accent">
                     <span className="font-bold text-lg">Net Income</span>
-                    <span className="font-bold text-xl text-accent">${financialSummary?.netIncome.toLocaleString() || '0'}</span>
+                    <span className="font-bold text-xl text-accent">${summary?.netIncome.toLocaleString() || '0'}</span>
                   </div>
                 </div>
               </CardContent>
@@ -393,21 +358,19 @@ const AccountingModule = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span>Room Revenue Growth</span>
-                    <span className="font-bold text-success">+12.3%</span>
+                  <div className="flex justify-between">
+                    <span>Current Period</span>
+                    <span className="font-bold">${summary?.revenue.toLocaleString() || '0'}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span>F&B Revenue Growth</span>
-                    <span className="font-bold text-success">+8.7%</span>
+                  <div className="flex justify-between">
+                    <span>Previous Period</span>
+                    <span>${previousPeriod.revenue.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span>Average Daily Rate</span>
-                    <span className="font-bold">$285</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Revenue per Guest</span>
-                    <span className="font-bold">$425</span>
+                  <div className="flex justify-between">
+                    <span>Growth Rate</span>
+                    <span className={revenueChange >= 0 ? 'text-success' : 'text-destructive'}>
+                      {revenueChange.toFixed(1)}%
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -419,21 +382,19 @@ const AccountingModule = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span>Labor Cost Ratio</span>
-                    <span className="font-bold">33.6%</span>
+                  <div className="flex justify-between">
+                    <span>Current Period</span>
+                    <span className="font-bold">${summary?.expenses.toLocaleString() || '0'}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span>Utility Cost Ratio</span>
-                    <span className="font-bold">10.0%</span>
+                  <div className="flex justify-between">
+                    <span>Previous Period</span>
+                    <span>${previousPeriod.expenses.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span>Operating Margin</span>
-                    <span className="font-bold text-success">37.1%</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Cost per Occupied Room</span>
-                    <span className="font-bold">$95</span>
+                  <div className="flex justify-between">
+                    <span>Change Rate</span>
+                    <span className={expenseChange <= 0 ? 'text-success' : 'text-destructive'}>
+                      {expenseChange.toFixed(1)}%
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -444,44 +405,36 @@ const AccountingModule = () => {
         <TabsContent value="budgets" className="space-y-6">
           <Card className="card-luxury">
             <CardHeader>
-              <CardTitle>Budget vs Actual Performance</CardTitle>
-              <CardDescription>Current Month Comparison</CardDescription>
+              <CardTitle>Budget vs Actual</CardTitle>
+              <CardDescription>Current fiscal year performance analysis</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <h4 className="font-semibold">Revenue Budget</h4>
+                    <h4 className="font-semibold">Revenue Performance</h4>
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Budgeted</span>
+                        <span className="text-muted-foreground">Actual Revenue</span>
+                        <span className="font-bold text-success">${summary?.revenue.toLocaleString() || '0'}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Budget Target</span>
                         <span className="font-bold">$48,000</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Actual</span>
-                        <span className="font-bold text-success">${financialSummary?.revenue.toLocaleString() || '0'}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Variance</span>
-                        <span className="font-bold text-destructive">-$2,770 (-5.8%)</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-4">
-                    <h4 className="font-semibold">Expense Budget</h4>
+                    <h4 className="font-semibold">Expense Management</h4>
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Budgeted</span>
+                        <span className="text-muted-foreground">Actual Expenses</span>
+                        <span className="font-bold text-destructive">${summary?.expenses.toLocaleString() || '0'}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Budget Limit</span>
                         <span className="font-bold">$30,000</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Actual</span>
-                        <span className="font-bold text-success">${financialSummary?.expenses.toLocaleString() || '0'}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Variance</span>
-                        <span className="font-bold text-success">+$1,550 (+5.5%)</span>
                       </div>
                     </div>
                   </div>
@@ -493,9 +446,9 @@ const AccountingModule = () => {
                     <span className="font-medium">Budget Alerts</span>
                   </div>
                   <div className="space-y-2 text-sm">
-                    <p>• Room revenue is 5.8% below budget target</p>
-                    <p>• Utility expenses are 12% over budget due to increased occupancy</p>
-                    <p>• Overall profitability remains within acceptable range</p>
+                    <p>• Monitor revenue targets for optimal performance</p>
+                    <p>• Expense management within acceptable range</p>
+                    <p>• Overall profitability tracking well</p>
                   </div>
                 </div>
 
