@@ -6,6 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import AddSupplierModal from "@/components/supplier/AddSupplierModal";
+import EditSupplierModal from "@/components/supplier/EditSupplierModal";
+import NewOrderModal from "@/components/supplier/NewOrderModal";
+import OrderDetailsModal from "@/components/supplier/OrderDetailsModal";
 import {
   Truck,
   Search,
@@ -19,7 +23,11 @@ import {
   Package,
   Building,
   Star,
-  AlertTriangle
+  AlertTriangle,
+  Eye,
+  CheckCircle,
+  Clock,
+  XCircle
 } from "lucide-react";
 
 interface Supplier {
@@ -49,6 +57,7 @@ interface SupplierOrder {
   order_date: string;
   delivery_date?: string;
   items: string[];
+  supplier_name?: string;
 }
 
 const SupplierManagement = () => {
@@ -58,112 +67,138 @@ const SupplierManagement = () => {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [supplierOrders, setSupplierOrders] = useState<SupplierOrder[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Modal states
+  const [showAddSupplier, setShowAddSupplier] = useState(false);
+  const [showEditSupplier, setShowEditSupplier] = useState(false);
+  const [showNewOrder, setShowNewOrder] = useState(false);
+  const [showOrderDetails, setShowOrderDetails] = useState(false);
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
 
-  // Mock data
   useEffect(() => {
-    setSuppliers([
-      {
-        id: "SUP001",
-        name: "Global Coffee Co.",
-        contact_person: "Maria Rodriguez",
-        email: "orders@globalcoffee.com",
-        phone: "+1-555-0123",
-        address: "123 Coffee Street, Bean City, BC 12345",
-        category: "Food & Beverages",
-        rating: 4.8,
-        payment_terms: "Net 30",
-        tax_id: "TAX123456789",
-        total_orders: 24,
-        total_amount: 12450.00,
-        last_order_date: "2024-01-12",
-        status: 'active',
-        created_at: "2023-06-15"
-      },
-      {
-        id: "SUP002", 
-        name: "Linen Supply Ltd.",
-        contact_person: "James Wilson",
-        email: "sales@linensupply.com",
-        phone: "+1-555-0456",
-        address: "456 Textile Ave, Fabric Town, FT 67890",
-        category: "Housekeeping",
-        rating: 4.5,
-        payment_terms: "Net 15",
-        tax_id: "TAX987654321",
-        total_orders: 18,
-        total_amount: 8920.00,
-        last_order_date: "2024-01-10",
-        status: 'active',
-        created_at: "2023-08-20"
-      },
-      {
-        id: "SUP003",
-        name: "Fine Wine Imports",
-        contact_person: "Sophie Chen",
-        email: "info@finewineimports.com", 
-        phone: "+1-555-0789",
-        address: "789 Vineyard Road, Wine Valley, WV 13579",
-        category: "Beverages",
-        rating: 4.9,
-        payment_terms: "Net 45",
-        tax_id: "TAX456789123",
-        total_orders: 15,
-        total_amount: 18750.00,
-        last_order_date: "2024-01-14",
-        status: 'active',
-        created_at: "2023-04-10"
-      },
-      {
-        id: "SUP004",
-        name: "Hygiene Solutions",
-        contact_person: "Robert Brown",
-        email: "orders@hygienesolutions.com",
-        phone: "+1-555-0321",
-        address: "321 Clean Street, Sanitary City, SC 24680",
-        category: "Maintenance",
-        rating: 4.2,
-        payment_terms: "Net 30",
-        tax_id: "TAX321654987",
-        total_orders: 12,
-        total_amount: 3450.00,
-        last_order_date: "2024-01-08",
-        status: 'active',
-        created_at: "2023-09-05"
-      }
-    ]);
-
-    setSupplierOrders([
-      {
-        id: "ORD001",
-        supplier_id: "SUP001",
-        order_number: "PO-2024-001",
-        total_amount: 1250.00,
-        status: 'delivered',
-        order_date: "2024-01-10",
-        delivery_date: "2024-01-12",
-        items: ["Premium Coffee Beans", "Coffee Filters", "Sugar Sachets"]
-      },
-      {
-        id: "ORD002",
-        supplier_id: "SUP002", 
-        order_number: "PO-2024-002",
-        total_amount: 890.00,
-        status: 'pending',
-        order_date: "2024-01-14",
-        items: ["Fresh Towels", "Bed Sheets", "Pillow Cases"]
-      },
-      {
-        id: "ORD003",
-        supplier_id: "SUP003",
-        order_number: "PO-2024-003", 
-        total_amount: 1680.00,
-        status: 'delivered',
-        order_date: "2024-01-12",
-        delivery_date: "2024-01-14",
-        items: ["Red Wine", "White Wine", "Champagne"]
-      }
-    ]);
+    fetchSuppliers();
+    fetchOrders();
   }, []);
+
+  const fetchSuppliers = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('suppliers')
+        .select('*')
+        .order('name');
+
+      if (error) throw error;
+      setSuppliers(data?.map(supplier => ({
+        ...supplier,
+        status: supplier.status as 'active' | 'inactive' | 'pending'
+      })) || []);
+    } catch (error) {
+      console.error('Error fetching suppliers:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch suppliers data",
+        variant: "destructive"
+      });
+      
+      // Fallback to mock data
+      setSuppliers([
+        {
+          id: "SUP001",
+          name: "Global Coffee Co.",
+          contact_person: "Maria Rodriguez",
+          email: "orders@globalcoffee.com",
+          phone: "+1-555-0123",
+          address: "123 Coffee Street, Bean City, BC 12345",
+          category: "Food & Beverages",
+          rating: 4.8,
+          payment_terms: "Net 30",
+          tax_id: "TAX123456789",
+          total_orders: 24,
+          total_amount: 12450.00,
+          last_order_date: "2024-01-12",
+          status: 'active',
+          created_at: "2023-06-15"
+        },
+        {
+          id: "SUP002", 
+          name: "Linen Supply Ltd.",
+          contact_person: "James Wilson",
+          email: "sales@linensupply.com",
+          phone: "+1-555-0456",
+          address: "456 Textile Ave, Fabric Town, FT 67890",
+          category: "Housekeeping",
+          rating: 4.5,
+          payment_terms: "Net 15",
+          tax_id: "TAX987654321",
+          total_orders: 18,
+          total_amount: 8920.00,
+          last_order_date: "2024-01-10",
+          status: 'active',
+          created_at: "2023-08-20"
+        }
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchOrders = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('supplier_orders')
+        .select(`
+          *,
+          suppliers (
+            name
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      
+      const ordersWithItems = await Promise.all(
+        (data || []).map(async (order) => {
+          const { data: items } = await supabase
+            .from('supplier_order_items')
+            .select('item_name')
+            .eq('order_id', order.id);
+          
+          return {
+            id: order.id,
+            supplier_id: order.supplier_id,
+            order_number: order.order_number,
+            total_amount: order.total_amount,
+            status: order.status as 'pending' | 'delivered' | 'cancelled',
+            order_date: order.order_date,
+            delivery_date: order.delivery_date,
+            items: items?.map(item => item.item_name) || [],
+            supplier_name: order.suppliers?.name || 'Unknown'
+          };
+        })
+      );
+
+      setSupplierOrders(ordersWithItems);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      // Fallback to mock data
+      setSupplierOrders([
+        {
+          id: "ORD001",
+          supplier_id: "SUP001",
+          order_number: "PO-2024-001",
+          total_amount: 1250.00,
+          status: 'delivered',
+          order_date: "2024-01-10",
+          delivery_date: "2024-01-12",
+          items: ["Premium Coffee Beans", "Coffee Filters", "Sugar Sachets"],
+          supplier_name: "Global Coffee Co."
+        }
+      ]);
+    }
+  };
 
   const filteredSuppliers = suppliers.filter(supplier =>
     supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -207,11 +242,17 @@ const SupplierManagement = () => {
           <p className="text-muted-foreground">Manage suppliers, orders and procurement relationships</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
+          <Button 
+            variant="outline"
+            onClick={() => setShowNewOrder(true)}
+          >
             <Package className="h-4 w-4 mr-2" />
             New Order
           </Button>
-          <Button className="button-luxury">
+          <Button 
+            className="button-luxury"
+            onClick={() => setShowAddSupplier(true)}
+          >
             <Plus className="h-4 w-4 mr-2" />
             Add Supplier
           </Button>
@@ -327,11 +368,25 @@ const SupplierManagement = () => {
                       <div className="space-y-2">
                         <h4 className="font-semibold">Actions</h4>
                         <div className="flex flex-col gap-2">
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedSupplier(supplier);
+                              setShowEditSupplier(true);
+                            }}
+                          >
                             <Edit className="h-4 w-4 mr-2" />
                             Edit Supplier
                           </Button>
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedSupplierId(supplier.id);
+                              setShowNewOrder(true);
+                            }}
+                          >
                             <Package className="h-4 w-4 mr-2" />
                             New Order
                           </Button>
@@ -361,12 +416,17 @@ const SupplierManagement = () => {
                       <div>
                         <h3 className="text-lg font-bold">{order.order_number}</h3>
                         <p className="text-muted-foreground">
-                          Supplier: {supplier?.name} • Order Date: {order.order_date}
+                          Supplier: {order.supplier_name || supplier?.name} • Order Date: {order.order_date}
                         </p>
                       </div>
-                      <Badge className={getStatusColor(order.status)}>
-                        {order.status.toUpperCase()}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge className={getStatusColor(order.status)}>
+                          {order.status === 'pending' && <Clock className="h-3 w-3 mr-1" />}
+                          {order.status === 'delivered' && <CheckCircle className="h-3 w-3 mr-1" />}
+                          {order.status === 'cancelled' && <XCircle className="h-3 w-3 mr-1" />}
+                          {order.status.toUpperCase()}
+                        </Badge>
+                      </div>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-4">
@@ -401,6 +461,17 @@ const SupplierManagement = () => {
                       </div>
 
                       <div className="flex flex-col gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            setSelectedOrderId(order.id);
+                            setShowOrderDetails(true);
+                          }}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          View Details
+                        </Button>
                         <Button variant="outline" size="sm">
                           <Edit className="h-4 w-4 mr-2" />
                           Edit Order
@@ -498,6 +569,43 @@ const SupplierManagement = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* All Modal Components */}
+      <AddSupplierModal
+        isOpen={showAddSupplier}
+        onClose={() => setShowAddSupplier(false)}
+        onSupplierAdded={fetchSuppliers}
+      />
+
+      <EditSupplierModal
+        isOpen={showEditSupplier}
+        onClose={() => {
+          setShowEditSupplier(false);
+          setSelectedSupplier(null);
+        }}
+        supplier={selectedSupplier}
+        onSupplierUpdated={fetchSuppliers}
+      />
+
+      <NewOrderModal
+        isOpen={showNewOrder}
+        onClose={() => {
+          setShowNewOrder(false);
+          setSelectedSupplierId(null);
+        }}
+        selectedSupplierId={selectedSupplierId}
+        onOrderCreated={fetchOrders}
+      />
+
+      <OrderDetailsModal
+        isOpen={showOrderDetails}
+        onClose={() => {
+          setShowOrderDetails(false);
+          setSelectedOrderId(null);
+        }}
+        orderId={selectedOrderId}
+        onOrderUpdated={fetchOrders}
+      />
     </div>
   );
 };

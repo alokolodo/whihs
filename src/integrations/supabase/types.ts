@@ -233,6 +233,214 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_order_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          item_name: string
+          order_id: string
+          quantity: number
+          total_price: number
+          unit: string
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          item_name: string
+          order_id: string
+          quantity: number
+          total_price: number
+          unit?: string
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          item_name?: string
+          order_id?: string
+          quantity?: number
+          total_price?: number
+          unit?: string
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      supplier_orders: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          delivery_date: string | null
+          expected_delivery_date: string | null
+          id: string
+          notes: string | null
+          order_date: string
+          order_number: string
+          status: string
+          supplier_id: string
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          delivery_date?: string | null
+          expected_delivery_date?: string | null
+          id?: string
+          notes?: string | null
+          order_date?: string
+          order_number: string
+          status?: string
+          supplier_id: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          delivery_date?: string | null
+          expected_delivery_date?: string | null
+          id?: string
+          notes?: string | null
+          order_date?: string
+          order_number?: string
+          status?: string
+          supplier_id?: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_orders_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      supplier_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          notes: string | null
+          order_id: string | null
+          payment_date: string
+          payment_method: string
+          reference_number: string | null
+          status: string
+          supplier_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          payment_date?: string
+          payment_method: string
+          reference_number?: string | null
+          status?: string
+          supplier_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          payment_date?: string
+          payment_method?: string
+          reference_number?: string | null
+          status?: string
+          supplier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_payments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_payments_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suppliers: {
+        Row: {
+          address: string
+          category: string
+          contact_person: string
+          created_at: string
+          email: string
+          id: string
+          last_order_date: string | null
+          name: string
+          payment_terms: string | null
+          phone: string
+          rating: number | null
+          status: string
+          tax_id: string | null
+          total_amount: number | null
+          total_orders: number | null
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          category: string
+          contact_person: string
+          created_at?: string
+          email: string
+          id?: string
+          last_order_date?: string | null
+          name: string
+          payment_terms?: string | null
+          phone: string
+          rating?: number | null
+          status?: string
+          tax_id?: string | null
+          total_amount?: number | null
+          total_orders?: number | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          category?: string
+          contact_person?: string
+          created_at?: string
+          email?: string
+          id?: string
+          last_order_date?: string | null
+          name?: string
+          payment_terms?: string | null
+          phone?: string
+          rating?: number | null
+          status?: string
+          tax_id?: string | null
+          total_amount?: number | null
+          total_orders?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
