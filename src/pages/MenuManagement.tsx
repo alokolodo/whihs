@@ -11,7 +11,9 @@ import {
   DollarSign,
   Star,
   TrendingUp,
-  Settings
+  Settings,
+  FileSpreadsheet,
+  Download
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,9 +29,11 @@ import { useMenuItems, MenuItem } from "@/hooks/useMenuItems";
 import EditMenuItemModal from "@/components/menu/EditMenuItemModal";
 import DeleteMenuItemModal from "@/components/menu/DeleteMenuItemModal";
 import MenuSettingsModal from "@/components/menu/MenuSettingsModal";
+import MenuTemplateModal from "@/components/menu/MenuTemplateModal";
+import MenuExportModal from "@/components/menu/MenuExportModal";
 
 const MenuManagement = () => {
-  const { menuItems } = useMenuItems();
+  const { menuItems, setMenuItems } = useMenuItems();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -37,7 +41,27 @@ const MenuManagement = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
+  const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+
+  const handleImportData = (importedItems: Partial<MenuItem>[]) => {
+    const newItems = importedItems.map(item => ({
+      id: item.id || `item-${Date.now()}-${Math.random()}`,
+      name: item.name || "",
+      price: item.price || 0,
+      description: item.description || "",
+      category: item.category || "Main Course",
+      preparationTime: item.preparationTime || 15,
+      calories: item.calories,
+      isPopular: Boolean(item.isPopular),
+      isAvailable: item.isAvailable !== false,
+      allergens: item.allergens || [],
+      ingredients: item.ingredients || []
+    })) as MenuItem[];
+
+    setMenuItems([...menuItems, ...newItems]);
+  };
 
   const categories = [
     "Appetizers", "Main Course", "Desserts", "Salads", "Soups", "Sides",
@@ -162,6 +186,20 @@ const MenuManagement = () => {
           <p className="text-muted-foreground">Manage your restaurant menu items and pricing</p>
         </div>
         <div className="flex gap-2">
+          <Button 
+            variant="outline"
+            onClick={() => setIsTemplateDialogOpen(true)}
+          >
+            <FileSpreadsheet className="h-4 w-4 mr-2" />
+            Templates
+          </Button>
+          <Button 
+            variant="outline"
+            onClick={() => setIsExportDialogOpen(true)}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
           <Button 
             variant="outline"
             onClick={() => setIsSettingsDialogOpen(true)}
@@ -402,6 +440,18 @@ const MenuManagement = () => {
       <MenuSettingsModal 
         isOpen={isSettingsDialogOpen}
         onClose={() => setIsSettingsDialogOpen(false)}
+      />
+      
+      <MenuTemplateModal 
+        isOpen={isTemplateDialogOpen}
+        onClose={() => setIsTemplateDialogOpen(false)}
+        onImportData={handleImportData}
+      />
+      
+      <MenuExportModal 
+        isOpen={isExportDialogOpen}
+        onClose={() => setIsExportDialogOpen(false)}
+        menuItems={menuItems}
       />
     </div>
   );
