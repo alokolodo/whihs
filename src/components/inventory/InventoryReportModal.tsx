@@ -190,7 +190,17 @@ const InventoryReportModal = ({ isOpen, onClose, inventoryData = [] }: Inventory
       ws['!cols'] = cols;
 
       XLSX.utils.book_append_sheet(wb, ws, "Inventory Report");
-      XLSX.writeFile(wb, `${fileName}.xlsx`);
+      
+      // Create a download link that allows user to choose save location
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${fileName}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
     } else if (format === 'csv') {
       const ws = XLSX.utils.json_to_sheet(reportData);
       const csv = XLSX.utils.sheet_to_csv(ws);
@@ -206,7 +216,7 @@ const InventoryReportModal = ({ isOpen, onClose, inventoryData = [] }: Inventory
 
     toast({
       title: "Report Generated",
-      description: `${reportData.length} items exported successfully.`,
+      description: `${reportData.length} items exported successfully. Choose your preferred folder to save it.`,
     });
 
     onClose();

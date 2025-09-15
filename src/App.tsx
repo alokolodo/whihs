@@ -26,6 +26,7 @@ import AccountingModule from "./pages/AccountingModule";
 import HRManagement from "./pages/HRManagement";
 import HousekeepingManagement from "./pages/HousekeepingManagement";
 import RestaurantPOS from "./components/pos/RestaurantPOS";
+import SupplierManagement from "./pages/SupplierManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -116,6 +117,11 @@ const App = () => {
                 <Route path="/admin/inventory" element={
                   <HotelLayout>
                     <InventoryManagement />
+                  </HotelLayout>
+                } />
+                <Route path="/admin/suppliers" element={
+                  <HotelLayout>
+                    <SupplierManagement />
                   </HotelLayout>
                 } />
                 <Route path="/admin/accounting" element={

@@ -67,11 +67,24 @@ const InventoryTemplateModal = ({ isOpen, onClose, onImportData }: InventoryTemp
     ];
 
     XLSX.utils.book_append_sheet(wb, ws, "Inventory Template");
-    XLSX.writeFile(wb, "inventory_template.xlsx");
+    
+    const fileName = "inventory_template.xlsx";
+    
+    // Create a download link that allows user to choose save location
+    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    
+    // Create download link with folder selection
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(url);
 
     toast({
       title: "Template Downloaded",
-      description: "Inventory template has been downloaded successfully.",
+      description: "Inventory template has been saved. Choose your preferred folder to save it.",
     });
   };
 

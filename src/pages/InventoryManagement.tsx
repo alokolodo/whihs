@@ -13,6 +13,7 @@ import RestockModal from "@/components/inventory/RestockModal";
 import InventoryTemplateModal from "@/components/inventory/InventoryTemplateModal";
 import POSConnectionModal from "@/components/inventory/POSConnectionModal";
 import InventoryReportModal from "@/components/inventory/InventoryReportModal";
+import SupplierIntegrationModal from "@/components/inventory/SupplierIntegrationModal";
 import {
   Package,
   Search,
@@ -29,7 +30,8 @@ import {
   FileText,
   Settings,
   Edit,
-  Package2
+  Package2,
+  Truck,
 } from "lucide-react";
 
 interface InventoryItem {
@@ -80,6 +82,7 @@ const InventoryManagement = () => {
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showPOSModal, setShowPOSModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showSupplierModal, setShowSupplierModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
 
   // Initialize with mock data and fetch from Supabase
@@ -669,6 +672,12 @@ const InventoryManagement = () => {
           </Card>
         </TabsContent>
       </Tabs>
+      {/* Add missing import */}
+      <SupplierIntegrationModal
+        isOpen={showSupplierModal}
+        onClose={() => setShowSupplierModal(false)}
+        mode="inventory"
+      />
     </div>
   );
 };

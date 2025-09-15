@@ -12,7 +12,8 @@ import {
   ChefHat,
   Building,
   Dumbbell,
-  Gamepad2
+  Gamepad2,
+  Truck
 } from "lucide-react";
 import {
   Sidebar,
@@ -41,6 +42,7 @@ const navigationItems = [
   { title: "Recipe Management", url: "/admin/recipes", icon: ChefHat },
   { title: "Payments", url: "/admin/payments", icon: CreditCard },
   { title: "Inventory", url: "/admin/inventory", icon: Package },
+  { title: "Suppliers", url: "/admin/suppliers", icon: Truck },
   { title: "Accounting", url: "/admin/accounting", icon: BarChart3 },
   { title: "HR Management", url: "/admin/hr", icon: Users },
   { title: "Housekeeping", url: "/admin/housekeeping", icon: Home },
