@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import AddSupplierModal from "@/components/supplier/AddSupplierModal";
@@ -11,23 +10,15 @@ import EditSupplierModal from "@/components/supplier/EditSupplierModal";
 import NewOrderModal from "@/components/supplier/NewOrderModal";
 import OrderDetailsModal from "@/components/supplier/OrderDetailsModal";
 import {
-  Truck,
   Search,
   Plus,
   Edit,
   Phone,
   Mail,
   MapPin,
-  DollarSign,
-  Calendar,
   Package,
   Building,
-  Star,
-  AlertTriangle,
-  Eye,
-  CheckCircle,
-  Clock,
-  XCircle
+  Star
 } from "lucide-react";
 
 interface Supplier {
@@ -48,25 +39,11 @@ interface Supplier {
   created_at: string;
 }
 
-interface SupplierOrder {
-  id: string;
-  supplier_id: string;
-  order_number: string;
-  total_amount: number;
-  status: 'pending' | 'delivered' | 'cancelled';
-  order_date: string;
-  delivery_date?: string;
-  items: string[];
-  supplier_name?: string;
-}
-
 const SupplierManagement = () => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("suppliers");
   const [searchTerm, setSearchTerm] = useState("");
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [supplierOrders, setSupplierOrders] = useState<SupplierOrder[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Modal states
   const [showAddSupplier, setShowAddSupplier] = useState(false);
@@ -79,7 +56,6 @@ const SupplierManagement = () => {
 
   useEffect(() => {
     fetchSuppliers();
-    fetchOrders();
   }, []);
 
   const fetchSuppliers = async () => {
@@ -91,10 +67,12 @@ const SupplierManagement = () => {
         .order('name');
 
       if (error) throw error;
+      
       setSuppliers(data?.map(supplier => ({
         ...supplier,
         status: supplier.status as 'active' | 'inactive' | 'pending'
       })) || []);
+      
     } catch (error) {
       console.error('Error fetching suppliers:', error);
       toast({
@@ -102,101 +80,8 @@ const SupplierManagement = () => {
         description: "Failed to fetch suppliers data",
         variant: "destructive"
       });
-      
-      // Fallback to mock data
-      setSuppliers([
-        {
-          id: "SUP001",
-          name: "Global Coffee Co.",
-          contact_person: "Maria Rodriguez",
-          email: "orders@globalcoffee.com",
-          phone: "+1-555-0123",
-          address: "123 Coffee Street, Bean City, BC 12345",
-          category: "Food & Beverages",
-          rating: 4.8,
-          payment_terms: "Net 30",
-          tax_id: "TAX123456789",
-          total_orders: 24,
-          total_amount: 12450.00,
-          last_order_date: "2024-01-12",
-          status: 'active',
-          created_at: "2023-06-15"
-        },
-        {
-          id: "SUP002", 
-          name: "Linen Supply Ltd.",
-          contact_person: "James Wilson",
-          email: "sales@linensupply.com",
-          phone: "+1-555-0456",
-          address: "456 Textile Ave, Fabric Town, FT 67890",
-          category: "Housekeeping",
-          rating: 4.5,
-          payment_terms: "Net 15",
-          tax_id: "TAX987654321",
-          total_orders: 18,
-          total_amount: 8920.00,
-          last_order_date: "2024-01-10",
-          status: 'active',
-          created_at: "2023-08-20"
-        }
-      ]);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const fetchOrders = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('supplier_orders')
-        .select(`
-          *,
-          suppliers (
-            name
-          )
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      
-      const ordersWithItems = await Promise.all(
-        (data || []).map(async (order) => {
-          const { data: items } = await supabase
-            .from('supplier_order_items')
-            .select('item_name')
-            .eq('order_id', order.id);
-          
-          return {
-            id: order.id,
-            supplier_id: order.supplier_id,
-            order_number: order.order_number,
-            total_amount: order.total_amount,
-            status: order.status as 'pending' | 'delivered' | 'cancelled',
-            order_date: order.order_date,
-            delivery_date: order.delivery_date,
-            items: items?.map(item => item.item_name) || [],
-            supplier_name: order.suppliers?.name || 'Unknown'
-          };
-        })
-      );
-
-      setSupplierOrders(ordersWithItems);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-      // Fallback to mock data
-      setSupplierOrders([
-        {
-          id: "ORD001",
-          supplier_id: "SUP001",
-          order_number: "PO-2024-001",
-          total_amount: 1250.00,
-          status: 'delivered',
-          order_date: "2024-01-10",
-          delivery_date: "2024-01-12",
-          items: ["Premium Coffee Beans", "Coffee Filters", "Sugar Sachets"],
-          supplier_name: "Global Coffee Co."
-        }
-      ]);
     }
   };
 
@@ -208,11 +93,11 @@ const SupplierManagement = () => {
 
   const getStatusColor = (status: string) => {
     const colors = {
-      active: 'bg-success text-success-foreground',
-      inactive: 'bg-destructive text-destructive-foreground', 
-      pending: 'bg-warning text-warning-foreground'
+      active: 'bg-green-100 text-green-800',
+      inactive: 'bg-red-100 text-red-800', 
+      pending: 'bg-yellow-100 text-yellow-800'
     };
-    return colors[status as keyof typeof colors] || 'bg-muted text-muted-foreground';
+    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
 
   const getCategoryIcon = (category: string) => {
@@ -220,7 +105,9 @@ const SupplierManagement = () => {
       'Food & Beverages': Package,
       'Housekeeping': Building,
       'Beverages': Package,
-      'Maintenance': Truck
+      'Maintenance': Package,
+      'Equipment': Package,
+      'Office Supplies': Package
     };
     return icons[category as keyof typeof icons] || Package;
   };
@@ -250,7 +137,6 @@ const SupplierManagement = () => {
             New Order
           </Button>
           <Button 
-            className="button-luxury"
             onClick={() => setShowAddSupplier(true)}
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -259,38 +145,39 @@ const SupplierManagement = () => {
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="suppliers">Suppliers</TabsTrigger>
-          <TabsTrigger value="orders">Purchase Orders</TabsTrigger>
-          <TabsTrigger value="payments">Supplier Payments</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-        </TabsList>
+      <div className="flex items-center gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search suppliers by name, category, or contact person..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+      </div>
 
-        <TabsContent value="suppliers" className="space-y-6">
-          <div className="flex items-center gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search suppliers by name, category, or contact person..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+      {isLoading ? (
+        <div className="text-center py-8">
+          <p className="text-muted-foreground">Loading suppliers...</p>
+        </div>
+      ) : (
+        <div className="grid gap-4">
+          {filteredSuppliers.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">No suppliers found</p>
             </div>
-          </div>
-
-          <div className="grid gap-4">
-            {filteredSuppliers.map((supplier) => {
+          ) : (
+            filteredSuppliers.map((supplier) => {
               const CategoryIcon = getCategoryIcon(supplier.category);
               
               return (
-                <Card key={supplier.id} className="card-luxury">
+                <Card key={supplier.id} className="hover:shadow-lg transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
-                          <CategoryIcon className="h-6 w-6 text-primary-foreground" />
+                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                          <CategoryIcon className="h-6 w-6 text-blue-600" />
                         </div>
                         <div>
                           <h3 className="text-xl font-bold">{supplier.name}</h3>
@@ -360,7 +247,7 @@ const SupplierManagement = () => {
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-sm text-muted-foreground">Last Order</span>
-                            <span className="text-sm">{supplier.last_order_date}</span>
+                            <span className="text-sm">{supplier.last_order_date || 'Never'}</span>
                           </div>
                         </div>
                       </div>
@@ -390,185 +277,16 @@ const SupplierManagement = () => {
                             <Package className="h-4 w-4 mr-2" />
                             New Order
                           </Button>
-                          <Button variant="outline" size="sm">
-                            <DollarSign className="h-4 w-4 mr-2" />
-                            View Payments
-                          </Button>
                         </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               );
-            })}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="orders" className="space-y-6">
-          <div className="grid gap-4">
-            {supplierOrders.map((order) => {
-              const supplier = suppliers.find(s => s.id === order.supplier_id);
-              
-              return (
-                <Card key={order.id} className="card-luxury">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="text-lg font-bold">{order.order_number}</h3>
-                        <p className="text-muted-foreground">
-                          Supplier: {order.supplier_name || supplier?.name} • Order Date: {order.order_date}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={getStatusColor(order.status)}>
-                          {order.status === 'pending' && <Clock className="h-3 w-3 mr-1" />}
-                          {order.status === 'delivered' && <CheckCircle className="h-3 w-3 mr-1" />}
-                          {order.status === 'cancelled' && <XCircle className="h-3 w-3 mr-1" />}
-                          {order.status.toUpperCase()}
-                        </Badge>
-                      </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-3 gap-4">
-                      <div>
-                        <h4 className="font-semibold mb-2">Order Details</h4>
-                        <div className="space-y-1">
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Total Amount</span>
-                            <span className="font-bold">${order.total_amount.toLocaleString()}</span>
-                          </div>
-                          {order.delivery_date && (
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Delivered</span>
-                              <span>{order.delivery_date}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold mb-2">Items ({order.items.length})</h4>
-                        <div className="space-y-1">
-                          {order.items.slice(0, 3).map((item, index) => (
-                            <div key={index} className="text-sm">{item}</div>
-                          ))}
-                          {order.items.length > 3 && (
-                            <div className="text-sm text-muted-foreground">
-                              +{order.items.length - 3} more items
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => {
-                            setSelectedOrderId(order.id);
-                            setShowOrderDetails(true);
-                          }}
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          View Details
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit Order
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Package className="h-4 w-4 mr-2" />
-                          Track Delivery
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="payments" className="space-y-6">
-          <Card className="card-luxury">
-            <CardHeader>
-              <CardTitle>Supplier Payment Overview</CardTitle>
-              <CardDescription>Track payments to suppliers and outstanding amounts</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Payment Integration</h3>
-                <p className="text-muted-foreground">
-                  Supplier payments will be integrated with the main Payments Management system.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="analytics" className="space-y-6">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="card-luxury">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
-                    <Truck className="h-6 w-6 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total Suppliers</p>
-                    <p className="text-2xl font-bold">{suppliers.length}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="card-luxury">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-accent rounded-full flex items-center justify-center">
-                    <Package className="h-6 w-6 text-accent-foreground" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Active Orders</p>
-                    <p className="text-2xl font-bold">{supplierOrders.filter(o => o.status === 'pending').length}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="card-luxury">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
-                    <DollarSign className="h-6 w-6 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total Procurement</p>
-                    <p className="text-2xl font-bold">${suppliers.reduce((sum, s) => sum + s.total_amount, 0).toLocaleString()}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="card-luxury">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-accent rounded-full flex items-center justify-center">
-                    <Star className="h-6 w-6 text-accent-foreground" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Avg Rating</p>
-                    <p className="text-2xl font-bold">
-                      {(suppliers.reduce((sum, s) => sum + s.rating, 0) / suppliers.length).toFixed(1)}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+            })
+          )}
+        </div>
+      )}
 
       {/* All Modal Components */}
       <AddSupplierModal
@@ -594,7 +312,7 @@ const SupplierManagement = () => {
           setSelectedSupplierId(null);
         }}
         selectedSupplierId={selectedSupplierId}
-        onOrderCreated={fetchOrders}
+        onOrderCreated={() => {}}
       />
 
       <OrderDetailsModal
@@ -604,7 +322,7 @@ const SupplierManagement = () => {
           setSelectedOrderId(null);
         }}
         orderId={selectedOrderId}
-        onOrderUpdated={fetchOrders}
+        onOrderUpdated={() => {}}
       />
     </div>
   );
