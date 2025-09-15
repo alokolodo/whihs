@@ -94,6 +94,7 @@ export const useEmployees = () => {
   return useQuery({
     queryKey: ['employees'],
     queryFn: async () => {
+      console.log('Fetching employees...');
       const { data, error } = await supabase
         .from('employees')
         .select(`
@@ -103,7 +104,11 @@ export const useEmployees = () => {
         `)
         .order('first_name');
 
-      if (error) throw error;
+      console.log('Employees query result:', { data, error });
+      if (error) {
+        console.error('Error fetching employees:', error);
+        throw error;
+      }
       return data as Employee[];
     }
   });
@@ -189,11 +194,16 @@ export const useHRSummary = () => {
   return useQuery({
     queryKey: ['hr-summary'],
     queryFn: async () => {
+      console.log('Fetching HR summary...');
       const { data: employees, error: empError } = await supabase
         .from('employees')
         .select('status, salary');
 
-      if (empError) throw empError;
+      console.log('HR Summary query result:', { employees, empError });
+      if (empError) {
+        console.error('Error fetching HR summary:', empError);
+        throw empError;
+      }
 
       const { data: leaves, error: leaveError } = await supabase
         .from('leave_requests')
