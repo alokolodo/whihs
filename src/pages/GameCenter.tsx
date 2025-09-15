@@ -12,13 +12,20 @@ import {
   Plus,
   Settings,
   Monitor,
-  Joystick
+  Joystick,
+  Crown,
+  Target,
+  Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import CreateTournamentModal from "@/components/game/CreateTournamentModal";
+import NewBookingModal from "@/components/game/NewBookingModal";
+import StartSessionModal from "@/components/game/StartSessionModal";
+import LeaderboardModal from "@/components/game/LeaderboardModal";
 
 interface GameStation {
   id: string;
@@ -171,6 +178,13 @@ const GameCenter = () => {
 
   const [activeTab, setActiveTab] = useState("stations");
 
+  // Modal states
+  const [createTournamentOpen, setCreateTournamentOpen] = useState(false);
+  const [newBookingOpen, setNewBookingOpen] = useState(false);
+  const [startSessionOpen, setStartSessionOpen] = useState(false);
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
+  const [selectedStation, setSelectedStation] = useState<GameStation | null>(null);
+
   const stationTypeColors = {
     console: "bg-blue-500",
     pc: "bg-green-500", 
@@ -218,11 +232,11 @@ const GameCenter = () => {
           <p className="text-muted-foreground">Manage gaming stations, tournaments, and bookings</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => setCreateTournamentOpen(true)}>
             <Trophy className="h-4 w-4 mr-2" />
             Create Tournament
           </Button>
-          <Button>
+          <Button onClick={() => setNewBookingOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             New Booking
           </Button>
@@ -337,7 +351,14 @@ const GameCenter = () => {
                           </Button>
                         </>
                       ) : station.status === "available" ? (
-                        <Button size="sm" className="w-full">
+                        <Button 
+                          size="sm" 
+                          className="w-full"
+                          onClick={() => {
+                            setSelectedStation(station);
+                            setStartSessionOpen(true);
+                          }}
+                        >
                           <Play className="h-4 w-4 mr-2" />
                           Start Session
                         </Button>
@@ -497,7 +518,122 @@ const GameCenter = () => {
             </CardContent>
           </Card>
         </TabsContent>
+        <TabsContent value="leaderboard" className="space-y-6">
+          {/* Leaderboard Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold">Gaming Leaderboard</h2>
+              <p className="text-muted-foreground">Top players and gaming statistics</p>
+            </div>
+            <Button onClick={() => setLeaderboardOpen(true)}>
+              <Crown className="h-4 w-4 mr-2" />
+              Full Leaderboard
+            </Button>
+          </div>
+
+          {/* Top Players Preview */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="text-center border-yellow-500 bg-yellow-50">
+              <CardHeader>
+                <div className="flex justify-center mb-2">
+                  <Trophy className="h-8 w-8 text-yellow-500" />
+                </div>
+                <CardTitle>Alex Rodriguez</CardTitle>
+                <CardDescription>#1 Champion</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-primary mb-2">24</div>
+                <div className="text-sm text-muted-foreground">Tournament Wins</div>
+                <Badge className="mt-2 bg-yellow-500 text-white">85% Win Rate</Badge>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center border-gray-400 bg-gray-50">
+              <CardHeader>
+                <div className="flex justify-center mb-2">
+                  <Crown className="h-8 w-8 text-gray-400" />
+                </div>
+                <CardTitle>Sarah Chen</CardTitle>
+                <CardDescription>#2 Runner-up</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-primary mb-2">22</div>
+                <div className="text-sm text-muted-foreground">Tournament Wins</div>
+                <Badge className="mt-2 bg-gray-400 text-white">78% Win Rate</Badge>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center border-amber-600 bg-amber-50">
+              <CardHeader>
+                <div className="flex justify-center mb-2">
+                  <Target className="h-8 w-8 text-amber-600" />
+                </div>
+                <CardTitle>Mike Johnson</CardTitle>
+                <CardDescription>#3 Third Place</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-primary mb-2">19</div>
+                <div className="text-sm text-muted-foreground">Tournament Wins</div>
+                <Badge className="mt-2 bg-amber-600 text-white">82% Win Rate</Badge>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Gaming Statistics */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="p-4 text-center">
+                <Users className="h-8 w-8 mx-auto mb-2 text-primary" />
+                <div className="text-2xl font-bold">127</div>
+                <div className="text-sm text-muted-foreground">Active Players</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 text-center">
+                <Trophy className="h-8 w-8 mx-auto mb-2 text-primary" />
+                <div className="text-2xl font-bold">48</div>
+                <div className="text-sm text-muted-foreground">Tournaments</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 text-center">
+                <Clock className="h-8 w-8 mx-auto mb-2 text-primary" />
+                <div className="text-2xl font-bold">1,456</div>
+                <div className="text-sm text-muted-foreground">Hours Played</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 text-center">
+                <Zap className="h-8 w-8 mx-auto mb-2 text-primary" />
+                <div className="text-2xl font-bold">89%</div>
+                <div className="text-sm text-muted-foreground">Satisfaction Rate</div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
       </Tabs>
+
+      {/* Modals */}
+      <CreateTournamentModal 
+        open={createTournamentOpen} 
+        onOpenChange={setCreateTournamentOpen}
+      />
+      
+      <NewBookingModal 
+        open={newBookingOpen} 
+        onOpenChange={setNewBookingOpen}
+      />
+      
+      <StartSessionModal 
+        open={startSessionOpen} 
+        onOpenChange={setStartSessionOpen}
+        station={selectedStation || undefined}
+      />
+      
+      <LeaderboardModal 
+        open={leaderboardOpen} 
+        onOpenChange={setLeaderboardOpen}
+      />
     </div>
   );
 };
