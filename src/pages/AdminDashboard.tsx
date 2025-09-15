@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import GlobalInventoryNotifications from "@/components/inventory/GlobalInventoryNotifications";
 
 const AdminDashboard = () => {
   const stats = [
@@ -84,6 +85,15 @@ const AdminDashboard = () => {
           </Button>
         </div>
       </div>
+
+      {/* Global Inventory Notifications */}
+      <GlobalInventoryNotifications 
+        userRole="admin" 
+        onItemClick={(itemId) => {
+          // Navigate to inventory management with item focus
+          window.location.href = `/admin/inventory?focus=${itemId}`;
+        }}
+      />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

@@ -14,6 +14,9 @@ import InventoryTemplateModal from "@/components/inventory/InventoryTemplateModa
 import POSConnectionModal from "@/components/inventory/POSConnectionModal";
 import InventoryReportModal from "@/components/inventory/InventoryReportModal";
 import SupplierIntegrationModal from "@/components/inventory/SupplierIntegrationModal";
+import LowStockNotificationSystem from "@/components/inventory/LowStockNotificationSystem";
+import InventoryActionButtons from "@/components/inventory/InventoryActionButtons";
+import InventoryAnalyticsDashboard from "@/components/inventory/InventoryAnalyticsDashboard";
 import {
   Package,
   Search,
@@ -73,6 +76,7 @@ const InventoryManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [userRole] = useState<'admin' | 'storekeeper' | 'manager' | 'staff'>('admin'); // This would come from auth context
   
   // Modal states
   const [showAddModal, setShowAddModal] = useState(false);
@@ -304,21 +308,27 @@ const InventoryManagement = () => {
           <h1 className="text-3xl font-bold text-foreground">Inventory Management</h1>
           <p className="text-muted-foreground">Track stock levels and manage supply chain operations</p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={() => setShowTemplateModal(true)} variant="outline">
-            <Upload className="h-4 w-4 mr-2" />
-            Template
-          </Button>
-          <Button onClick={() => setShowReportModal(true)} variant="outline">
-            <FileText className="h-4 w-4 mr-2" />
-            Reports
-          </Button>
-          <Button onClick={() => setShowAddModal(true)} className="button-luxury">
-            <Plus className="h-4 w-4 mr-2" />
-            Add New Item
-          </Button>
-        </div>
+        <InventoryActionButtons
+          userRole={userRole}
+          onAddItem={() => setShowAddModal(true)}
+          onShowTemplate={() => setShowTemplateModal(true)}
+          onShowReports={() => setShowReportModal(true)}
+          onShowPOSIntegration={() => setShowPOSModal(true)}
+          onShowSupplierIntegration={() => setShowSupplierModal(true)}
+        />
       </div>
+
+      {/* Low Stock Notification System */}
+      <LowStockNotificationSystem
+        userRole={userRole}
+        onRestockRequest={(itemId) => {
+          const item = inventory.find(i => i.id === itemId);
+          if (item) {
+            setSelectedItem(item);
+            setShowRestockModal(true);
+          }
+        }}
+      />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-4">
@@ -587,7 +597,8 @@ const InventoryManagement = () => {
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <InventoryAnalyticsDashboard />
+        </TabsContent>
             <Card className="card-luxury">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -672,7 +683,52 @@ const InventoryManagement = () => {
           </Card>
         </TabsContent>
       </Tabs>
-      {/* Add missing import */}
+
+      {/* All Modal Components */}
+      <AddInventoryItemModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onItemAdded={fetchInventory}
+      />
+
+      <EditInventoryItemModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        item={selectedItem}
+        onItemUpdated={fetchInventory}
+      />
+
+      <IssueInventoryModal
+        isOpen={showIssueModal}
+        onClose={() => setShowIssueModal(false)}
+        item={selectedItem}
+        onItemIssued={fetchInventory}
+      />
+
+      <RestockModal
+        isOpen={showRestockModal}
+        onClose={() => setShowRestockModal(false)}
+        item={selectedItem}
+        onItemRestocked={fetchInventory}
+      />
+
+      <InventoryTemplateModal
+        isOpen={showTemplateModal}
+        onClose={() => setShowTemplateModal(false)}
+        onImportData={handleImportData}
+      />
+
+      <POSConnectionModal
+        isOpen={showPOSModal}
+        onClose={() => setShowPOSModal(false)}
+      />
+
+      <InventoryReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        inventoryData={inventory}
+      />
+
       <SupplierIntegrationModal
         isOpen={showSupplierModal}
         onClose={() => setShowSupplierModal(false)}
