@@ -4,6 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  useAccountEntries, 
+  useFinancialSummary, 
+  useBudgets,
+  AccountEntry as AccountEntryType 
+} from "@/hooks/useAccounting";
+import { AddAccountEntryModal } from "@/components/accounting/AddAccountEntryModal";
 import {
   DollarSign,
   TrendingUp,
@@ -15,125 +22,46 @@ import {
   CreditCard,
   Receipt,
   Target,
-  AlertCircle
+  AlertCircle,
+  Loader2
 } from "lucide-react";
 
-interface AccountEntry {
-  id: string;
-  date: string;
-  description: string;
-  category: 'revenue' | 'expense' | 'asset' | 'liability';
-  subCategory: string;
-  amount: number;
-  reference: string;
-  status: 'posted' | 'pending' | 'reconciled';
-}
-
-interface FinancialReport {
-  period: string;
-  revenue: number;
-  expenses: number;
-  netIncome: number;
-  assets: number;
-  liabilities: number;
-  equity: number;
-}
+// Interfaces are now imported from useAccounting hook
 
 const AccountingModule = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [selectedPeriod, setSelectedPeriod] = useState("current-month");
+  const [isAddEntryModalOpen, setIsAddEntryModalOpen] = useState(false);
 
-  const [entries] = useState<AccountEntry[]>([
-    {
-      id: "ACC001",
-      date: "2024-01-15",
-      description: "Room Revenue - Deluxe Suite Bookings",
-      category: 'revenue',
-      subCategory: 'Room Revenue',
-      amount: 12500.00,
-      reference: "REV_ROOMS_001",
-      status: 'posted'
-    },
-    {
-      id: "ACC002",
-      date: "2024-01-15", 
-      description: "Restaurant Sales - F&B Revenue",
-      category: 'revenue',
-      subCategory: 'Food & Beverage',
-      amount: 3450.00,
-      reference: "REV_FB_001",
-      status: 'posted'
-    },
-    {
-      id: "ACC003",
-      date: "2024-01-14",
-      description: "Staff Salaries - January Payment",
-      category: 'expense',
-      subCategory: 'Payroll',
-      amount: -8500.00,
-      reference: "EXP_PAY_001",
-      status: 'posted'
-    },
-    {
-      id: "ACC004",
-      date: "2024-01-14",
-      description: "Utility Bills - Electricity & Water",
-      category: 'expense',
-      subCategory: 'Utilities',
-      amount: -1250.00,
-      reference: "EXP_UTIL_001",
-      status: 'reconciled'
-    },
-    {
-      id: "ACC005",
-      date: "2024-01-13",
-      description: "Equipment Purchase - Kitchen Appliances",
-      category: 'asset',
-      subCategory: 'Fixed Assets',
-      amount: 15000.00,
-      reference: "AST_EQUIP_001",
-      status: 'posted'
-    }
-  ]);
+  const { data: entries = [], isLoading: entriesLoading } = useAccountEntries();
+  const { data: financialSummary, isLoading: summaryLoading } = useFinancialSummary();
+  const { data: budgets = [], isLoading: budgetsLoading } = useBudgets();
 
-  const financialReports: FinancialReport[] = [
-    {
-      period: "January 2024",
-      revenue: 45230.00,
-      expenses: 28450.00,
-      netIncome: 16780.00,
-      assets: 485000.00,
-      liabilities: 125000.00,
-      equity: 360000.00
-    },
-    {
-      period: "December 2023",
-      revenue: 52100.00,
-      expenses: 31200.00,
-      netIncome: 20900.00,
-      assets: 475000.00,
-      liabilities: 130000.00,
-      equity: 345000.00
-    }
-  ];
-
-  const currentReport = financialReports[0];
-  const previousReport = financialReports[1];
-
-  const calculateChange = (current: number, previous: number) => {
-    const change = ((current - previous) / previous) * 100;
-    return change;
+  // Mock previous period data for comparison (in real app, this would come from database)
+  const previousPeriodSummary = {
+    revenue: 52100.00,
+    expenses: 31200.00,
+    netIncome: 20900.00,
+    assets: 475000.00,
+    liabilities: 130000.00,
+    equity: 345000.00
   };
 
-  const getCategoryColor = (category: string) => {
+  const calculateChange = (current: number, previous: number) => {
+    if (previous === 0) return 0;
+    return ((current - previous) / previous) * 100;
+  };
+
+  const getCategoryColor = (type: string) => {
     const colors = {
       revenue: 'bg-success text-success-foreground',
       expense: 'bg-destructive text-destructive-foreground',
       asset: 'bg-accent text-accent-foreground',
-      liability: 'bg-warning text-warning-foreground'
+      liability: 'bg-warning text-warning-foreground',
+      equity: 'bg-primary text-primary-foreground'
     };
-    return colors[category as keyof typeof colors] || 'bg-muted text-muted-foreground';
+    return colors[type as keyof typeof colors] || 'bg-muted text-muted-foreground';
   };
 
   const getStatusColor = (status: string) => {
@@ -141,6 +69,7 @@ const AccountingModule = () => {
       case 'posted': return 'bg-success text-success-foreground';
       case 'pending': return 'bg-warning text-warning-foreground';
       case 'reconciled': return 'bg-accent text-accent-foreground';
+      case 'cancelled': return 'bg-destructive text-destructive-foreground';
       default: return 'bg-muted text-muted-foreground';
     }
   };
@@ -159,9 +88,17 @@ const AccountingModule = () => {
     });
   };
 
-  const revenueChange = calculateChange(currentReport.revenue, previousReport.revenue);
-  const expenseChange = calculateChange(Math.abs(currentReport.expenses), Math.abs(previousReport.expenses));
-  const netIncomeChange = calculateChange(currentReport.netIncome, previousReport.netIncome);
+  const revenueChange = financialSummary ? calculateChange(financialSummary.revenue, previousPeriodSummary.revenue) : 0;
+  const expenseChange = financialSummary ? calculateChange(financialSummary.expenses, previousPeriodSummary.expenses) : 0;
+  const netIncomeChange = financialSummary ? calculateChange(financialSummary.netIncome, previousPeriodSummary.netIncome) : 0;
+
+  if (summaryLoading || entriesLoading) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -175,7 +112,7 @@ const AccountingModule = () => {
             <Download className="h-4 w-4 mr-2" />
             Export Data
           </Button>
-          <Button className="button-luxury">
+          <Button className="button-luxury" onClick={() => setIsAddEntryModalOpen(true)}>
             <Receipt className="h-4 w-4 mr-2" />
             New Entry
           </Button>
@@ -202,7 +139,9 @@ const AccountingModule = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-success">${currentReport.revenue.toLocaleString()}</div>
+                <div className="text-2xl font-bold text-success">
+                  ${financialSummary?.revenue.toLocaleString() || '0'}
+                </div>
                 <p className={`text-xs flex items-center gap-1 ${revenueChange >= 0 ? 'text-success' : 'text-destructive'}`}>
                   {revenueChange >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                   {Math.abs(revenueChange).toFixed(1)}% from last month
@@ -218,7 +157,9 @@ const AccountingModule = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-destructive">${Math.abs(currentReport.expenses).toLocaleString()}</div>
+                <div className="text-2xl font-bold text-destructive">
+                  ${financialSummary?.expenses.toLocaleString() || '0'}
+                </div>
                 <p className={`text-xs flex items-center gap-1 ${expenseChange <= 0 ? 'text-success' : 'text-destructive'}`}>
                   {expenseChange <= 0 ? <TrendingDown className="h-3 w-3" /> : <TrendingUp className="h-3 w-3" />}
                   {Math.abs(expenseChange).toFixed(1)}% from last month
@@ -234,7 +175,9 @@ const AccountingModule = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-accent">${currentReport.netIncome.toLocaleString()}</div>
+                <div className="text-2xl font-bold text-accent">
+                  ${financialSummary?.netIncome.toLocaleString() || '0'}
+                </div>
                 <p className={`text-xs flex items-center gap-1 ${netIncomeChange >= 0 ? 'text-success' : 'text-destructive'}`}>
                   {netIncomeChange >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                   {Math.abs(netIncomeChange).toFixed(1)}% from last month
@@ -250,15 +193,15 @@ const AccountingModule = () => {
                 <CardTitle>Assets</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${currentReport.assets.toLocaleString()}</div>
+                <div className="text-2xl font-bold">${financialSummary?.assets.toLocaleString() || '0'}</div>
                 <div className="space-y-2 mt-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Current Assets</span>
-                    <span>$185,000</span>
+                    <span>${Math.round((financialSummary?.assets || 0) * 0.4).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Fixed Assets</span>
-                    <span>$300,000</span>
+                    <span>${Math.round((financialSummary?.assets || 0) * 0.6).toLocaleString()}</span>
                   </div>
                 </div>
               </CardContent>
@@ -269,15 +212,15 @@ const AccountingModule = () => {
                 <CardTitle>Liabilities</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${currentReport.liabilities.toLocaleString()}</div>
+                <div className="text-2xl font-bold">${financialSummary?.liabilities.toLocaleString() || '0'}</div>
                 <div className="space-y-2 mt-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Current Liabilities</span>
-                    <span>$45,000</span>
+                    <span>${Math.round((financialSummary?.liabilities || 0) * 0.4).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Long-term Debt</span>
-                    <span>$80,000</span>
+                    <span>${Math.round((financialSummary?.liabilities || 0) * 0.6).toLocaleString()}</span>
                   </div>
                 </div>
               </CardContent>
@@ -288,15 +231,15 @@ const AccountingModule = () => {
                 <CardTitle>Equity</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${currentReport.equity.toLocaleString()}</div>
+                <div className="text-2xl font-bold">${financialSummary?.equity.toLocaleString() || '0'}</div>
                 <div className="space-y-2 mt-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Retained Earnings</span>
-                    <span>$280,000</span>
+                    <span>${Math.round((financialSummary?.equity || 0) * 0.8).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Capital</span>
-                    <span>$80,000</span>
+                    <span>${Math.round((financialSummary?.equity || 0) * 0.2).toLocaleString()}</span>
                   </div>
                 </div>
               </CardContent>
@@ -343,7 +286,7 @@ const AccountingModule = () => {
                       </div>
                       <div>
                         <h3 className="text-xl font-bold">{entry.description}</h3>
-                        <p className="text-muted-foreground">{entry.date} • {entry.reference}</p>
+                        <p className="text-muted-foreground">{entry.entry_date} • {entry.reference_number}</p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -351,8 +294,8 @@ const AccountingModule = () => {
                         {entry.amount >= 0 ? '+' : ''}${Math.abs(entry.amount).toLocaleString()}
                       </div>
                       <div className="flex gap-2 mt-2">
-                        <Badge className={getCategoryColor(entry.category)}>
-                          {entry.category.toUpperCase()}
+                        <Badge className={getCategoryColor(entry.account_categories?.type || 'asset')}>
+                          {(entry.account_categories?.type || 'ASSET').toUpperCase()}
                         </Badge>
                         <Badge className={getStatusColor(entry.status)}>
                           {entry.status.toUpperCase()}
@@ -364,11 +307,11 @@ const AccountingModule = () => {
                   <div className="grid md:grid-cols-3 gap-4">
                     <div>
                       <p className="text-sm text-muted-foreground">Category</p>
-                      <p className="font-medium">{entry.subCategory}</p>
+                      <p className="font-medium">{entry.sub_category || entry.account_categories?.name}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Reference</p>
-                      <p className="font-medium">{entry.reference}</p>
+                      <p className="font-medium">{entry.reference_number}</p>
                     </div>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm">Edit</Button>
@@ -392,7 +335,7 @@ const AccountingModule = () => {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center pb-2 border-b">
                     <span className="font-semibold">Revenue</span>
-                    <span className="font-bold text-success">${currentReport.revenue.toLocaleString()}</span>
+                    <span className="font-bold text-success">${financialSummary?.revenue.toLocaleString() || '0'}</span>
                   </div>
                   <div className="ml-4 space-y-2">
                     <div className="flex justify-between">
@@ -411,7 +354,7 @@ const AccountingModule = () => {
                   
                   <div className="flex justify-between items-center pb-2 border-b">
                     <span className="font-semibold">Expenses</span>
-                    <span className="font-bold text-destructive">${Math.abs(currentReport.expenses).toLocaleString()}</span>
+                    <span className="font-bold text-destructive">${financialSummary?.expenses.toLocaleString() || '0'}</span>
                   </div>
                   <div className="ml-4 space-y-2">
                     <div className="flex justify-between">
@@ -434,7 +377,7 @@ const AccountingModule = () => {
                   
                   <div className="flex justify-between items-center pt-4 border-t border-accent">
                     <span className="font-bold text-lg">Net Income</span>
-                    <span className="font-bold text-xl text-accent">${currentReport.netIncome.toLocaleString()}</span>
+                    <span className="font-bold text-xl text-accent">${financialSummary?.netIncome.toLocaleString() || '0'}</span>
                   </div>
                 </div>
               </CardContent>
@@ -516,7 +459,7 @@ const AccountingModule = () => {
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-muted-foreground">Actual</span>
-                        <span className="font-bold text-success">${currentReport.revenue.toLocaleString()}</span>
+                        <span className="font-bold text-success">${financialSummary?.revenue.toLocaleString() || '0'}</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-muted-foreground">Variance</span>
@@ -534,7 +477,7 @@ const AccountingModule = () => {
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-muted-foreground">Actual</span>
-                        <span className="font-bold text-success">${Math.abs(currentReport.expenses).toLocaleString()}</span>
+                        <span className="font-bold text-success">${financialSummary?.expenses.toLocaleString() || '0'}</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-muted-foreground">Variance</span>
@@ -565,6 +508,11 @@ const AccountingModule = () => {
           </Card>
         </TabsContent>
       </Tabs>
+      
+      <AddAccountEntryModal 
+        isOpen={isAddEntryModalOpen}
+        onClose={() => setIsAddEntryModalOpen(false)}
+      />
     </div>
   );
 };

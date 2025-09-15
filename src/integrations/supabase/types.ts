@@ -14,6 +14,204 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_categories: {
+        Row: {
+          account_code: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          parent_category_id: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          account_code?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          parent_category_id?: string | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          account_code?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          parent_category_id?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_categories_parent_category_id_fkey"
+            columns: ["parent_category_id"]
+            isOneToOne: false
+            referencedRelation: "account_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      account_entries: {
+        Row: {
+          amount: number
+          category_id: string | null
+          created_at: string
+          credit_amount: number | null
+          debit_amount: number | null
+          description: string
+          entry_date: string
+          id: string
+          notes: string | null
+          posted_at: string | null
+          posted_by: string | null
+          reference_number: string | null
+          source_id: string | null
+          source_type: string | null
+          status: string
+          sub_category: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          category_id?: string | null
+          created_at?: string
+          credit_amount?: number | null
+          debit_amount?: number | null
+          description: string
+          entry_date?: string
+          id?: string
+          notes?: string | null
+          posted_at?: string | null
+          posted_by?: string | null
+          reference_number?: string | null
+          source_id?: string | null
+          source_type?: string | null
+          status?: string
+          sub_category?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category_id?: string | null
+          created_at?: string
+          credit_amount?: number | null
+          debit_amount?: number | null
+          description?: string
+          entry_date?: string
+          id?: string
+          notes?: string | null
+          posted_at?: string | null
+          posted_by?: string | null
+          reference_number?: string | null
+          source_id?: string | null
+          source_type?: string | null
+          status?: string
+          sub_category?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_entries_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "account_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budgets: {
+        Row: {
+          actual_amount: number | null
+          budgeted_amount: number
+          category_id: string | null
+          created_at: string
+          fiscal_year: number
+          id: string
+          name: string
+          period_number: number | null
+          period_type: string
+          status: string
+          updated_at: string
+          variance: number | null
+          variance_percentage: number | null
+        }
+        Insert: {
+          actual_amount?: number | null
+          budgeted_amount: number
+          category_id?: string | null
+          created_at?: string
+          fiscal_year: number
+          id?: string
+          name: string
+          period_number?: number | null
+          period_type?: string
+          status?: string
+          updated_at?: string
+          variance?: number | null
+          variance_percentage?: number | null
+        }
+        Update: {
+          actual_amount?: number | null
+          budgeted_amount?: number
+          category_id?: string | null
+          created_at?: string
+          fiscal_year?: number
+          id?: string
+          name?: string
+          period_number?: number | null
+          period_type?: string
+          status?: string
+          updated_at?: string
+          variance?: number | null
+          variance_percentage?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budgets_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "account_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_reports: {
+        Row: {
+          created_at: string
+          generated_at: string
+          generated_by: string | null
+          id: string
+          period_end: string
+          period_start: string
+          report_data: Json
+          report_type: string
+        }
+        Insert: {
+          created_at?: string
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          period_end: string
+          period_start: string
+          report_data: Json
+          report_type: string
+        }
+        Update: {
+          created_at?: string
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          period_end?: string
+          period_start?: string
+          report_data?: Json
+          report_type?: string
+        }
+        Relationships: []
+      }
       inventory: {
         Row: {
           category: string
