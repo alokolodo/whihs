@@ -31,6 +31,8 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// Force refresh to clear cache
+
 const App = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
