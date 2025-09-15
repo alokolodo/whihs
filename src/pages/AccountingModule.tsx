@@ -11,6 +11,7 @@ import {
   AccountEntry as AccountEntryType 
 } from "@/hooks/useAccounting";
 import { AddAccountEntryModal } from "@/components/accounting/AddAccountEntryModal";
+import { ExportDataModal } from "@/components/accounting/ExportDataModal";
 import {
   DollarSign,
   TrendingUp,
@@ -30,6 +31,7 @@ const AccountingModule = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isAddEntryModalOpen, setIsAddEntryModalOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   const { data: entries = [], isLoading: entriesLoading } = useAccountEntries();
   const { data: summary, isLoading: summaryLoading } = useFinancialSummary();
@@ -79,10 +81,7 @@ const AccountingModule = () => {
   };
 
   const handleExportData = () => {
-    toast({
-      title: "Export Started",
-      description: "Financial data export will be available shortly.",
-    });
+    setIsExportModalOpen(true);
   };
 
   const revenueChange = summary ? calculateChange(summary.revenue, previousPeriod.revenue) : 0;
@@ -465,6 +464,14 @@ const AccountingModule = () => {
       <AddAccountEntryModal 
         isOpen={isAddEntryModalOpen}
         onClose={() => setIsAddEntryModalOpen(false)}
+      />
+      
+      <ExportDataModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        entries={entries}
+        summary={summary}
+        budgets={budgets}
       />
     </div>
   );
