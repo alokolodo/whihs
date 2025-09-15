@@ -5,6 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { PaymentDetailsModal } from "@/components/payment/PaymentDetailsModal";
+import { PrintReceiptModal } from "@/components/payment/PrintReceiptModal";
+import { ReconciliationReportModal } from "@/components/payment/ReconciliationReportModal";
+import { BankStatementUploadModal } from "@/components/payment/BankStatementUploadModal";
 import {
   CreditCard,
   Search,
@@ -44,6 +48,13 @@ const PaymentsManagement = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("transactions");
   const [searchTerm, setSearchTerm] = useState("");
+  
+  // Modal states
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const [isReconciliationModalOpen, setIsReconciliationModalOpen] = useState(false);
+  const [isBankUploadModalOpen, setIsBankUploadModalOpen] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
 
   const [payments] = useState<Payment[]>([
     {
@@ -157,11 +168,76 @@ const PaymentsManagement = () => {
     });
   };
 
-  const handleExportPayments = () => {
-    toast({
-      title: "Export Started",
-      description: "Payment report will be downloaded shortly.",
-    });
+  const handleExportPayments = async () => {
+    // Use File System Access API if available
+    if ('showSaveFilePicker' in window) {
+      try {
+        const fileHandle = await (window as any).showSaveFilePicker({
+          suggestedName: `payments-report-${Date.now()}.xlsx`,
+          types: [{
+            description: 'Excel files',
+            accept: {
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx']
+            }
+          }]
+        });
+        
+        // Create mock Excel content
+        const content = generateExcelReport();
+        const writable = await fileHandle.createWritable();
+        await writable.write(content);
+        await writable.close();
+        
+        toast({
+          title: "Export Complete",
+          description: "Payment report saved successfully",
+        });
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          toast({
+            title: "Error",
+            description: "Failed to save report",
+            variant: "destructive"
+          });
+        }
+      }
+    } else {
+      // Fallback download
+      const content = generateExcelReport();
+      const blob = new Blob([content], { 
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `payments-report-${Date.now()}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Export Started",
+        description: "Payment report downloaded to your default folder",
+      });
+    }
+  };
+
+  const generateExcelReport = () => {
+    return `Payment ID,Guest Name,Amount,Method,Type,Status,Date,Description,Reference
+${payments.map(p => 
+  `${p.id},${p.guestName},${p.amount},${p.method},${p.type},${p.status},${p.date},"${p.description}",${p.reference}`
+).join('\n')}`;
+  };
+
+  const handleViewDetails = (payment: Payment) => {
+    setSelectedPayment(payment);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handlePrintReceipt = (payment: Payment) => {
+    setSelectedPayment(payment);
+    setIsPrintModalOpen(true);
   };
 
   return (
@@ -258,7 +334,11 @@ const PaymentsManagement = () => {
                     </div>
 
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleViewDetails(payment)}
+                      >
                         View Details
                       </Button>
                       {payment.status === 'completed' && payment.type !== 'refund' && (
@@ -270,7 +350,11 @@ const PaymentsManagement = () => {
                           Process Refund
                         </Button>
                       )}
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handlePrintReceipt(payment)}
+                      >
                         Print Receipt
                       </Button>
                     </div>
@@ -438,10 +522,16 @@ const PaymentsManagement = () => {
               </div>
 
               <div className="flex gap-3">
-                <Button className="button-luxury">
+                <Button 
+                  className="button-luxury"
+                  onClick={() => setIsReconciliationModalOpen(true)}
+                >
                   Generate Reconciliation Report
                 </Button>
-                <Button variant="outline">
+                <Button 
+                  variant="outline"
+                  onClick={() => setIsBankUploadModalOpen(true)}
+                >
                   Upload Bank Statement
                 </Button>
               </div>
@@ -449,6 +539,35 @@ const PaymentsManagement = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Modals */}
+      <PaymentDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => {
+          setIsDetailsModalOpen(false);
+          setSelectedPayment(null);
+        }}
+        payment={selectedPayment}
+      />
+
+      <PrintReceiptModal
+        isOpen={isPrintModalOpen}
+        onClose={() => {
+          setIsPrintModalOpen(false);
+          setSelectedPayment(null);
+        }}
+        payment={selectedPayment}
+      />
+
+      <ReconciliationReportModal
+        isOpen={isReconciliationModalOpen}
+        onClose={() => setIsReconciliationModalOpen(false)}
+      />
+
+      <BankStatementUploadModal
+        isOpen={isBankUploadModalOpen}
+        onClose={() => setIsBankUploadModalOpen(false)}
+      />
     </div>
   );
 };
