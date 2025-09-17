@@ -669,17 +669,19 @@ const POSSystem = () => {
       <div className="flex-1 flex flex-col">
         {/* Categories */}
         <div className="p-4 border-b border-border">
-          <div className="grid grid-cols-6 gap-2">
+          <div className="grid grid-cols-5 gap-2">
             {categories.map((category) => (
               <Button
                 key={category.id}
                 variant="outline"
                 className={`h-16 text-white font-bold text-xs ${category.color} ${
                   activeCategory === category.id ? "ring-2 ring-primary" : ""
-                }`}
+                } break-words hyphens-auto`}
                 onClick={() => setActiveCategory(category.id)}
               >
-                {category.name}
+                <span className="leading-tight text-center px-1">
+                  {category.name}
+                </span>
               </Button>
             ))}
           </div>
@@ -699,7 +701,9 @@ const POSSystem = () => {
                 disabled={item.isAvailable === false}
               >
                 <div className="text-center space-y-1 w-full">
-                  <div className="text-xs leading-tight break-words px-1">{item.name}</div>
+                  <div className="text-xs leading-tight break-words hyphens-auto px-1 whitespace-normal">
+                    {item.name}
+                  </div>
                   {item.price > 0 && (
                     <div className="text-xs opacity-90">${item.price.toFixed(2)}</div>
                   )}
