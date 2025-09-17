@@ -272,10 +272,10 @@ const POSSystem = () => {
         description: `Payment of ${currency}${total.toFixed(2)} processed via ${method}`,
       });
       
-      // Clear the guest's order
+      // Clear the guest's order and reset guest name for next customer
       setPosGuests(prev => prev.map(guest =>
         guest.id === selectedGuest 
-          ? { ...guest, items: [] }
+          ? { ...guest, name: "New Guest", items: [] }
           : guest
       ));
       
@@ -687,24 +687,24 @@ const POSSystem = () => {
 
         {/* Items Grid */}
         <ScrollArea className="flex-1 p-4">
-          <div className="grid grid-cols-6 gap-3">
+          <div className="grid grid-cols-4 gap-4">
             {filteredItems.map((item) => (
               <Button
                 key={item.id}
                 variant="outline"
-                className={`h-24 text-white font-bold text-xs ${item.color} hover:opacity-90 transition-opacity flex flex-col justify-center p-2 ${
+                className={`aspect-square min-h-32 text-white font-bold text-sm ${item.color} hover:opacity-90 transition-opacity flex flex-col justify-center p-3 ${
                   item.isAvailable === false ? 'opacity-50' : ''
                 }`}
                 onClick={() => addItemToGuest(item)}
                 disabled={item.isAvailable === false}
               >
-                <div className="text-center space-y-1">
-                  <div className="text-xs leading-tight">{item.name}</div>
+                <div className="text-center space-y-2">
+                  <div className="text-sm leading-tight break-words">{item.name}</div>
                   {item.price > 0 && (
-                    <div className="text-xs opacity-90">${item.price.toFixed(2)}</div>
+                    <div className="text-sm opacity-90">${item.price.toFixed(2)}</div>
                   )}
                   {item.bookedDays && (
-                    <div className="text-xs opacity-75 bg-black/20 px-1 rounded">
+                    <div className="text-xs opacity-75 bg-black/20 px-2 py-1 rounded">
                       {item.bookedDays} days
                     </div>
                   )}
