@@ -138,17 +138,19 @@ const POSSystem = () => {
 
   // Generate hotel service items from rooms and halls
   const generateHotelItems = () => {
-    const roomItems: POSItem[] = rooms.map(room => ({
-      id: `room-${room.id}`,
-      name: `ROOM ${room.room_number}`,
-      price: room.rate,
-      category: "accommodation",
-      color: room.status === "available" ? "bg-blue-600" : "bg-gray-400",
-      isAvailable: room.status === "available",
-      bookedDays: 1, // Default to 1 night
-      roomType: room.room_type,
-      amenities: room.amenities
-    }));
+    const roomItems: POSItem[] = rooms
+      .filter(room => room.status === "available")
+      .map(room => ({
+        id: `room-${room.id}`,
+        name: `ROOM ${room.room_number}`,
+        price: room.rate,
+        category: "accommodation",
+        color: "bg-blue-600",
+        isAvailable: true,
+        bookedDays: 1, // Default to 1 night
+        roomType: room.room_type,
+        amenities: room.amenities
+      }));
 
     const hallItems: POSItem[] = halls.map(hall => ({
       id: `hall-${hall.id}`,
