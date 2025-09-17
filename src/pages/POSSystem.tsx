@@ -152,17 +152,19 @@ const POSSystem = () => {
         amenities: room.amenities
       }));
 
-    const hallItems: POSItem[] = halls.map(hall => ({
-      id: `hall-${hall.id}`,
-      name: hall.name.toUpperCase(),
-      price: hall.hourlyRate,
-      category: "facilities",
-      color: hall.availability === "available" ? "bg-green-600" : "bg-gray-400",
-      isAvailable: hall.availability === "available",
-      bookedDays: hall.bookedDays,
-      capacity: hall.capacity,
-      amenities: hall.amenities
-    }));
+    const hallItems: POSItem[] = halls
+      .filter(hall => hall.availability === "available")
+      .map(hall => ({
+        id: `hall-${hall.id}`,
+        name: hall.name.toUpperCase(),
+        price: hall.hourlyRate,
+        category: "facilities",
+        color: "bg-green-600",
+        isAvailable: true,
+        bookedDays: hall.bookedDays,
+        capacity: hall.capacity,
+        amenities: hall.amenities
+      }));
 
     const baseItems: POSItem[] = [
       { id: "gym", name: "GYM", price: 25.00, category: "facilities", color: "bg-green-500", isAvailable: true },
