@@ -687,24 +687,24 @@ const POSSystem = () => {
 
         {/* Items Grid */}
         <ScrollArea className="flex-1 p-4">
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-5 gap-3">
             {filteredItems.map((item) => (
               <Button
                 key={item.id}
                 variant="outline"
-                className={`aspect-square min-h-32 text-white font-bold text-sm ${item.color} hover:opacity-90 transition-opacity flex flex-col justify-center p-3 ${
+                className={`aspect-square h-28 w-full text-white font-bold text-xs ${item.color} hover:opacity-90 transition-opacity flex flex-col justify-center p-2 ${
                   item.isAvailable === false ? 'opacity-50' : ''
                 }`}
                 onClick={() => addItemToGuest(item)}
                 disabled={item.isAvailable === false}
               >
-                <div className="text-center space-y-2">
-                  <div className="text-sm leading-tight break-words">{item.name}</div>
+                <div className="text-center space-y-1 w-full">
+                  <div className="text-xs leading-tight break-words px-1">{item.name}</div>
                   {item.price > 0 && (
-                    <div className="text-sm opacity-90">${item.price.toFixed(2)}</div>
+                    <div className="text-xs opacity-90">${item.price.toFixed(2)}</div>
                   )}
                   {item.bookedDays && (
-                    <div className="text-xs opacity-75 bg-black/20 px-2 py-1 rounded">
+                    <div className="text-xs opacity-75 bg-black/20 px-1 py-0.5 rounded">
                       {item.bookedDays} days
                     </div>
                   )}
