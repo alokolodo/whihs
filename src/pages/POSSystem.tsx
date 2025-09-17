@@ -455,10 +455,9 @@ const POSSystem = () => {
         {/* Header */}
         <div className="p-4 border-b border-border bg-muted/30">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-bold text-lg">foodiv</h2>
-            <Badge variant="outline">NEW DINE-IN ORDER</Badge>
+            <h2 className="font-bold text-lg">Services</h2>
           </div>
-          <div className="text-sm text-muted-foreground mb-2">SERVER: WALDO T</div>
+          <div className="text-sm text-muted-foreground mb-2">SERVER: Staff Member</div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="SEARCH" className="pl-10" />
