@@ -910,6 +910,107 @@ export type Database = {
         }
         Relationships: []
       }
+      room_bookings: {
+        Row: {
+          booking_status: string
+          check_in_date: string
+          check_out_date: string
+          created_at: string
+          guest_email: string | null
+          guest_name: string
+          guest_phone: string | null
+          id: string
+          nights: number
+          payment_status: string
+          room_id: string
+          special_requests: string | null
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          booking_status?: string
+          check_in_date?: string
+          check_out_date: string
+          created_at?: string
+          guest_email?: string | null
+          guest_name: string
+          guest_phone?: string | null
+          id?: string
+          nights?: number
+          payment_status?: string
+          room_id: string
+          special_requests?: string | null
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          booking_status?: string
+          check_in_date?: string
+          check_out_date?: string
+          created_at?: string
+          guest_email?: string | null
+          guest_name?: string
+          guest_phone?: string | null
+          id?: string
+          nights?: number
+          payment_status?: string
+          room_id?: string
+          special_requests?: string | null
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_bookings_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rooms: {
+        Row: {
+          amenities: string[] | null
+          capacity: number
+          created_at: string
+          description: string | null
+          floor_number: number | null
+          id: string
+          rate: number
+          room_number: string
+          room_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amenities?: string[] | null
+          capacity?: number
+          created_at?: string
+          description?: string | null
+          floor_number?: number | null
+          id?: string
+          rate?: number
+          room_number: string
+          room_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amenities?: string[] | null
+          capacity?: number
+          created_at?: string
+          description?: string | null
+          floor_number?: number | null
+          id?: string
+          rate?: number
+          room_number?: string
+          room_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       staff_recognition: {
         Row: {
           award_date: string | null

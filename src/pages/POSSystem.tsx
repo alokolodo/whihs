@@ -27,7 +27,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { useRooms } from "@/hooks/useRooms";
+import { useRoomsDB } from "@/hooks/useRoomsDB";
 import { useHalls } from "@/hooks/useHalls";
 import { useGuests, RegisteredGuest } from "@/hooks/useGuests";
 
@@ -61,7 +61,7 @@ interface PaymentState {
 
 const POSSystem = () => {
   const navigate = useNavigate();
-  const { rooms, getAvailableRooms } = useRooms();
+  const { rooms, getAvailableRooms, createRoomBooking } = useRoomsDB();
   const { halls, getAvailableHalls } = useHalls();
   const { guests: registeredGuests, getAvailableGuests } = useGuests();
   
@@ -140,13 +140,13 @@ const POSSystem = () => {
   const generateHotelItems = () => {
     const roomItems: POSItem[] = rooms.map(room => ({
       id: `room-${room.id}`,
-      name: `ROOM ${room.number}`,
+      name: `ROOM ${room.room_number}`,
       price: room.rate,
       category: "accommodation",
-      color: room.status === "ready" ? "bg-blue-600" : "bg-gray-400",
-      isAvailable: room.status === "ready",
-      bookedDays: room.bookedDays,
-      roomType: room.type,
+      color: room.status === "available" ? "bg-blue-600" : "bg-gray-400",
+      isAvailable: room.status === "available",
+      bookedDays: 1, // Default to 1 night
+      roomType: room.room_type,
       amenities: room.amenities
     }));
 
@@ -173,7 +173,12 @@ const POSSystem = () => {
     return [...roomItems, ...hallItems, ...baseItems];
   };
 
-  const [items, setItems] = useState<POSItem[]>(generateHotelItems());
+  const [items, setItems] = useState<POSItem[]>([]);
+  
+  // Update items when rooms or halls change
+  useEffect(() => {
+    setItems(generateHotelItems());
+  }, [rooms, halls]);
 
   const filteredItems = activeCategory === "all" 
     ? items 
@@ -252,7 +257,7 @@ const POSSystem = () => {
   };
 
   // Payment Functions
-  const handlePayment = (method: string) => {
+  const handlePayment = async (method: string) => {
     if (!currentGuest || currentGuest.items.length === 0) return;
     
     setPaymentState(prev => ({ ...prev, method, processing: true }));
@@ -261,7 +266,7 @@ const POSSystem = () => {
     // Simulate payment processing with different methods
     const processingTime = method === "MOBILE_MONEY" ? 3000 : method === "BANK" ? 4000 : 2000;
     
-    setTimeout(() => {
+    setTimeout(async () => {
       setPaymentState(prev => ({ ...prev, processing: false, completed: true }));
       
       const total = getGuestTotal(currentGuest) + getTotalTax(getGuestTotal(currentGuest));
@@ -271,6 +276,30 @@ const POSSystem = () => {
         title: "Payment Successful",
         description: `Payment of ${currency}${total.toFixed(2)} processed via ${method}`,
       });
+      
+      // Process room check-ins for accommodation items
+      const roomItems = currentGuest.items.filter(item => item.category === "accommodation");
+      
+      for (const roomItem of roomItems) {
+        if (roomItem.id.startsWith('room-')) {
+          const roomId = roomItem.id.replace('room-', '');
+          const checkOutDate = new Date();
+          checkOutDate.setDate(checkOutDate.getDate() + roomItem.quantity); // Add nights
+          
+          try {
+            await createRoomBooking({
+              room_id: roomId,
+              guest_name: currentGuest.name,
+              check_out_date: checkOutDate.toISOString().split('T')[0],
+              nights: roomItem.quantity,
+              total_amount: roomItem.price * roomItem.quantity,
+              special_requests: `Booked via POS - ${method} payment`
+            });
+          } catch (error) {
+            console.error('Failed to create room booking:', error);
+          }
+        }
+      }
       
       // Remove the guest completely after payment
       setPosGuests(prev => prev.filter(guest => guest.id !== selectedGuest));
