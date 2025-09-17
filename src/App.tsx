@@ -27,6 +27,8 @@ import HRManagement from "./pages/HRManagement";
 import HousekeepingManagement from "./pages/HousekeepingManagement";
 import RestaurantPOS from "./components/pos/RestaurantPOS";
 import SupplierManagement from "./pages/SupplierManagement";
+import Analytics from "./pages/Analytics";
+import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -139,6 +141,16 @@ const App = () => {
                 <Route path="/admin/housekeeping" element={
                   <HotelLayout>
                     <HousekeepingManagement />
+                  </HotelLayout>
+                } />
+                <Route path="/admin/analytics" element={
+                  <HotelLayout>
+                    <Analytics />
+                  </HotelLayout>
+                } />
+                <Route path="/admin/reports" element={
+                  <HotelLayout>
+                    <Reports />
                   </HotelLayout>
                 } />
                 

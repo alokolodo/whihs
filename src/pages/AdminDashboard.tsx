@@ -10,13 +10,16 @@ import {
   CheckCircle,
   AlertCircle
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { NetworkStatus } from "@/components/ui/network-status";
 import GlobalInventoryNotifications from "@/components/inventory/GlobalInventoryNotifications";
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const stats = [
     {
       title: "Total Revenue",
@@ -74,12 +77,13 @@ const AdminDashboard = () => {
           <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
           <p className="text-muted-foreground">Welcome back! Here's what's happening at your hotel.</p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="outline">
+        <div className="flex items-center gap-3">
+          <NetworkStatus showDetails />
+          <Button variant="outline" onClick={() => navigate('/admin/reports')}>
             <BarChart3 className="h-4 w-4 mr-2" />
             Reports
           </Button>
-          <Button className="button-luxury">
+          <Button className="button-luxury" onClick={() => navigate('/admin/analytics')}>
             <TrendingUp className="h-4 w-4 mr-2" />
             Analytics
           </Button>
@@ -206,19 +210,35 @@ const AdminDashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button 
+              variant="outline" 
+              className="h-20 flex-col gap-2"
+              onClick={() => navigate('/admin/bookings')}
+            >
               <CheckCircle className="h-6 w-6" />
               <span className="text-sm">Check-in Guest</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button 
+              variant="outline" 
+              className="h-20 flex-col gap-2"
+              onClick={() => navigate('/admin/housekeeping')}
+            >
               <Clock className="h-6 w-6" />
               <span className="text-sm">Housekeeping</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button 
+              variant="outline" 
+              className="h-20 flex-col gap-2"
+              onClick={() => navigate('/admin/rooms')}
+            >
               <AlertCircle className="h-6 w-6" />
               <span className="text-sm">Maintenance</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button 
+              variant="outline" 
+              className="h-20 flex-col gap-2"
+              onClick={() => navigate('/admin/reports')}
+            >
               <BarChart3 className="h-6 w-6" />
               <span className="text-sm">View Reports</span>
             </Button>
