@@ -272,12 +272,16 @@ const POSSystem = () => {
         description: `Payment of ${currency}${total.toFixed(2)} processed via ${method}`,
       });
       
-      // Clear the guest's order and reset guest name for next customer
-      setPosGuests(prev => prev.map(guest =>
-        guest.id === selectedGuest 
-          ? { ...guest, name: "New Guest", items: [] }
-          : guest
-      ));
+      // Remove the guest completely after payment
+      setPosGuests(prev => prev.filter(guest => guest.id !== selectedGuest));
+      
+      // If no guests left, reset selected guest
+      const remainingGuests = posGuests.filter(guest => guest.id !== selectedGuest);
+      if (remainingGuests.length === 0) {
+        setSelectedGuest("");
+      } else {
+        setSelectedGuest(remainingGuests[0].id);
+      }
       
       setTimeout(() => {
         setShowPaymentDialog(false);
