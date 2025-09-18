@@ -6,7 +6,14 @@ import {
   Bell, 
   Shield, 
   Palette,
-  Save
+  Save,
+  Hotel,
+  MapPin,
+  Phone,
+  MessageCircle,
+  Mail,
+  Clock,
+  Calendar
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,24 +21,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/components/ui/use-toast";
+import { useHotelSettings } from "@/hooks/useHotelSettings";
 
 const Settings = () => {
-  const { toast } = useToast();
-  const [currency, setCurrency] = useState("NGN");
-  const [language, setLanguage] = useState("en");
-  const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
-  const [taxRate, setTaxRate] = useState("7.5");
-  const [paymentGateways, setPaymentGateways] = useState({
-    paystack: true,
-    flutterwave: true,
-    stripe: true,
-    paypal: false,
-    razorpay: false,
-    mobileMoney: true,
-  });
+  const { 
+    settings, 
+    loading, 
+    saving, 
+    updateSetting, 
+    updatePaymentGateway, 
+    saveSettings 
+  } = useHotelSettings();
 
   const currencies = [
     { code: "USD", name: "US Dollar", symbol: "$" },
@@ -65,13 +67,45 @@ const Settings = () => {
     { code: "ja", name: "Japanese" },
   ];
 
-  const handleSaveSettings = () => {
-    // Here you would save to Supabase
-    toast({
-      title: "Settings saved",
-      description: "Your preferences have been updated successfully.",
-    });
+  const timezones = [
+    { code: "UTC", name: "UTC (Coordinated Universal Time)" },
+    { code: "America/New_York", name: "Eastern Time (US & Canada)" },
+    { code: "America/Chicago", name: "Central Time (US & Canada)" },
+    { code: "America/Denver", name: "Mountain Time (US & Canada)" },
+    { code: "America/Los_Angeles", name: "Pacific Time (US & Canada)" },
+    { code: "Europe/London", name: "London" },
+    { code: "Europe/Paris", name: "Paris" },
+    { code: "Africa/Lagos", name: "Lagos" },
+    { code: "Africa/Cairo", name: "Cairo" },
+    { code: "Asia/Dubai", name: "Dubai" },
+    { code: "Asia/Kolkata", name: "Mumbai, New Delhi" },
+    { code: "Asia/Shanghai", name: "Beijing, Shanghai" },
+    { code: "Asia/Tokyo", name: "Tokyo" },
+    { code: "Australia/Sydney", name: "Sydney" },
+  ];
+
+  const handleSaveSettings = async () => {
+    try {
+      await saveSettings(settings);
+    } catch (error) {
+      // Error handling is done in the hook
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="p-6 space-y-8 max-w-4xl">
+        <div className="animate-pulse space-y-8">
+          <div className="h-8 bg-muted rounded w-1/3"></div>
+          <div className="space-y-4">
+            <div className="h-32 bg-muted rounded"></div>
+            <div className="h-32 bg-muted rounded"></div>
+            <div className="h-32 bg-muted rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-8 max-w-4xl">
@@ -84,13 +118,103 @@ const Settings = () => {
           </h1>
           <p className="text-muted-foreground">Manage your hotel system preferences</p>
         </div>
-        <Button onClick={handleSaveSettings} className="button-luxury">
+        <Button onClick={handleSaveSettings} className="button-luxury" disabled={saving}>
           <Save className="h-4 w-4 mr-2" />
-          Save Changes
+          {saving ? "Saving..." : "Save Changes"}
         </Button>
       </div>
 
       <div className="grid gap-8">
+        {/* Hotel Information */}
+        <Card className="card-luxury">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Hotel className="h-5 w-5 text-accent" />
+              Hotel Information
+            </CardTitle>
+            <CardDescription>Basic information about your hotel</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="hotel-name">Hotel Name</Label>
+                <Input
+                  id="hotel-name"
+                  value={settings.hotel_name}
+                  onChange={(e) => updateSetting('hotel_name', e.target.value)}
+                  placeholder="Enter hotel name"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="hotel-email">Email Address</Label>
+                <Input
+                  id="hotel-email"
+                  type="email"
+                  value={settings.hotel_email || ""}
+                  onChange={(e) => updateSetting('hotel_email', e.target.value)}
+                  placeholder="hotel@example.com"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="hotel-address">Address</Label>
+              <Textarea
+                id="hotel-address"
+                value={settings.hotel_address || ""}
+                onChange={(e) => updateSetting('hotel_address', e.target.value)}
+                placeholder="Enter full hotel address"
+                rows={3}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="hotel-phone">Phone Number</Label>
+                <Input
+                  id="hotel-phone"
+                  value={settings.hotel_phone || ""}
+                  onChange={(e) => updateSetting('hotel_phone', e.target.value)}
+                  placeholder="+1 (555) 123-4567"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="hotel-whatsapp">WhatsApp Number</Label>
+                <Input
+                  id="hotel-whatsapp"
+                  value={settings.hotel_whatsapp || ""}
+                  onChange={(e) => updateSetting('hotel_whatsapp', e.target.value)}
+                  placeholder="+1 (555) 123-4567"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="hotel-website">Website URL</Label>
+                <Input
+                  id="hotel-website"
+                  type="url"
+                  value={settings.hotel_website || ""}
+                  onChange={(e) => updateSetting('hotel_website', e.target.value)}
+                  placeholder="https://www.example.com"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="hotel-description">Hotel Description</Label>
+              <Textarea
+                id="hotel-description"
+                value={settings.hotel_description || ""}
+                onChange={(e) => updateSetting('hotel_description', e.target.value)}
+                placeholder="Brief description of your hotel"
+                rows={4}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Currency & Localization */}
         <Card className="card-luxury">
           <CardHeader>
@@ -104,7 +228,7 @@ const Settings = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="currency">Default Currency</Label>
-                <Select value={currency} onValueChange={setCurrency}>
+                <Select value={settings.currency} onValueChange={(value) => updateSetting('currency', value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select currency" />
                   </SelectTrigger>
@@ -123,7 +247,7 @@ const Settings = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="language">Language</Label>
-                <Select value={language} onValueChange={setLanguage}>
+                <Select value={settings.language} onValueChange={(value) => updateSetting('language', value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select language" />
                   </SelectTrigger>
@@ -138,16 +262,46 @@ const Settings = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="tax-rate">Default Tax Rate (%)</Label>
-              <Input
-                id="tax-rate"
-                type="number"
-                step="0.1"
-                value={taxRate}
-                onChange={(e) => setTaxRate(e.target.value)}
-                className="max-w-xs"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="tax-rate">Default Tax Rate (%)</Label>
+                <Input
+                  id="tax-rate"
+                  type="number"
+                  step="0.1"
+                  value={settings.tax_rate}
+                  onChange={(e) => updateSetting('tax_rate', parseFloat(e.target.value) || 0)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="timezone">Timezone</Label>
+                <Select value={settings.timezone} onValueChange={(value) => updateSetting('timezone', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select timezone" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {timezones.map((tz) => (
+                      <SelectItem key={tz.code} value={tz.code}>
+                        {tz.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="time-format">Time Format</Label>
+                <Select value={settings.time_format} onValueChange={(value) => updateSetting('time_format', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select format" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="12h">12 Hour (AM/PM)</SelectItem>
+                    <SelectItem value="24h">24 Hour</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -167,7 +321,10 @@ const Settings = () => {
                 <Label>Email Notifications</Label>
                 <p className="text-sm text-muted-foreground">Receive booking and system alerts via email</p>
               </div>
-              <Switch checked={notifications} onCheckedChange={setNotifications} />
+              <Switch 
+                checked={settings.email_notifications} 
+                onCheckedChange={(checked) => updateSetting('email_notifications', checked)} 
+              />
             </div>
             <Separator />
             <div className="flex items-center justify-between">
@@ -175,7 +332,10 @@ const Settings = () => {
                 <Label>SMS Alerts</Label>
                 <p className="text-sm text-muted-foreground">Get urgent notifications via SMS</p>
               </div>
-              <Switch />
+              <Switch 
+                checked={settings.sms_notifications} 
+                onCheckedChange={(checked) => updateSetting('sms_notifications', checked)} 
+              />
             </div>
             <Separator />
             <div className="flex items-center justify-between">
@@ -183,7 +343,10 @@ const Settings = () => {
                 <Label>Desktop Notifications</Label>
                 <p className="text-sm text-muted-foreground">Show browser notifications for real-time updates</p>
               </div>
-              <Switch defaultChecked />
+              <Switch 
+                checked={settings.desktop_notifications} 
+                onCheckedChange={(checked) => updateSetting('desktop_notifications', checked)} 
+              />
             </div>
           </CardContent>
         </Card>
@@ -203,7 +366,10 @@ const Settings = () => {
                 <Label>Dark Mode</Label>
                 <p className="text-sm text-muted-foreground">Switch between light and dark themes</p>
               </div>
-              <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+              <Switch 
+                checked={settings.dark_mode} 
+                onCheckedChange={(checked) => updateSetting('dark_mode', checked)} 
+              />
             </div>
           </CardContent>
         </Card>
@@ -227,8 +393,8 @@ const Settings = () => {
                     <p className="text-sm text-muted-foreground">Cards, Bank Transfer, USSD</p>
                   </div>
                   <Switch 
-                    checked={paymentGateways.paystack} 
-                    onCheckedChange={(checked) => setPaymentGateways(prev => ({...prev, paystack: checked}))}
+                    checked={settings.payment_gateways.paystack} 
+                    onCheckedChange={(checked) => updatePaymentGateway('paystack', checked)}
                   />
                 </div>
                 <div className="flex items-center justify-between">
@@ -237,8 +403,8 @@ const Settings = () => {
                     <p className="text-sm text-muted-foreground">Cards, Mobile Money, Bank Transfer</p>
                   </div>
                   <Switch 
-                    checked={paymentGateways.flutterwave} 
-                    onCheckedChange={(checked) => setPaymentGateways(prev => ({...prev, flutterwave: checked}))}
+                    checked={settings.payment_gateways.flutterwave} 
+                    onCheckedChange={(checked) => updatePaymentGateway('flutterwave', checked)}
                   />
                 </div>
                 <div className="flex items-center justify-between">
@@ -247,8 +413,8 @@ const Settings = () => {
                     <p className="text-sm text-muted-foreground">MTN, Airtel, Vodafone Cash</p>
                   </div>
                   <Switch 
-                    checked={paymentGateways.mobileMoney} 
-                    onCheckedChange={(checked) => setPaymentGateways(prev => ({...prev, mobileMoney: checked}))}
+                    checked={settings.payment_gateways.mobileMoney} 
+                    onCheckedChange={(checked) => updatePaymentGateway('mobileMoney', checked)}
                   />
                 </div>
               </div>
@@ -261,8 +427,8 @@ const Settings = () => {
                     <p className="text-sm text-muted-foreground">Credit/Debit Cards, Apple Pay</p>
                   </div>
                   <Switch 
-                    checked={paymentGateways.stripe} 
-                    onCheckedChange={(checked) => setPaymentGateways(prev => ({...prev, stripe: checked}))}
+                    checked={settings.payment_gateways.stripe} 
+                    onCheckedChange={(checked) => updatePaymentGateway('stripe', checked)}
                   />
                 </div>
                 <div className="flex items-center justify-between">
@@ -271,8 +437,8 @@ const Settings = () => {
                     <p className="text-sm text-muted-foreground">PayPal wallet, Credit Cards</p>
                   </div>
                   <Switch 
-                    checked={paymentGateways.paypal} 
-                    onCheckedChange={(checked) => setPaymentGateways(prev => ({...prev, paypal: checked}))}
+                    checked={settings.payment_gateways.paypal} 
+                    onCheckedChange={(checked) => updatePaymentGateway('paypal', checked)}
                   />
                 </div>
                 <div className="flex items-center justify-between">
@@ -281,8 +447,8 @@ const Settings = () => {
                     <p className="text-sm text-muted-foreground">UPI, Cards, Net Banking</p>
                   </div>
                   <Switch 
-                    checked={paymentGateways.razorpay} 
-                    onCheckedChange={(checked) => setPaymentGateways(prev => ({...prev, razorpay: checked}))}
+                    checked={settings.payment_gateways.razorpay} 
+                    onCheckedChange={(checked) => updatePaymentGateway('razorpay', checked)}
                   />
                 </div>
               </div>
@@ -305,8 +471,12 @@ const Settings = () => {
                 <Label>Two-Factor Authentication</Label>
                 <p className="text-sm text-muted-foreground">Add an extra layer of security to your account</p>
               </div>
-              <Button variant="outline" size="sm">
-                Enable 2FA
+              <Button 
+                variant={settings.two_factor_enabled ? "default" : "outline"} 
+                size="sm"
+                onClick={() => updateSetting('two_factor_enabled', !settings.two_factor_enabled)}
+              >
+                {settings.two_factor_enabled ? "Enabled" : "Enable 2FA"}
               </Button>
             </div>
             <Separator />
@@ -315,7 +485,10 @@ const Settings = () => {
                 <Label>Session Timeout</Label>
                 <p className="text-sm text-muted-foreground">Automatically log out after inactivity</p>
               </div>
-              <Select defaultValue="30">
+              <Select 
+                value={settings.session_timeout.toString()} 
+                onValueChange={(value) => updateSetting('session_timeout', parseInt(value))}
+              >
                 <SelectTrigger className="w-32">
                   <SelectValue />
                 </SelectTrigger>

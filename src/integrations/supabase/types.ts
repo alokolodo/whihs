@@ -469,6 +469,87 @@ export type Database = {
         }
         Relationships: []
       }
+      hotel_settings: {
+        Row: {
+          created_at: string
+          currency: string
+          dark_mode: boolean | null
+          date_format: string | null
+          desktop_notifications: boolean | null
+          email_notifications: boolean | null
+          hotel_address: string | null
+          hotel_description: string | null
+          hotel_email: string | null
+          hotel_name: string
+          hotel_phone: string | null
+          hotel_website: string | null
+          hotel_whatsapp: string | null
+          id: string
+          language: string
+          notifications_enabled: boolean | null
+          payment_gateways: Json | null
+          session_timeout: number | null
+          sms_notifications: boolean | null
+          tax_rate: number | null
+          time_format: string | null
+          timezone: string | null
+          two_factor_enabled: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          dark_mode?: boolean | null
+          date_format?: string | null
+          desktop_notifications?: boolean | null
+          email_notifications?: boolean | null
+          hotel_address?: string | null
+          hotel_description?: string | null
+          hotel_email?: string | null
+          hotel_name?: string
+          hotel_phone?: string | null
+          hotel_website?: string | null
+          hotel_whatsapp?: string | null
+          id?: string
+          language?: string
+          notifications_enabled?: boolean | null
+          payment_gateways?: Json | null
+          session_timeout?: number | null
+          sms_notifications?: boolean | null
+          tax_rate?: number | null
+          time_format?: string | null
+          timezone?: string | null
+          two_factor_enabled?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          dark_mode?: boolean | null
+          date_format?: string | null
+          desktop_notifications?: boolean | null
+          email_notifications?: boolean | null
+          hotel_address?: string | null
+          hotel_description?: string | null
+          hotel_email?: string | null
+          hotel_name?: string
+          hotel_phone?: string | null
+          hotel_website?: string | null
+          hotel_whatsapp?: string | null
+          id?: string
+          language?: string
+          notifications_enabled?: boolean | null
+          payment_gateways?: Json | null
+          session_timeout?: number | null
+          sms_notifications?: boolean | null
+          tax_rate?: number | null
+          time_format?: string | null
+          timezone?: string | null
+          two_factor_enabled?: boolean | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       inventory: {
         Row: {
           category: string
