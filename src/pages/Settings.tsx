@@ -146,27 +146,49 @@ const Settings = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="hotel-email">Email Address</Label>
-                <Input
-                  id="hotel-email"
-                  type="email"
-                  value={settings.hotel_email || ""}
-                  onChange={(e) => updateSetting('hotel_email', e.target.value)}
-                  placeholder="hotel@example.com"
-                />
-              </div>
-            </div>
+                <Label htmlFor="hotel-icon">Hotel Icon</Label>
+                <Select
+                  value={settings.hotel_icon || "Hotel"}
+                  onValueChange={(value) => updateSetting('hotel_icon', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an icon" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Hotel">🏨 Hotel</SelectItem>
+                    <SelectItem value="Home">🏠 Home</SelectItem>
+                    <SelectItem value="Building">🏢 Building</SelectItem>
+                    <SelectItem value="Castle">🏰 Castle</SelectItem>
+                    <SelectItem value="Star">⭐ Star</SelectItem>
+                    <SelectItem value="Crown">👑 Crown</SelectItem>
+                    <SelectItem value="Gem">💎 Gem</SelectItem>
+                    <SelectItem value="Key">🗝️ Key</SelectItem>
+                  </SelectContent>
+                </Select>
+               </div>
+               
+               <div className="space-y-2">
+                 <Label htmlFor="hotel-email">Email Address</Label>
+                 <Input
+                   id="hotel-email"
+                   type="email"
+                   value={settings.hotel_email || ""}
+                   onChange={(e) => updateSetting('hotel_email', e.target.value)}
+                   placeholder="Enter hotel email"
+                 />
+               </div>
+             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="hotel-address">Address</Label>
-              <Textarea
-                id="hotel-address"
-                value={settings.hotel_address || ""}
-                onChange={(e) => updateSetting('hotel_address', e.target.value)}
-                placeholder="Enter full hotel address"
-                rows={3}
-              />
-            </div>
+             <div className="space-y-2">
+               <Label htmlFor="hotel-address">Address</Label>
+               <Textarea
+                 id="hotel-address"
+                 value={settings.hotel_address || ""}
+                 onChange={(e) => updateSetting('hotel_address', e.target.value)}
+                 placeholder="Enter full hotel address"
+                 rows={3}
+               />
+             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">

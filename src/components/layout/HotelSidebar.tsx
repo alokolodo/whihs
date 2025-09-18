@@ -13,7 +13,12 @@ import {
   Building,
   Dumbbell,
   Gamepad2,
-  Truck
+  Truck,
+  Star,
+  Crown,
+  Gem,
+  KeyRound,
+  Castle
 } from "lucide-react";
 import { useHotelSettings } from "@/hooks/useHotelSettings";
 import {
@@ -60,12 +65,29 @@ export function HotelSidebar() {
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     `w-full ${isActive ? "bg-accent text-accent-foreground font-medium" : "hover:bg-accent/50"}`;
 
+  // Get the appropriate icon component
+  const getIconComponent = (iconName: string) => {
+    const iconMap: { [key: string]: any } = {
+      Hotel,
+      Home,
+      Building,
+      Castle,
+      Star,
+      Crown,
+      Gem,
+      Key: KeyRound,
+    };
+    return iconMap[iconName] || Hotel;
+  };
+
+  const IconComponent = getIconComponent(settings.hotel_icon || "Hotel");
+
   return (
     <Sidebar className={state === "collapsed" ? "w-14" : "w-64"}>
       <SidebarHeader className="border-b border-border/50 p-4">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-gradient-primary rounded-lg">
-            <Home className="h-6 w-6 text-primary-foreground" />
+            <IconComponent className="h-6 w-6 text-primary-foreground" />
           </div>
           {state !== "collapsed" && (
             <div>

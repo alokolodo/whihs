@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 export interface HotelSettings {
   id?: string;
   hotel_name: string;
+  hotel_icon?: string;
   hotel_address?: string;
   hotel_phone?: string;
   hotel_whatsapp?: string;
@@ -36,6 +37,7 @@ export interface HotelSettings {
 
 const defaultSettings: HotelSettings = {
   hotel_name: "LuxeStay",
+  hotel_icon: "Hotel",
   hotel_address: "",
   hotel_phone: "",
   hotel_whatsapp: "",

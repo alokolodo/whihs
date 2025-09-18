@@ -480,6 +480,7 @@ export type Database = {
           hotel_address: string | null
           hotel_description: string | null
           hotel_email: string | null
+          hotel_icon: string | null
           hotel_name: string
           hotel_phone: string | null
           hotel_website: string | null
@@ -506,6 +507,7 @@ export type Database = {
           hotel_address?: string | null
           hotel_description?: string | null
           hotel_email?: string | null
+          hotel_icon?: string | null
           hotel_name?: string
           hotel_phone?: string | null
           hotel_website?: string | null
@@ -532,6 +534,7 @@ export type Database = {
           hotel_address?: string | null
           hotel_description?: string | null
           hotel_email?: string | null
+          hotel_icon?: string | null
           hotel_name?: string
           hotel_phone?: string | null
           hotel_website?: string | null
