@@ -15,6 +15,7 @@ import {
   Gamepad2,
   Truck
 } from "lucide-react";
+import { useHotelSettings } from "@/hooks/useHotelSettings";
 import {
   Sidebar,
   SidebarContent,
@@ -53,6 +54,7 @@ export function HotelSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
+  const { settings } = useHotelSettings();
 
   const isActive = (path: string) => currentPath === path;
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
@@ -67,7 +69,7 @@ export function HotelSidebar() {
           </div>
           {state !== "collapsed" && (
             <div>
-              <h2 className="text-lg font-bold text-foreground">LuxeStay</h2>
+              <h2 className="text-lg font-bold text-foreground">{settings.hotel_name}</h2>
               <p className="text-sm text-muted-foreground">Hotel Management</p>
             </div>
           )}
