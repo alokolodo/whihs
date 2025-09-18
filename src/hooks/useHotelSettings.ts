@@ -35,7 +35,7 @@ export interface HotelSettings {
 }
 
 const defaultSettings: HotelSettings = {
-  hotel_name: "My Hotel",
+  hotel_name: "LuxeStay",
   hotel_address: "",
   hotel_phone: "",
   hotel_whatsapp: "",
