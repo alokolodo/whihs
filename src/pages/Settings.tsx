@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { useHotelSettings } from "@/hooks/useHotelSettings";
+import { ReceiptTemplateSettings } from "@/components/settings/ReceiptTemplateSettings";
 
 const Settings = () => {
   const { 
@@ -523,6 +524,9 @@ const Settings = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Receipt Template */}
+        <ReceiptTemplateSettings />
       </div>
     </div>
   );

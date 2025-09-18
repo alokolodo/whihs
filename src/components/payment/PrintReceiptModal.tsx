@@ -5,6 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Printer, Download, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useHotelSettings } from "@/hooks/useHotelSettings";
 
 interface Payment {
   id: string;
@@ -28,6 +29,7 @@ interface PrintReceiptModalProps {
 
 export const PrintReceiptModal = ({ isOpen, onClose, payment }: PrintReceiptModalProps) => {
   const { toast } = useToast();
+  const { settings } = useHotelSettings();
 
   if (!payment) return null;
 
@@ -88,23 +90,33 @@ export const PrintReceiptModal = ({ isOpen, onClose, payment }: PrintReceiptModa
   };
 
   const getReceiptHTML = () => {
+    const tax = Math.abs(payment.amount) * (settings.tax_rate || 7.5) / 100;
+    const subtotal = Math.abs(payment.amount) - tax;
+    const currencySymbol = settings.currency === 'USD' ? '$' : settings.currency;
+
     return `
       <!DOCTYPE html>
       <html>
       <head>
         <title>Payment Receipt</title>
         <style>
-          body { font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; padding: 20px; }
-          .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+          body { font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; padding: 20px; line-height: 1.4; }
+          .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
+          .logo { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+          .contact-info { font-size: 12px; color: #666; margin: 5px 0; }
           .row { display: flex; justify-content: space-between; margin: 8px 0; }
           .total { font-weight: bold; font-size: 1.2em; border-top: 1px solid #333; padding-top: 10px; margin-top: 10px; }
-          .footer { text-align: center; margin-top: 20px; font-size: 0.9em; color: #666; }
+          .footer { text-align: center; margin-top: 20px; font-size: 0.9em; color: #666; border-top: 1px solid #ddd; padding-top: 15px; }
+          .header-message { font-style: italic; color: #2563eb; margin: 10px 0; }
         </style>
       </head>
       <body>
         <div class="header">
-          <h1>PAYMENT RECEIPT</h1>
-          <p>Hotel Management System</p>
+          <div class="logo">${settings.hotel_name}</div>
+          <div class="header-message">Thank you for choosing us!</div>
+          ${settings.hotel_address ? `<div class="contact-info">${settings.hotel_address}</div>` : ''}
+          ${settings.hotel_phone ? `<div class="contact-info">📞 ${settings.hotel_phone}</div>` : ''}
+          ${settings.hotel_email ? `<div class="contact-info">✉️ ${settings.hotel_email}</div>` : ''}
         </div>
         
         <div class="row">
@@ -137,13 +149,22 @@ export const PrintReceiptModal = ({ isOpen, onClose, payment }: PrintReceiptModa
           <span>${payment.reference}</span>
         </div>
         
+        <div class="row">
+          <span>Subtotal:</span>
+          <span>${currencySymbol}${subtotal.toFixed(2)}</span>
+        </div>
+        <div class="row">
+          <span>Tax (${settings.tax_rate || 7.5}%):</span>
+          <span>${currencySymbol}${tax.toFixed(2)}</span>
+        </div>
+        
         <div class="row total">
           <span>Total Amount:</span>
-          <span>${payment.amount < 0 ? '-' : ''}$${Math.abs(payment.amount).toFixed(2)}</span>
+          <span>${payment.amount < 0 ? '-' : ''}${currencySymbol}${Math.abs(payment.amount).toFixed(2)}</span>
         </div>
         
         <div class="footer">
-          <p>Thank you for your business!</p>
+          <p>We appreciate your business. Have a wonderful day!</p>
           <p>This is a computer-generated receipt.</p>
         </div>
       </body>
@@ -166,8 +187,15 @@ export const PrintReceiptModal = ({ isOpen, onClose, payment }: PrintReceiptModa
           <Card>
             <CardContent className="p-6">
               <div className="text-center border-b-2 border-border pb-4 mb-4">
-                <h2 className="text-xl font-bold">PAYMENT RECEIPT</h2>
-                <p className="text-muted-foreground">Hotel Management System</p>
+                <h2 className="text-xl font-bold">{settings.hotel_name}</h2>
+                <p className="text-sm text-muted-foreground italic text-blue-600 mt-2">Thank you for choosing us!</p>
+                {settings.hotel_address && (
+                  <p className="text-xs text-muted-foreground">{settings.hotel_address}</p>
+                )}
+                <div className="flex justify-center gap-4 text-xs text-muted-foreground mt-1">
+                  {settings.hotel_phone && <span>📞 {settings.hotel_phone}</span>}
+                  {settings.hotel_email && <span>✉️ {settings.hotel_email}</span>}
+                </div>
               </div>
               
               <div className="space-y-2 text-sm">
