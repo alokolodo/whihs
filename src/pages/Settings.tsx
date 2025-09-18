@@ -143,28 +143,28 @@ const Settings = () => {
                   onChange={(e) => updateSetting('hotel_name', e.target.value)}
                   placeholder="Enter hotel name"
                 />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="hotel-icon">Hotel Icon</Label>
-                <Select
-                  value={settings.hotel_icon || "Hotel"}
-                  onValueChange={(value) => updateSetting('hotel_icon', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select an icon" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Hotel">🏨 Hotel</SelectItem>
-                    <SelectItem value="Home">🏠 Home</SelectItem>
-                    <SelectItem value="Building">🏢 Building</SelectItem>
-                    <SelectItem value="Castle">🏰 Castle</SelectItem>
-                    <SelectItem value="Star">⭐ Star</SelectItem>
-                    <SelectItem value="Crown">👑 Crown</SelectItem>
-                    <SelectItem value="Gem">💎 Gem</SelectItem>
-                    <SelectItem value="Key">🗝️ Key</SelectItem>
-                  </SelectContent>
-                </Select>
+               </div>
+               
+               <div className="space-y-2">
+                 <Label htmlFor="hotel-icon">Hotel Icon</Label>
+                 <Select
+                   value={settings.hotel_icon || "Hotel"}
+                   onValueChange={(value) => updateSetting('hotel_icon', value)}
+                 >
+                   <SelectTrigger>
+                     <SelectValue placeholder="Select an icon" />
+                   </SelectTrigger>
+                   <SelectContent>
+                     <SelectItem value="Hotel">🏨 Hotel</SelectItem>
+                     <SelectItem value="Home">🏠 Home</SelectItem>
+                     <SelectItem value="Building">🏢 Building</SelectItem>
+                     <SelectItem value="Castle">🏰 Castle</SelectItem>
+                     <SelectItem value="Star">⭐ Star</SelectItem>
+                     <SelectItem value="Crown">👑 Crown</SelectItem>
+                     <SelectItem value="Gem">💎 Gem</SelectItem>
+                     <SelectItem value="Key">🗝️ Key</SelectItem>
+                   </SelectContent>
+                 </Select>
                </div>
                
                <div className="space-y-2">
