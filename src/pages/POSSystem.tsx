@@ -61,7 +61,7 @@ interface PaymentState {
 }
 
 const POSSystem = () => {
-  const { formatCurrency } = useGlobalSettings();
+  const { formatCurrency, settings } = useGlobalSettings();
   const navigate = useNavigate();
   const { rooms, getAvailableRooms, createRoomBooking } = useRoomsDB();
   const { halls, getAvailableHalls } = useHalls();
