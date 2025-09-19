@@ -30,6 +30,7 @@ import { toast } from "@/hooks/use-toast";
 import { useRoomsDB } from "@/hooks/useRoomsDB";
 import { useHalls } from "@/hooks/useHalls";
 import { useGuests, RegisteredGuest } from "@/hooks/useGuests";
+import { useGlobalSettings } from "@/contexts/HotelSettingsContext";
 
 interface POSItem {
   id: string;
@@ -60,6 +61,7 @@ interface PaymentState {
 }
 
 const POSSystem = () => {
+  const { formatCurrency } = useGlobalSettings();
   const navigate = useNavigate();
   const { rooms, getAvailableRooms, createRoomBooking } = useRoomsDB();
   const { halls, getAvailableHalls } = useHalls();
@@ -566,7 +568,7 @@ const POSSystem = () => {
                         <span className="font-medium text-sm">{item.name}</span>
                       </div>
                       <div className="text-xs text-muted-foreground ml-4">
-                        ${item.price.toFixed(2)} {item.category === "accommodation" && item.quantity > 1 ? "per night" : "each"}
+                        {formatCurrency(item.price)} {item.category === "accommodation" && item.quantity > 1 ? "per night" : "each"}
                         {item.category === "accommodation" && item.quantity > 1 && (
                           <span className="block text-green-600">
                             {item.quantity} consecutive nights from payment date
@@ -601,7 +603,7 @@ const POSSystem = () => {
                       </div>
                       <div className="text-right min-w-[60px]">
                         <div className="font-bold text-sm">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          {formatCurrency(item.price * item.quantity)}
                         </div>
                       </div>
                     </div>
@@ -742,7 +744,7 @@ const POSSystem = () => {
                     {item.name}
                   </div>
                   {item.price > 0 && (
-                    <div className="text-xs opacity-90">${item.price.toFixed(2)}</div>
+                    <div className="text-xs opacity-90">{formatCurrency(item.price)}</div>
                   )}
                   {item.bookedDays && (
                     <div className="text-xs opacity-75 bg-black/20 px-1 py-0.5 rounded">

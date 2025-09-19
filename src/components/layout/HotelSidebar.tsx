@@ -23,7 +23,7 @@ import {
   LogOut,
   Shield
 } from "lucide-react";
-import { useHotelSettings } from "@/hooks/useHotelSettings";
+import { useGlobalSettings } from "@/contexts/HotelSettingsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -68,7 +68,7 @@ export function HotelSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
-  const { settings } = useHotelSettings();
+  const { settings } = useGlobalSettings();
   const { profile, signOut, isAdmin } = useAuth();
 
   const isActive = (path: string) => currentPath === path;

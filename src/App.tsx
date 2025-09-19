@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { HotelSettingsProvider } from "@/contexts/HotelSettingsContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { HotelLayout } from "./components/layout/HotelLayout";
 import Index from "./pages/Index";
@@ -24,7 +25,7 @@ import BookingManagement from "./pages/BookingManagement";
 import GuestManagement from "./pages/GuestManagement";
 import PaymentsManagement from "./pages/PaymentsManagement";
 import InventoryManagement from "./pages/InventoryManagement";
-import AccountingModule from "./pages/AccountingModule";
+import AccountingModule from "./pages/AccountingModuleEnhanced";
 import HRManagement from "./pages/HRManagement";
 import HousekeepingManagement from "./pages/HousekeepingManagement";
 import RestaurantPOS from "./components/pos/RestaurantPOS";
@@ -45,12 +46,13 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <SidebarProvider>
-              <div className="min-h-screen flex w-full">
+        <HotelSettingsProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <SidebarProvider>
+                <div className="min-h-screen flex w-full">
               <Routes>
                 {/* Auth routes */}
                 <Route path="/auth" element={<Auth />} />
@@ -212,10 +214,11 @@ const App = () => {
                 {/* Catch-all route */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
-              </div>
-            </SidebarProvider>
-          </BrowserRouter>
-        </TooltipProvider>
+                </div>
+              </SidebarProvider>
+            </BrowserRouter>
+          </TooltipProvider>
+        </HotelSettingsProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
