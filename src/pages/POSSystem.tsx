@@ -259,7 +259,7 @@ const POSSystem = () => {
   };
 
   const getTotalTax = (subtotal: number) => {
-    return subtotal * 0.0825; // 8.25% tax
+    return subtotal * (settings.tax_rate || 7.5) / 100;
   };
 
   // Payment Functions
@@ -621,7 +621,7 @@ const POSSystem = () => {
               <div className="flex justify-between text-2xl font-bold">
                 <span>${getGuestTotal(currentGuest).toFixed(2)}</span>
                 <span className="text-sm font-normal">
-                  TAX ${getTotalTax(getGuestTotal(currentGuest)).toFixed(2)}
+                  TAX ${formatCurrency(getTotalTax(getGuestTotal(currentGuest)))}
                 </span>
               </div>
             </div>

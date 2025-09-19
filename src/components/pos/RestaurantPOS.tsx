@@ -39,7 +39,7 @@ const RestaurantPOS = () => {
   const { getFoodAndBeverageItems } = useMenuItems();
   const { tables, loading: tablesLoading, updateTableStatus } = useRestaurantTables();
   const { orders, loading: ordersLoading, createOrder, addItemToOrder, updateItemQuantity, processPayment } = useOrders();
-  const { formatCurrency } = useGlobalSettings();
+  const { settings, formatCurrency } = useGlobalSettings();
   const { toast } = useToast();
   
   const [activeCategory, setActiveCategory] = useState("");
@@ -519,15 +519,15 @@ const RestaurantPOS = () => {
               <div className="space-y-2 mb-4">
                 <div className="flex justify-between items-center text-sm">
                   <span>Subtotal:</span>
-                  <span className="font-medium">${getSelectedOrderTotals().subtotal.toFixed(2)}</span>
+                  <span className="font-medium">{formatCurrency(getSelectedOrderTotals().subtotal)}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm text-gray-600">
-                  <span>Tax (8.5%):</span>
-                  <span>${getSelectedOrderTotals().tax.toFixed(2)}</span>
+                  <span>Tax ({settings.tax_rate || 7.5}%):</span>
+                  <span>{formatCurrency(getSelectedOrderTotals().tax)}</span>
                 </div>
                 <div className="flex justify-between items-center text-2xl font-bold border-t pt-2">
                   <span>Total:</span>
-                  <span>${getSelectedOrderTotals().total.toFixed(2)}</span>
+                  <span>{formatCurrency(getSelectedOrderTotals().total)}</span>
                 </div>
               </div>
             </>
