@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useMemo, useCallback, memo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Calendar, Clock, Users, MapPin, Phone, Mail, ArrowLeft, Bed } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,17 +14,37 @@ import { useGlobalSettings } from "@/contexts/HotelSettingsContext";
 import { toast } from "sonner";
 import heroImage from "@/assets/hero-hotel.jpg";
 
+// Memoized form input component
+const FormInput = memo(({ label, id, type = "text", required = false, className = "", value, onChange, ...props }: any) => (
+  <div className="space-y-2">
+    <Label htmlFor={id}>{label} {required && '*'}</Label>
+    <Input 
+      type={type}
+      id={id} 
+      className={`touch-target ${className}`}
+      value={value}
+      onChange={onChange}
+      required={required}
+      {...props}
+    />
+  </div>
+));
+
 const BookingPage = () => {
   const [searchParams] = useSearchParams();
   const { rooms, loading, createRoomBooking } = useRoomsDB();
   const { formatCurrency, settings } = useGlobalSettings();
   
-  // Pre-selected room from URL
-  const preSelectedRoomId = searchParams.get('room');
-  const preSelectedRoom = rooms.find(room => room.id === preSelectedRoomId);
-  
-  // Available rooms for booking
-  const availableRooms = rooms.filter(room => room.status === 'available');
+  // Memoize derived values to prevent unnecessary re-calculations
+  const preSelectedRoomId = useMemo(() => searchParams.get('room'), [searchParams]);
+  const preSelectedRoom = useMemo(() => 
+    rooms.find(room => room.id === preSelectedRoomId),
+    [rooms, preSelectedRoomId]
+  );
+  const availableRooms = useMemo(() => 
+    rooms.filter(room => room.status === 'available'),
+    [rooms]
+  );
   
   // Form state
   const [formData, setFormData] = useState({
@@ -57,9 +77,9 @@ const BookingPage = () => {
 
   const { nights, total, selectedRoom } = calculateBookingDetails();
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = useCallback((field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,25 +133,25 @@ const BookingPage = () => {
     <div className="min-h-screen bg-background">
       {/* Header with Navigation */}
       <header className="bg-card border-b border-border/50">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-primary rounded-lg">
-                <Calendar className="h-6 w-6 text-primary-foreground" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 bg-gradient-primary rounded-lg">
+                <Calendar className="h-4 w-4 sm:h-6 sm:w-6 text-primary-foreground" />
               </div>
-              <div>
-                <h1 className="text-xl font-bold">{settings.hotel_name}</h1>
-                <p className="text-sm text-muted-foreground">Book Your Perfect Stay</p>
+              <div className="hidden sm:block">
+                <h1 className="text-lg sm:text-xl font-bold">{settings.hotel_name}</h1>
+                <p className="text-xs sm:text-sm text-muted-foreground">Book Your Perfect Stay</p>
               </div>
             </div>
-            <nav className="flex items-center gap-4">
-              <Button variant="ghost" asChild>
+            <nav className="flex items-center gap-2 sm:gap-4">
+              <Button variant="ghost" size="sm" asChild>
                 <a href="/">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Home
+                  <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Home</span>
                 </a>
               </Button>
-              <Button variant="ghost" asChild>
+              <Button variant="ghost" size="sm" className="hidden sm:inline-flex" asChild>
                 <a href="/rooms">Rooms</a>
               </Button>
             </nav>
@@ -140,25 +160,26 @@ const BookingPage = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative h-96 overflow-hidden">
+      <section className="relative h-48 sm:h-64 lg:h-96 overflow-hidden">
         <img 
           src={heroImage} 
           alt="Luxury hotel lobby" 
           className="w-full h-full object-cover"
+          loading="eager"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-primary/40 flex items-center">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-2 sm:px-4">
             <div className="max-w-2xl text-primary-foreground">
-              <h2 className="text-4xl font-bold mb-4">Experience Luxury</h2>
-              <p className="text-xl opacity-90">Book your perfect stay with world-class amenities and exceptional service</p>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-4">Experience Luxury</h2>
+              <p className="text-sm sm:text-lg lg:text-xl opacity-90">Book your perfect stay with world-class amenities and exceptional service</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Booking Form */}
-      <section className="py-12">
-        <div className="container mx-auto px-4">
+      <section className="py-6 sm:py-8 lg:py-12">
+        <div className="container mx-auto px-2 sm:px-4">
           {/* Payment Notice */}
           <div className="mb-8">
             <div className="bg-accent/20 border-l-4 border-accent p-6 rounded-lg">
@@ -176,7 +197,7 @@ const BookingPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
             {/* Booking Form */}
             <Card className="card-luxury">
               <CardHeader>
@@ -284,43 +305,34 @@ const BookingPage = () => {
                     </Card>
                   )}
 
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Full Name *</Label>
-                    <Input 
-                      id="name" 
-                      placeholder="Enter your full name" 
-                      className="touch-target" 
-                      value={formData.fullName}
-                      onChange={(e) => handleInputChange('fullName', e.target.value)}
-                      required
-                    />
-                  </div>
+                  <FormInput
+                    label="Full Name"
+                    id="name"
+                    placeholder="Enter your full name"
+                    value={formData.fullName}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('fullName', e.target.value)}
+                    required
+                  />
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email *</Label>
-                      <Input 
-                        type="email" 
-                        id="email" 
-                        placeholder="your@email.com" 
-                        className="touch-target" 
-                        value={formData.email}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number *</Label>
-                      <Input 
-                        type="tel" 
-                        id="phone" 
-                        placeholder="+1 (555) 000-0000" 
-                        className="touch-target" 
-                        value={formData.phone}
-                        onChange={(e) => handleInputChange('phone', e.target.value)}
-                        required
-                      />
-                    </div>
+                    <FormInput
+                      label="Email"
+                      id="email"
+                      type="email"
+                      placeholder="your@email.com"
+                      value={formData.email}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('email', e.target.value)}
+                      required
+                    />
+                    <FormInput
+                      label="Phone Number"
+                      id="phone"
+                      type="tel"
+                      placeholder="+1 (555) 000-0000"
+                      value={formData.phone}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('phone', e.target.value)}
+                      required
+                    />
                   </div>
 
                   <div className="space-y-2">
