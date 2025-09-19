@@ -44,7 +44,7 @@ const defaultSettings: HotelSettings = {
   hotel_email: "",
   hotel_website: "",
   hotel_description: "",
-  currency: "USD",
+  currency: "NGN",
   language: "en",
   tax_rate: 7.5,
   timezone: "UTC",
