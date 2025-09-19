@@ -134,7 +134,7 @@ export const ReceiptTemplateSettings = () => {
               <div class="item-row">
                 <div class="row">
                   <span>${item.quantity}x ${item.name}</span>
-                  <span>${formatCurrency(item.price * item.quantity)}</span>
+                  <span>{formatCurrency(item.price * item.quantity)}</span>
                 </div>
               </div>
             `).join('')}
@@ -142,9 +142,9 @@ export const ReceiptTemplateSettings = () => {
         ` : ''}
         
         <div class="total-section">
-          <div class="row"><span>Subtotal:</span><span>${formatCurrency(subtotal)}</span></div>
-          ${template.showTaxBreakdown ? `<div class="row"><span>Tax (${settings.tax_rate}%):</span><span>${formatCurrency(tax)}</span></div>` : ''}
-          <div class="row total"><span>Total:</span><span>${formatCurrency(total)}</span></div>
+          <div class="row"><span>Subtotal:</span><span>{formatCurrency(subtotal)}</span></div>
+          ${template.showTaxBreakdown ? `<div class="row"><span>Tax (${settings.tax_rate}%):</span><span>{formatCurrency(tax)}</span></div>` : ''}
+          <div class="row total"><span>Total:</span><span>{formatCurrency(total)}</span></div>
         </div>
         
         <div class="footer">

@@ -150,16 +150,16 @@ export const PrintReceiptModal = ({ isOpen, onClose, payment }: PrintReceiptModa
         
         <div class="row">
           <span>Subtotal:</span>
-          <span>${formatCurrency(subtotal)}</span>
+          <span>{formatCurrency(subtotal)}</span>
         </div>
         <div class="row">
           <span>Tax (${settings.tax_rate || 7.5}%):</span>
-          <span>${formatCurrency(tax)}</span>
+          <span>{formatCurrency(tax)}</span>
         </div>
         
         <div class="row total">
           <span>Total Amount:</span>
-          <span>${payment.amount < 0 ? '-' : ''}${formatCurrency(Math.abs(payment.amount))}</span>
+          <span>${payment.amount < 0 ? '-' : ''}{formatCurrency(Math.abs(payment.amount))}</span>
         </div>
         
         <div class="footer">

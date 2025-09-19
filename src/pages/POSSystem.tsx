@@ -619,9 +619,9 @@ const POSSystem = () => {
           <div className="p-4 border-t border-border bg-muted/30">
             <div className="space-y-2 mb-4">
               <div className="flex justify-between text-2xl font-bold">
-                <span>${getGuestTotal(currentGuest).toFixed(2)}</span>
+                <span>{formatCurrency(getGuestTotal(currentGuest))}</span>
                 <span className="text-sm font-normal">
-                  TAX ${formatCurrency(getTotalTax(getGuestTotal(currentGuest)))}
+                  TAX {formatCurrency(getTotalTax(getGuestTotal(currentGuest)))}
                 </span>
               </div>
             </div>
