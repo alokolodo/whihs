@@ -159,6 +159,23 @@ const BookingPage = () => {
       {/* Booking Form */}
       <section className="py-12">
         <div className="container mx-auto px-4">
+          {/* Payment Notice */}
+          <div className="mb-8">
+            <div className="bg-accent/20 border-l-4 border-accent p-6 rounded-lg">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-accent rounded-full">
+                  <Clock className="h-5 w-5 text-accent-foreground" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-accent-foreground mb-2">Important Payment Information</h3>
+                  <p className="text-accent-foreground/90">
+                    Reservation that is not paid for within 1hr is revoked. Ensure you call our phone number for payment details. Thank you.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Booking Form */}
             <Card className="card-luxury">
