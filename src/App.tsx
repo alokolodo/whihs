@@ -32,6 +32,7 @@ import RestaurantPOS from "./components/pos/RestaurantPOS";
 import SupplierManagement from "./pages/SupplierManagement";
 import Analytics from "./pages/Analytics";
 import Reports from "./pages/Reports";
+import RoomsPage from "./pages/RoomsPage";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import UserManagement from "./pages/UserManagement";
@@ -59,6 +60,7 @@ const App = () => {
                 
                 {/* Public routes */}
                 <Route path="/" element={<Index />} />
+                <Route path="/rooms" element={<RoomsPage />} />
                 <Route path="/book" element={<BookingPage />} />
                 
                 {/* Protected Admin/Staff routes with sidebar layout */}

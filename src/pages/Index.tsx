@@ -12,14 +12,24 @@ import {
   ArrowRight,
   Phone,
   Mail,
-  MapPin
+  MapPin,
+  Bed
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useRoomsDB } from "@/hooks/useRoomsDB";
+import { useGlobalSettings } from "@/contexts/HotelSettingsContext";
+import { Skeleton } from "@/components/ui/skeleton";
 import heroImage from "@/assets/hero-hotel.jpg";
 
 const Index = () => {
+  const { rooms, loading } = useRoomsDB();
+  const { formatCurrency, settings } = useGlobalSettings();
+
+  // Get available rooms for display (limit to 3 for homepage)
+  const availableRooms = rooms.filter(room => room.status === 'available').slice(0, 3);
+
   const features = [
     {
       icon: Calendar,
@@ -52,24 +62,6 @@ const Index = () => {
     { icon: Users, name: "24/7 Concierge" }
   ];
 
-  const roomTypes = [
-    {
-      name: "Standard Room",
-      price: "$199",
-      features: ["King Bed", "City View", "Free WiFi", "Room Service"]
-    },
-    {
-      name: "Deluxe Suite",
-      price: "$349",
-      features: ["Separate Living Area", "Ocean View", "Mini Bar", "Balcony"]
-    },
-    {
-      name: "Presidential Suite",
-      price: "$799",
-      features: ["2 Bedrooms", "Private Terrace", "Butler Service", "Jacuzzi"]
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation Header */}
@@ -81,13 +73,13 @@ const Index = () => {
                 <Hotel className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">LuxeStay Hotel</h1>
+                <h1 className="text-xl font-bold text-foreground">{settings.hotel_name}</h1>
                 <p className="text-sm text-muted-foreground">Management System</p>
               </div>
             </div>
             <nav className="flex items-center gap-4">
               <Button variant="ghost" asChild>
-                <a href="#rooms">Rooms</a>
+                <a href="/rooms">Rooms</a>
               </Button>
               <Button variant="ghost" asChild>
                 <a href="#amenities">Amenities</a>
@@ -130,7 +122,7 @@ const Index = () => {
               </a>
             </Button>
             <Button size="lg" variant="outline" className="text-lg px-8 py-4 bg-white/10 border-white/30 text-white hover:bg-white/20" asChild>
-              <a href="#rooms">
+              <a href="/rooms">
                 Explore Rooms
               </a>
             </Button>
@@ -176,42 +168,107 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-foreground mb-4">
-              Luxury Accommodations
+              Our Available Rooms
             </h2>
             <p className="text-xl text-muted-foreground">
               Choose from our selection of elegantly appointed rooms and suites
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {roomTypes.map((room, index) => (
-              <Card key={index} className="card-luxury overflow-hidden">
-                <div className="h-48 bg-gradient-card"></div>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-xl">{room.name}</CardTitle>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-accent">{room.price}</div>
-                      <div className="text-sm text-muted-foreground">per night</div>
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[...Array(3)].map((_, i) => (
+                <Card key={i} className="card-luxury overflow-hidden">
+                  <Skeleton className="h-48 w-full" />
+                  <CardHeader>
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </CardHeader>
+                  <CardContent>
+                    <Skeleton className="h-4 w-full mb-2" />
+                    <Skeleton className="h-4 w-2/3 mb-4" />
+                    <Skeleton className="h-10 w-full" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : availableRooms.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {availableRooms.map((room) => (
+                <Card key={room.id} className="card-luxury overflow-hidden hover:shadow-lg transition-all">
+                  <div className="h-48 bg-gradient-to-br from-primary/20 to-accent/20 relative">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Bed className="h-16 w-16 text-primary/40" />
+                    </div>
+                    <div className="absolute bottom-4 left-4 text-white">
+                      <div className="text-2xl font-bold">{formatCurrency(room.rate)}</div>
+                      <div className="text-sm opacity-90">per night</div>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 mb-6">
-                    {room.features.map((feature, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <Star className="h-4 w-4 text-accent" />
-                        <span className="text-sm">{feature}</span>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-xl">Room {room.room_number}</CardTitle>
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Users className="h-4 w-4" />
+                        <span>{room.capacity}</span>
                       </div>
-                    ))}
-                  </div>
-                  <Button className="w-full button-luxury" asChild>
-                    <a href="/book">Book Now</a>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    </div>
+                    <CardDescription className="text-lg font-medium text-foreground">
+                      {room.room_type}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {room.description && (
+                      <p className="text-sm text-muted-foreground mb-4">{room.description}</p>
+                    )}
+                    
+                    {room.amenities && room.amenities.length > 0 && (
+                      <div className="space-y-2 mb-6">
+                        {room.amenities.slice(0, 4).map((amenity, i) => (
+                          <div key={i} className="flex items-center gap-2">
+                            <Star className="h-4 w-4 text-accent" />
+                            <span className="text-sm">{amenity}</span>
+                          </div>
+                        ))}
+                        {room.amenities.length > 4 && (
+                          <div className="text-sm text-muted-foreground">
+                            +{room.amenities.length - 4} more amenities
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    <Button className="w-full button-luxury" asChild>
+                      <a href={`/book?room=${room.id}`}>Book Now</a>
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="text-center py-12">
+              <CardContent>
+                <Bed className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2">No rooms currently available</h3>
+                <p className="text-muted-foreground mb-6">
+                  All our rooms are currently occupied. Please check back later or contact us for assistance.
+                </p>
+                <Button asChild>
+                  <a href="/rooms">View All Rooms</a>
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {availableRooms.length > 0 && (
+            <div className="text-center mt-12">
+              <Button size="lg" variant="outline" asChild>
+                <a href="/rooms">
+                  View All Rooms
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </a>
+              </Button>
+            </div>
+          )}
         </div>
       </section>
 
@@ -334,12 +391,12 @@ const Index = () => {
                 <Hotel className="h-6 w-6 text-accent-foreground" />
               </div>
               <div>
-                <h3 className="text-xl font-bold">LuxeStay Hotel</h3>
+                <h3 className="text-xl font-bold">{settings.hotel_name}</h3>
                 <p className="text-sm opacity-80">Management System</p>
               </div>
             </div>
             <p className="opacity-80">
-              © 2024 LuxeStay Hotel Management System. All rights reserved.
+              © 2024 {settings.hotel_name} Management System. All rights reserved.
             </p>
           </div>
         </div>

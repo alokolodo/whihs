@@ -1,13 +1,114 @@
-import { Calendar, Clock, Users, MapPin, Phone, Mail } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Calendar, Clock, Users, MapPin, Phone, Mail, ArrowLeft, Bed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useRoomsDB } from "@/hooks/useRoomsDB";
+import { useGlobalSettings } from "@/contexts/HotelSettingsContext";
+import { toast } from "sonner";
 import heroImage from "@/assets/hero-hotel.jpg";
 
 const BookingPage = () => {
+  const [searchParams] = useSearchParams();
+  const { rooms, loading, createRoomBooking } = useRoomsDB();
+  const { formatCurrency, settings } = useGlobalSettings();
+  
+  // Pre-selected room from URL
+  const preSelectedRoomId = searchParams.get('room');
+  const preSelectedRoom = rooms.find(room => room.id === preSelectedRoomId);
+  
+  // Available rooms for booking
+  const availableRooms = rooms.filter(room => room.status === 'available');
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    selectedRoomId: preSelectedRoomId || '',
+    checkInDate: '',
+    checkOutDate: '',
+    guests: '',
+    fullName: '',
+    email: '',
+    phone: '',
+    specialRequests: ''
+  });
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Calculate nights and total
+  const calculateBookingDetails = () => {
+    if (!formData.checkInDate || !formData.checkOutDate || !formData.selectedRoomId) {
+      return { nights: 0, total: 0, selectedRoom: null };
+    }
+    
+    const checkIn = new Date(formData.checkInDate);
+    const checkOut = new Date(formData.checkOutDate);
+    const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24));
+    const selectedRoom = rooms.find(room => room.id === formData.selectedRoomId);
+    const total = nights > 0 && selectedRoom ? nights * selectedRoom.rate : 0;
+    
+    return { nights: Math.max(0, nights), total, selectedRoom };
+  };
+
+  const { nights, total, selectedRoom } = calculateBookingDetails();
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.selectedRoomId || !formData.checkInDate || !formData.checkOutDate || 
+        !formData.fullName || !formData.email || !formData.phone) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    if (nights <= 0) {
+      toast.error("Check-out date must be after check-in date");
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      await createRoomBooking({
+        room_id: formData.selectedRoomId,
+        guest_name: formData.fullName,
+        guest_email: formData.email,
+        guest_phone: formData.phone,
+        check_out_date: formData.checkOutDate,
+        nights,
+        total_amount: total,
+        special_requests: formData.specialRequests || undefined
+      });
+      
+      toast.success("Booking confirmed! We look forward to your stay.");
+      
+      // Reset form
+      setFormData({
+        selectedRoomId: '',
+        checkInDate: '',
+        checkOutDate: '',
+        guests: '',
+        fullName: '',
+        email: '',
+        phone: '',
+        specialRequests: ''
+      });
+      
+    } catch (error) {
+      toast.error("Failed to create booking. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-background">
       {/* Header with Navigation */}
@@ -19,17 +120,20 @@ const BookingPage = () => {
                 <Calendar className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold">LuxeStay Hotel</h1>
+                <h1 className="text-xl font-bold">{settings.hotel_name}</h1>
                 <p className="text-sm text-muted-foreground">Book Your Perfect Stay</p>
               </div>
             </div>
             <nav className="flex items-center gap-4">
               <Button variant="ghost" asChild>
-                <a href="/">Home</a>
+                <a href="/">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Home
+                </a>
               </Button>
-              <Button variant="ghost">Rooms</Button>
-              <Button variant="ghost">Amenities</Button>
-              <Button variant="ghost">Contact</Button>
+              <Button variant="ghost" asChild>
+                <a href="/rooms">Rooms</a>
+              </Button>
             </nav>
           </div>
         </div>
@@ -60,104 +164,167 @@ const BookingPage = () => {
             <Card className="card-luxury">
               <CardHeader>
                 <CardTitle className="text-2xl">Make a Reservation</CardTitle>
-                <CardDescription>Fill in your details to book your stay</CardDescription>
+                <CardDescription>
+                  {preSelectedRoom 
+                    ? `Booking Room ${preSelectedRoom.room_number} - ${preSelectedRoom.room_type}`
+                    : "Fill in your details to book your stay"
+                  }
+                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="checkin">Check-in Date</Label>
-                    <Input type="date" id="checkin" className="touch-target" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="checkout">Check-out Date</Label>
-                    <Input type="date" id="checkout" className="touch-target" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="guests">Number of Guests</Label>
-                    <Select>
-                      <SelectTrigger className="touch-target">
-                        <SelectValue placeholder="Select guests" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1">1 Guest</SelectItem>
-                        <SelectItem value="2">2 Guests</SelectItem>
-                        <SelectItem value="3">3 Guests</SelectItem>
-                        <SelectItem value="4">4 Guests</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="room-type">Room Type</Label>
-                    <Select>
-                      <SelectTrigger className="touch-target">
-                        <SelectValue placeholder="Select room type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="standard">Standard Room</SelectItem>
-                        <SelectItem value="deluxe">Deluxe Room</SelectItem>
-                        <SelectItem value="suite">Executive Suite</SelectItem>
-                        <SelectItem value="king">King Size Room</SelectItem>
-                        <SelectItem value="queen">Queen Size Room</SelectItem>
-                        <SelectItem value="twin">Twin Beds Room</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" placeholder="Enter your full name" className="touch-target" />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input type="email" id="email" placeholder="your@email.com" className="touch-target" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input type="tel" id="phone" placeholder="+1 (555) 000-0000" className="touch-target" />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="requests">Special Requests</Label>
-                  <Textarea id="requests" placeholder="Any special requests or preferences..." className="min-h-24" />
-                </div>
-
-                <Button className="w-full button-luxury text-lg py-6">
-                  Book Room
-                </Button>
-
-                <div className="pt-4 border-t">
-                  <h3 className="font-semibold mb-4">Or Book Event Hall</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Room Selection */}
+                  {!preSelectedRoom && (
                     <div className="space-y-2">
-                      <Label htmlFor="event-date">Event Date</Label>
-                      <Input type="date" id="event-date" className="touch-target" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="hall-type">Hall Type</Label>
-                      <Select>
+                      <Label htmlFor="room">Select Room *</Label>
+                      <Select 
+                        value={formData.selectedRoomId} 
+                        onValueChange={(value) => handleInputChange('selectedRoomId', value)}
+                      >
                         <SelectTrigger className="touch-target">
-                          <SelectValue placeholder="Select hall" />
+                          <SelectValue placeholder="Choose a room" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="ballroom">Grand Ballroom</SelectItem>
-                          <SelectItem value="conference">Conference Hall</SelectItem>
-                          <SelectItem value="banquet">Banquet Hall</SelectItem>
-                          <SelectItem value="meeting">Meeting Room</SelectItem>
+                          {availableRooms.map(room => (
+                            <SelectItem key={room.id} value={room.id}>
+                              Room {room.room_number} - {room.room_type} ({formatCurrency(room.rate)}/night)
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
+                  )}
+
+                  {/* Selected Room Display */}
+                  {selectedRoom && (
+                    <Card className="bg-muted/30">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold">Room {selectedRoom.room_number}</h4>
+                          <Badge>Available</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">{selectedRoom.room_type}</p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Rate per night:</span>
+                          <span className="font-bold">{formatCurrency(selectedRoom.rate)}</span>
+                        </div>
+                        {selectedRoom.capacity && (
+                          <div className="flex items-center justify-between mt-1">
+                            <span className="text-sm">Capacity:</span>
+                            <span className="text-sm">{selectedRoom.capacity} guests</span>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="checkin">Check-in Date *</Label>
+                      <Input 
+                        type="date" 
+                        id="checkin" 
+                        className="touch-target" 
+                        value={formData.checkInDate}
+                        onChange={(e) => handleInputChange('checkInDate', e.target.value)}
+                        min={new Date().toISOString().split('T')[0]}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="checkout">Check-out Date *</Label>
+                      <Input 
+                        type="date" 
+                        id="checkout" 
+                        className="touch-target" 
+                        value={formData.checkOutDate}
+                        onChange={(e) => handleInputChange('checkOutDate', e.target.value)}
+                        min={formData.checkInDate || new Date().toISOString().split('T')[0]}
+                        required
+                      />
+                    </div>
                   </div>
-                  <Button className="w-full button-luxury text-lg py-6" variant="outline">
-                    Book Event Hall
+
+                  {/* Booking Summary */}
+                  {nights > 0 && selectedRoom && (
+                    <Card className="bg-accent/10 border-accent/20">
+                      <CardContent className="p-4">
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span>Duration:</span>
+                            <span>{nights} night{nights !== 1 ? 's' : ''}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Room rate:</span>
+                            <span>{formatCurrency(selectedRoom.rate)} × {nights}</span>
+                          </div>
+                          <div className="flex justify-between font-bold text-lg border-t pt-2">
+                            <span>Total:</span>
+                            <span>{formatCurrency(total)}</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name *</Label>
+                    <Input 
+                      id="name" 
+                      placeholder="Enter your full name" 
+                      className="touch-target" 
+                      value={formData.fullName}
+                      onChange={(e) => handleInputChange('fullName', e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email *</Label>
+                      <Input 
+                        type="email" 
+                        id="email" 
+                        placeholder="your@email.com" 
+                        className="touch-target" 
+                        value={formData.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone Number *</Label>
+                      <Input 
+                        type="tel" 
+                        id="phone" 
+                        placeholder="+1 (555) 000-0000" 
+                        className="touch-target" 
+                        value={formData.phone}
+                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="requests">Special Requests</Label>
+                    <Textarea 
+                      id="requests" 
+                      placeholder="Any special requests or preferences..." 
+                      className="min-h-24" 
+                      value={formData.specialRequests}
+                      onChange={(e) => handleInputChange('specialRequests', e.target.value)}
+                    />
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className="w-full button-luxury text-lg py-6"
+                    disabled={isSubmitting || !selectedRoom || nights <= 0}
+                  >
+                    {isSubmitting ? "Processing..." : `Book Room - ${formatCurrency(total)}`}
                   </Button>
-                </div>
+                </form>
               </CardContent>
             </Card>
 
@@ -202,18 +369,48 @@ const BookingPage = () => {
                 <CardContent className="space-y-4">
                   <div className="flex items-center gap-3">
                     <Phone className="h-5 w-5 text-accent" />
-                    <span>+1 (555) 123-4567</span>
+                    <span>{settings.hotel_phone || "+1 (555) 123-4567"}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <Mail className="h-5 w-5 text-accent" />
-                    <span>reservations@luxestay.com</span>
+                    <span>{settings.hotel_email || "reservations@hotel.com"}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <MapPin className="h-5 w-5 text-accent" />
-                    <span>123 Luxury Avenue, Downtown, NY 10001</span>
+                    <span>{settings.hotel_address || "123 Luxury Avenue, Downtown"}</span>
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Available Rooms */}
+              {!preSelectedRoom && availableRooms.length > 0 && (
+                <Card className="card-luxury">
+                  <CardHeader>
+                    <CardTitle>Available Rooms</CardTitle>
+                    <CardDescription>Browse our available accommodations</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {availableRooms.slice(0, 3).map(room => (
+                      <div key={room.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div>
+                          <h4 className="font-semibold">Room {room.room_number}</h4>
+                          <p className="text-sm text-muted-foreground">{room.room_type}</p>
+                          <p className="text-sm">Up to {room.capacity} guests</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold">{formatCurrency(room.rate)}</p>
+                          <p className="text-xs text-muted-foreground">per night</p>
+                        </div>
+                      </div>
+                    ))}
+                    {availableRooms.length > 3 && (
+                      <Button variant="outline" className="w-full" asChild>
+                        <a href="/rooms">View All Rooms</a>
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         </div>
