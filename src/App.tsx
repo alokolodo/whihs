@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { HotelLayout } from "./components/layout/HotelLayout";
 import Index from "./pages/Index";
 import BookingPage from "./pages/BookingPage";
@@ -30,6 +32,8 @@ import SupplierManagement from "./pages/SupplierManagement";
 import Analytics from "./pages/Analytics";
 import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
+import Auth from "./pages/Auth";
+import UserManagement from "./pages/UserManagement";
 
 const queryClient = new QueryClient();
 
@@ -40,127 +44,179 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <SidebarProvider>
-            <div className="min-h-screen flex w-full">
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <SidebarProvider>
+              <div className="min-h-screen flex w-full">
               <Routes>
+                {/* Auth routes */}
+                <Route path="/auth" element={<Auth />} />
+                
                 {/* Public routes */}
                 <Route path="/" element={<Index />} />
                 <Route path="/book" element={<BookingPage />} />
                 
-                {/* Admin/Staff routes with sidebar layout */}
+                {/* Protected Admin/Staff routes with sidebar layout */}
                 <Route path="/pos" element={
-                  <HotelLayout>
-                    <POSSystem />
-                  </HotelLayout>
+                  <ProtectedRoute>
+                    <HotelLayout>
+                      <POSSystem />
+                    </HotelLayout>
+                  </ProtectedRoute>
                 } />
                 <Route path="/pos/restaurant" element={
-                  <HotelLayout>
-                    <RestaurantPOS />
-                  </HotelLayout>
+                  <ProtectedRoute>
+                    <HotelLayout>
+                      <RestaurantPOS />
+                    </HotelLayout>
+                  </ProtectedRoute>
                 } />
                 <Route path="/admin" element={
-                  <HotelLayout>
-                    <AdminDashboard />
-                  </HotelLayout>
+                  <ProtectedRoute>
+                    <HotelLayout>
+                      <AdminDashboard />
+                    </HotelLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/users" element={
+                  <ProtectedRoute requiredRole="admin">
+                    <HotelLayout>
+                      <UserManagement />
+                    </HotelLayout>
+                  </ProtectedRoute>
                 } />
                 <Route path="/admin/settings" element={
-                  <HotelLayout>
-                    <Settings />
-                  </HotelLayout>
+                  <ProtectedRoute requiredRole="admin">
+                    <HotelLayout>
+                      <Settings />
+                    </HotelLayout>
+                  </ProtectedRoute>
                 } />
                 <Route path="/admin/recipes" element={
-                  <HotelLayout>
-                    <RecipeManagement />
-                  </HotelLayout>
+                  <ProtectedRoute>
+                    <HotelLayout>
+                      <RecipeManagement />
+                    </HotelLayout>
+                  </ProtectedRoute>
                 } />
                 <Route path="/admin/menu" element={
-                  <HotelLayout>
-                    <MenuManagement />
-                  </HotelLayout>
+                  <ProtectedRoute>
+                    <HotelLayout>
+                      <MenuManagement />
+                    </HotelLayout>
+                  </ProtectedRoute>
                 } />
                 <Route path="/admin/rooms" element={
-                  <HotelLayout>
-                    <RoomManagement />
-                  </HotelLayout>
+                  <ProtectedRoute>
+                    <HotelLayout>
+                      <RoomManagement />
+                    </HotelLayout>
+                  </ProtectedRoute>
                 } />
                 <Route path="/admin/halls" element={
-                  <HotelLayout>
-                    <HallManagement />
-                  </HotelLayout>
+                  <ProtectedRoute>
+                    <HotelLayout>
+                      <HallManagement />
+                    </HotelLayout>
+                  </ProtectedRoute>
                 } />
                 <Route path="/admin/bookings" element={
-                  <HotelLayout>
-                    <BookingManagement />
-                  </HotelLayout>
+                  <ProtectedRoute>
+                    <HotelLayout>
+                      <BookingManagement />
+                    </HotelLayout>
+                  </ProtectedRoute>
                 } />
                 <Route path="/admin/gym" element={
-                  <HotelLayout>
-                    <GymManagement />
-                  </HotelLayout>
+                  <ProtectedRoute>
+                    <HotelLayout>
+                      <GymManagement />
+                    </HotelLayout>
+                  </ProtectedRoute>
                 } />
                 <Route path="/admin/game-center" element={
-                  <HotelLayout>
-                    <GameCenter />
-                  </HotelLayout>
+                  <ProtectedRoute>
+                    <HotelLayout>
+                      <GameCenter />
+                    </HotelLayout>
+                  </ProtectedRoute>
                 } />
                 <Route path="/booking-confirmation" element={<BookingConfirmation />} />
                 <Route path="/admin/guests" element={
-                  <HotelLayout>
-                    <GuestManagement />
-                  </HotelLayout>
+                  <ProtectedRoute>
+                    <HotelLayout>
+                      <GuestManagement />
+                    </HotelLayout>
+                  </ProtectedRoute>
                 } />
                 <Route path="/admin/payments" element={
-                  <HotelLayout>
-                    <PaymentsManagement />
-                  </HotelLayout>
+                  <ProtectedRoute>
+                    <HotelLayout>
+                      <PaymentsManagement />
+                    </HotelLayout>
+                  </ProtectedRoute>
                 } />
                 <Route path="/admin/inventory" element={
-                  <HotelLayout>
-                    <InventoryManagement />
-                  </HotelLayout>
+                  <ProtectedRoute>
+                    <HotelLayout>
+                      <InventoryManagement />
+                    </HotelLayout>
+                  </ProtectedRoute>
                 } />
                 <Route path="/admin/suppliers" element={
-                  <HotelLayout>
-                    <SupplierManagement />
-                  </HotelLayout>
+                  <ProtectedRoute>
+                    <HotelLayout>
+                      <SupplierManagement />
+                    </HotelLayout>
+                  </ProtectedRoute>
                 } />
                 <Route path="/admin/accounting" element={
-                  <HotelLayout>
-                    <AccountingModule />
-                  </HotelLayout>
+                  <ProtectedRoute>
+                    <HotelLayout>
+                      <AccountingModule />
+                    </HotelLayout>
+                  </ProtectedRoute>
                 } />
                 <Route path="/admin/hr" element={
-                  <HotelLayout>
-                    <HRManagement />
-                  </HotelLayout>
+                  <ProtectedRoute>
+                    <HotelLayout>
+                      <HRManagement />
+                    </HotelLayout>
+                  </ProtectedRoute>
                 } />
                 <Route path="/admin/housekeeping" element={
-                  <HotelLayout>
-                    <HousekeepingManagement />
-                  </HotelLayout>
+                  <ProtectedRoute>
+                    <HotelLayout>
+                      <HousekeepingManagement />
+                    </HotelLayout>
+                  </ProtectedRoute>
                 } />
                 <Route path="/admin/analytics" element={
-                  <HotelLayout>
-                    <Analytics />
-                  </HotelLayout>
+                  <ProtectedRoute>
+                    <HotelLayout>
+                      <Analytics />
+                    </HotelLayout>
+                  </ProtectedRoute>
                 } />
                 <Route path="/admin/reports" element={
-                  <HotelLayout>
-                    <Reports />
-                  </HotelLayout>
+                  <ProtectedRoute>
+                    <HotelLayout>
+                      <Reports />
+                    </HotelLayout>
+                  </ProtectedRoute>
                 } />
                 
                 {/* Catch-all route */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </div>
-          </SidebarProvider>
-        </BrowserRouter>
-      </TooltipProvider>
+              </div>
+            </SidebarProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 };

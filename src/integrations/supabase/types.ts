@@ -967,6 +967,45 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          department: string | null
+          first_name: string | null
+          id: string
+          is_active: boolean
+          last_name: string | null
+          phone: string | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          department?: string | null
+          first_name?: string | null
+          id: string
+          is_active?: boolean
+          last_name?: string | null
+          phone?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          department?: string | null
+          first_name?: string | null
+          id?: string
+          is_active?: boolean
+          last_name?: string | null
+          phone?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       restaurant_tables: {
         Row: {
           created_at: string

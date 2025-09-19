@@ -99,7 +99,7 @@ const Index = () => {
                 <a href="/book">Book Now</a>
               </Button>
               <Button variant="outline" asChild>
-                <a href="/admin">Staff Login</a>
+                <a href="/auth">Staff Login</a>
               </Button>
             </nav>
           </div>
@@ -281,8 +281,8 @@ const Index = () => {
                 Explore our comprehensive dashboard for managing bookings, rooms, guests, and operations
               </p>
               <Button className="button-luxury" asChild>
-                <a href="/admin">
-                  View Dashboard
+                <a href="/auth">
+                  Access Dashboard
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </a>
               </Button>
