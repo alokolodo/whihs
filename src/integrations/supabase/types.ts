@@ -1481,6 +1481,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_access_employee_data: {
+        Args: { emp_id: string }
+        Returns: boolean
+      }
       can_access_employee_record: {
         Args: { emp_id: string }
         Returns: boolean
@@ -1565,6 +1569,10 @@ export type Database = {
         }[]
       }
       has_financial_access: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      has_hr_access: {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
