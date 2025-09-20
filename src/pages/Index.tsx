@@ -417,7 +417,7 @@ const Index = () => {
               </div>
             </div>
             <p className="opacity-80">
-              © 2024 {settings.hotel_name} Management System. All rights reserved.
+              © 2025 Dserverhost Nigeria Limited. All rights reserved.
             </p>
           </div>
         </div>

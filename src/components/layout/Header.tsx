@@ -11,9 +11,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
+import { useHotelSettings } from "@/hooks/useHotelSettings";
 
 export const Header = () => {
   const { profile, signOut } = useAuth();
+  const { settings } = useHotelSettings();
 
   const handleLogout = async () => {
     await signOut();
@@ -25,7 +27,7 @@ export const Header = () => {
         <div className="flex items-center gap-4">
           <SidebarTrigger className="p-2" />
           <div className="hidden md:block">
-            <h1 className="text-lg font-semibold text-foreground">Hotel Management System</h1>
+            <h1 className="text-lg font-semibold text-foreground">{settings.hotel_name} Management System</h1>
           </div>
         </div>
 
