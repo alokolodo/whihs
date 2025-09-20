@@ -51,11 +51,11 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <HotelSettingsProvider>
-          <MobileWrapper>
-            <TooltipProvider>
+          <TooltipProvider>
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <MobileWrapper>
               <SidebarProvider>
                 <div className="min-h-screen flex w-full">
               <Routes>
@@ -230,9 +230,9 @@ const App = () => {
               </Routes>
                 </div>
               </SidebarProvider>
+              </MobileWrapper>
             </BrowserRouter>
           </TooltipProvider>
-          </MobileWrapper>
         </HotelSettingsProvider>
       </AuthProvider>
     </QueryClientProvider>
