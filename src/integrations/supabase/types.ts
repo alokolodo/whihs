@@ -1580,7 +1580,19 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      has_hotel_staff_access: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       has_hr_access: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      has_kitchen_access: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      has_management_access: {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
