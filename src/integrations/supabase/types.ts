@@ -1644,6 +1644,10 @@ export type Database = {
         Args: { employee_uuid: string }
         Returns: boolean
       }
+      can_view_employee_sensitive_data: {
+        Args: { employee_uuid: string }
+        Returns: boolean
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
