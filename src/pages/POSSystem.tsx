@@ -16,7 +16,9 @@ import {
   Edit3,
   Calendar,
   Bed,
-  Building
+  Building,
+  MoreVertical,
+  ChevronDown
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -26,6 +28,7 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "@/hooks/use-toast";
 import { useRoomsDB } from "@/hooks/useRoomsDB";
 import { useHalls } from "@/hooks/useHalls";
@@ -83,6 +86,7 @@ const POSSystem = () => {
   const [showWalkInForm, setShowWalkInForm] = useState(false);
   const [walkInGuest, setWalkInGuest] = useState({ name: "", phone: "", email: "" });
   const [posGuests, setPosGuests] = useState<POSGuest[]>([]);
+  const [showChargeDropdown, setShowChargeDropdown] = useState(false);
 
   // Check for hall bookings from localStorage and add to guest orders
   useState(() => {
@@ -350,6 +354,61 @@ const POSSystem = () => {
     });
   };
 
+  const handleDeleteGuest = (guestId: string) => {
+    const guestToDelete = posGuests.find(g => g.id === guestId);
+    if (!guestToDelete) return;
+
+    setPosGuests(prev => prev.filter(guest => guest.id !== guestId));
+    
+    // If deleted guest was selected, select another guest or clear selection
+    if (selectedGuest === guestId) {
+      const remainingGuests = posGuests.filter(guest => guest.id !== guestId);
+      if (remainingGuests.length > 0) {
+        setSelectedGuest(remainingGuests[0].id);
+      } else {
+        setSelectedGuest("");
+      }
+    }
+    
+    toast({
+      title: "Guest Deleted",
+      description: `${guestToDelete.name} has been removed from the order list.`,
+      variant: "destructive",
+    });
+  };
+
+  const handleChargeToRoom = (roomNumber: string) => {
+    if (!currentGuest || currentGuest.items.length === 0) return;
+    
+    toast({
+      title: "Charged to Room",
+      description: `Order charged to Room ${roomNumber}`,
+    });
+    
+    // Clear the guest's order after charging
+    setPosGuests(prev => prev.map(guest =>
+      guest.id === selectedGuest 
+        ? { ...guest, items: [] }
+        : guest
+    ));
+  };
+
+  const handleChargeToTable = (tableNumber: string) => {
+    if (!currentGuest || currentGuest.items.length === 0) return;
+    
+    toast({
+      title: "Charged to Table",
+      description: `Order charged to Table ${tableNumber}`,
+    });
+    
+    // Clear the guest's order after charging
+    setPosGuests(prev => prev.map(guest =>
+      guest.id === selectedGuest 
+        ? { ...guest, items: [] }
+        : guest
+    ));
+  };
+
   const toggleReceipt = () => {
     setPaymentState(prev => ({ ...prev, printReceipt: !prev.printReceipt }));
     toast({
@@ -512,19 +571,36 @@ const POSSystem = () => {
           <div className="space-y-2">
             {posGuests.length > 0 ? (
               posGuests.map((guest, index) => (
-                <Button
-                  key={guest.id}
-                  variant={selectedGuest === guest.id ? "default" : "outline"}
-                  className={`w-full justify-start ${
-                    selectedGuest === guest.id ? "bg-accent text-accent-foreground" : ""
-                  }`}
-                  onClick={() => setSelectedGuest(guest.id)}
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>{guest.name}</span>
-                  </div>
-                </Button>
+                <div key={guest.id} className="flex items-center gap-2">
+                  <Button
+                    variant={selectedGuest === guest.id ? "default" : "outline"}
+                    className={`flex-1 justify-start ${
+                      selectedGuest === guest.id ? "bg-accent text-accent-foreground" : ""
+                    }`}
+                    onClick={() => setSelectedGuest(guest.id)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span>{guest.name}</span>
+                    </div>
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="p-1 h-8 w-8">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => handleDeleteGuest(guest.id)}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Guest
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               ))
             ) : (
               <div className="text-center py-4 text-muted-foreground">
@@ -655,13 +731,36 @@ const POSSystem = () => {
                 <CreditCard className="h-4 w-4" />
                 <span className="text-xs">CARD</span>
               </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={handleSettle}
-              >
-                <span className="text-xs">SETTLE</span>
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <span className="text-xs">CHARGE</span>
+                    <ChevronDown className="h-3 w-3 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleChargeToRoom("101")}>
+                    <Bed className="h-4 w-4 mr-2" />
+                    Charge to Room 101
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleChargeToRoom("102")}>
+                    <Bed className="h-4 w-4 mr-2" />
+                    Charge to Room 102
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleChargeToTable("T1")}>
+                    <Users className="h-4 w-4 mr-2" />
+                    Charge to Table 1
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleChargeToTable("T2")}>
+                    <Users className="h-4 w-4 mr-2" />
+                    Charge to Table 2
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSettle}>
+                    <DollarSign className="h-4 w-4 mr-2" />
+                    Settle Order
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
             
             <div className="grid grid-cols-4 gap-2 mt-2">
