@@ -81,17 +81,25 @@ export const useHotelSettings = () => {
         .select("*")
         .single();
 
+      console.log("Fetched hotel settings:", data);
+
       if (error && error.code !== 'PGRST116') {
         throw error;
       }
 
       if (data) {
-        setSettings({
+        const settingsData = {
           ...data,
           payment_gateways: typeof data.payment_gateways === 'string' 
             ? JSON.parse(data.payment_gateways) 
             : data.payment_gateways || defaultSettings.payment_gateways
-        });
+        };
+        console.log("Setting hotel settings to:", settingsData);
+        setSettings(settingsData);
+      } else {
+        console.log("No settings found, using defaults with hotel name:", defaultSettings.hotel_name);
+        // If no settings exist, use defaults (which already have ALOKOLODOHOTELS)
+        setSettings(defaultSettings);
       }
     } catch (error) {
       console.error("Error fetching hotel settings:", error);
@@ -100,6 +108,8 @@ export const useHotelSettings = () => {
         description: "Failed to load hotel settings.",
         variant: "destructive",
       });
+      // Fallback to defaults if there's an error
+      setSettings(defaultSettings);
     } finally {
       setLoading(false);
     }

@@ -1444,6 +1444,10 @@ export type Database = {
         Args: { item_name_param: string; quantity_change: number }
         Returns: undefined
       }
+      validate_password_strength: {
+        Args: { password: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
