@@ -1662,11 +1662,16 @@ export type Database = {
           department_id: string
           email: string
           employee_id: string
+          employment_type: string
           first_name: string
+          hire_date: string
           id: string
           last_name: string
+          phone: string
           position_id: string
           status: string
+          total_leave_days: number
+          used_leave_days: number
         }[]
       }
       get_employee_self_data: {
