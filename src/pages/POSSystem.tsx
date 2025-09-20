@@ -30,10 +30,13 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "@/hooks/use-toast";
+import { useRestaurantTables } from "@/hooks/useRestaurantTables";
 import { useRoomsDB } from "@/hooks/useRoomsDB";
 import { useHalls } from "@/hooks/useHalls";
 import { useGuests, RegisteredGuest } from "@/hooks/useGuests";
 import { useGlobalSettings } from "@/contexts/HotelSettingsContext";
+import { TableManagementModal } from "@/components/pos/TableManagementModal";
+import { AdminPOSSettings } from "@/components/pos/AdminPOSSettings";
 
 interface POSItem {
   id: string;
@@ -69,6 +72,7 @@ const POSSystem = () => {
   const { rooms, getAvailableRooms, createRoomBooking } = useRoomsDB();
   const { halls, getAvailableHalls } = useHalls();
   const { guests: registeredGuests, getAvailableGuests } = useGuests();
+  const { tables } = useRestaurantTables();
   
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedGuest, setSelectedGuest] = useState("1");
@@ -377,8 +381,11 @@ const POSSystem = () => {
     });
   };
 
-  const handleChargeToRoom = (roomNumber: string) => {
+  const handleChargeToRoom = (roomId: string) => {
     if (!currentGuest || currentGuest.items.length === 0) return;
+    
+    const room = rooms.find(r => r.id === roomId);
+    const roomNumber = room ? room.room_number : roomId;
     
     toast({
       title: "Charged to Room",
@@ -393,8 +400,11 @@ const POSSystem = () => {
     ));
   };
 
-  const handleChargeToTable = (tableNumber: string) => {
+  const handleChargeToTable = (tableId: string) => {
     if (!currentGuest || currentGuest.items.length === 0) return;
+    
+    const table = tables.find(t => t.id === tableId);
+    const tableNumber = table ? table.table_number : tableId;
     
     toast({
       title: "Charged to Table",
@@ -739,22 +749,35 @@ const POSSystem = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleChargeToRoom("101")}>
-                    <Bed className="h-4 w-4 mr-2" />
-                    Charge to Room 101
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleChargeToRoom("102")}>
-                    <Bed className="h-4 w-4 mr-2" />
-                    Charge to Room 102
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleChargeToTable("T1")}>
-                    <Users className="h-4 w-4 mr-2" />
-                    Charge to Table 1
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleChargeToTable("T2")}>
-                    <Users className="h-4 w-4 mr-2" />
-                    Charge to Table 2
-                  </DropdownMenuItem>
+                  {/* Room Charging Options */}
+                  {rooms.filter(r => r.status === 'occupied').map((room) => (
+                    <DropdownMenuItem 
+                      key={room.id} 
+                      onClick={() => handleChargeToRoom(room.id)}
+                    >
+                      <Bed className="h-4 w-4 mr-2" />
+                      Charge to Room {room.room_number}
+                    </DropdownMenuItem>
+                  ))}
+                  
+                  {/* Table Charging Options */}
+                  {tables.filter(t => t.status === 'occupied').map((table) => (
+                    <DropdownMenuItem 
+                      key={table.id} 
+                      onClick={() => handleChargeToTable(table.id)}
+                    >
+                      <Users className="h-4 w-4 mr-2" />
+                      Charge to Table {table.table_number}
+                    </DropdownMenuItem>
+                  ))}
+                  
+                  {rooms.filter(r => r.status === 'occupied').length === 0 && 
+                   tables.filter(t => t.status === 'occupied').length === 0 && (
+                    <DropdownMenuItem disabled>
+                      No occupied rooms or tables available
+                    </DropdownMenuItem>
+                  )}
+                  
                   <DropdownMenuItem onClick={handleSettle}>
                     <DollarSign className="h-4 w-4 mr-2" />
                     Settle Order
@@ -807,21 +830,24 @@ const POSSystem = () => {
       <div className="flex-1 flex flex-col">
         {/* Categories */}
         <div className="p-4 border-b border-border">
-          <div className="grid grid-cols-5 gap-2">
-            {categories.map((category) => (
-              <Button
-                key={category.id}
-                variant="outline"
-                className={`h-16 text-white font-bold text-xs ${category.color} ${
-                  activeCategory === category.id ? "ring-2 ring-primary" : ""
-                } break-words hyphens-auto`}
-                onClick={() => setActiveCategory(category.id)}
-              >
-                <span className="leading-tight text-center px-1">
-                  {category.name}
-                </span>
-              </Button>
-            ))}
+          <div className="flex justify-between items-center mb-4">
+            <div className="grid grid-cols-5 gap-2 flex-1">
+              {categories.map((category) => (
+                <Button
+                  key={category.id}
+                  variant="outline"
+                  className={`h-16 text-white font-bold text-xs ${category.color} ${
+                    activeCategory === category.id ? "ring-2 ring-primary" : ""
+                  } break-words hyphens-auto`}
+                  onClick={() => setActiveCategory(category.id)}
+                >
+                  <span className="leading-tight text-center px-1">
+                    {category.name}
+                  </span>
+                </Button>
+              ))}
+            </div>
+            <AdminPOSSettings />
           </div>
         </div>
 
