@@ -1564,6 +1564,10 @@ export type Database = {
           used_leave_days: number
         }[]
       }
+      has_financial_access: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       is_hr_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
