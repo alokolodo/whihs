@@ -385,19 +385,19 @@ const Index = () => {
             <Card className="card-luxury text-center p-6">
               <Phone className="h-8 w-8 text-accent mx-auto mb-4" />
               <h3 className="font-bold mb-2">Phone</h3>
-              <p className="text-muted-foreground">+1 (555) 123-4567</p>
+              <p className="text-muted-foreground">{settings.hotel_phone || "+1 (555) 123-4567"}</p>
             </Card>
             
             <Card className="card-luxury text-center p-6">
               <Mail className="h-8 w-8 text-accent mx-auto mb-4" />
               <h3 className="font-bold mb-2">Email</h3>
-              <p className="text-muted-foreground">info@luxestay.com</p>
+              <p className="text-muted-foreground">{settings.hotel_email || "info@hotel.com"}</p>
             </Card>
             
             <Card className="card-luxury text-center p-6">
               <MapPin className="h-8 w-8 text-accent mx-auto mb-4" />
               <h3 className="font-bold mb-2">Address</h3>
-              <p className="text-muted-foreground">123 Luxury Ave<br />Downtown, NY 10001</p>
+              <p className="text-muted-foreground">{settings.hotel_address || "Contact us for location details"}</p>
             </Card>
           </div>
         </div>

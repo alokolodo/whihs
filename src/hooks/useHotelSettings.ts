@@ -98,7 +98,7 @@ export const useHotelSettings = () => {
         setSettings(settingsData);
       } else {
         console.log("No settings found, using defaults with hotel name:", defaultSettings.hotel_name);
-        // If no settings exist, use defaults (which already have ALOKOLODOHOTELS)
+        // If no settings exist, use defaults (which already have ALOKOLODO HOTELS)
         setSettings(defaultSettings);
       }
     } catch (error) {
