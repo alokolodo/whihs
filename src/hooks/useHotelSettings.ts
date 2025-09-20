@@ -36,7 +36,7 @@ export interface HotelSettings {
 }
 
 const defaultSettings: HotelSettings = {
-  hotel_name: "ALOKOLODO HOTELS",
+  hotel_name: "ALOKOLODOHOTELS",
   hotel_icon: "Hotel",
   hotel_address: "",
   hotel_phone: "",
