@@ -37,8 +37,8 @@ interface OrderItem extends MenuItem {
 
 const RestaurantPOS = () => {
   const { getFoodAndBeverageItems } = useMenuItems();
-  const { tables, loading: tablesLoading, updateTableStatus } = useRestaurantTables();
-  const { orders, loading: ordersLoading, createOrder, addItemToOrder, updateItemQuantity, processPayment } = useOrders();
+  const { tables, loading: tablesLoading, updateTableStatus, deleteTable } = useRestaurantTables();
+  const { orders, loading: ordersLoading, createOrder, addItemToOrder, updateItemQuantity, processPayment, deleteOrder } = useOrders();
   const { settings, formatCurrency } = useGlobalSettings();
   const { toast } = useToast();
   
@@ -217,7 +217,7 @@ const RestaurantPOS = () => {
                 {tables.map((table) => (
                   <Card
                     key={table.id}
-                    className={`cursor-pointer transition-all hover:shadow-lg ${
+                    className={`cursor-pointer transition-all hover:shadow-lg relative ${
                       table.status === 'available' ? 'border-green-500 hover:bg-green-50' :
                       table.status === 'occupied' ? 'border-red-500 bg-red-50' :
                       table.status === 'reserved' ? 'border-yellow-500 bg-yellow-50' :
@@ -230,6 +230,19 @@ const RestaurantPOS = () => {
                       }
                     }}
                   >
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      className="absolute top-1 right-1 h-6 w-6 p-0 hover:bg-red-100 z-10"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm(`Delete Table ${table.table_number}?`)) {
+                          deleteTable(table.id);
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-3 w-3 text-red-500" />
+                    </Button>
                     <CardContent className="p-4 text-center h-24 flex flex-col justify-center">
                       <h4 className="font-bold text-lg">Table {table.table_number}</h4>
                       <p className="text-sm text-gray-600">{table.seats} seats</p>
@@ -360,11 +373,26 @@ const RestaurantPOS = () => {
                       </p>
                     </div>
                   </div>
-                  {order.order_items && order.order_items.length > 0 && (
-                    <Badge variant="secondary" className="text-xs">
-                      {order.order_items.length} items
-                    </Badge>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {order.order_items && order.order_items.length > 0 && (
+                      <Badge variant="secondary" className="text-xs">
+                        {order.order_items.length} items
+                      </Badge>
+                    )}
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      className="h-6 w-6 p-0 hover:bg-red-100"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm(`Delete order for ${order.guest_name}?`)) {
+                          deleteOrder(order.id);
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-3 w-3 text-red-500" />
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Order Items */}
