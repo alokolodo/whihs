@@ -1515,6 +1515,35 @@ export type Database = {
           used_leave_days: number
         }[]
       }
+      get_employee_data_for_user: {
+        Args: { emp_id: string }
+        Returns: {
+          address: string
+          bank_account: string
+          created_at: string
+          date_of_birth: string
+          department_id: string
+          email: string
+          emergency_contact_name: string
+          emergency_contact_phone: string
+          employee_id: string
+          employment_type: string
+          first_name: string
+          hire_date: string
+          id: string
+          last_name: string
+          manager_id: string
+          national_id: string
+          notes: string
+          phone: string
+          position_id: string
+          salary: number
+          status: string
+          total_leave_days: number
+          updated_at: string
+          used_leave_days: number
+        }[]
+      }
       get_employee_self_data: {
         Args: Record<PropertyKey, never>
         Returns: {
