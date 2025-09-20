@@ -1501,6 +1501,34 @@ export type Database = {
         Args: { employee_uuid: string }
         Returns: boolean
       }
+      get_all_profiles_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          department: string
+          first_name: string
+          id: string
+          is_active: boolean
+          last_name: string
+          phone: string
+          role: string
+          updated_at: string
+        }[]
+      }
+      get_current_user_profile: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          department: string
+          first_name: string
+          id: string
+          is_active: boolean
+          last_name: string
+          phone: string
+          role: string
+          updated_at: string
+        }[]
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
