@@ -39,6 +39,7 @@ import RoomsPage from "./pages/RoomsPage";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import UserManagement from "./pages/UserManagement";
+import DocumentationPage from "./pages/DocumentationPage";
 
 const queryClient = new QueryClient();
 
@@ -224,6 +225,7 @@ const App = () => {
                     </HotelLayout>
                   </ProtectedRoute>
                 } />
+                <Route path="/documentation" element={<DocumentationPage />} />
                 
                 {/* Catch-all route */}
                 <Route path="*" element={<NotFound />} />
