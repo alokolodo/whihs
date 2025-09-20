@@ -1568,6 +1568,10 @@ export type Database = {
           used_leave_days: number
         }[]
       }
+      has_booking_access: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       has_financial_access: {
         Args: Record<PropertyKey, never>
         Returns: boolean
