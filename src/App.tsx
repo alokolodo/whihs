@@ -9,6 +9,9 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { HotelSettingsProvider } from "@/contexts/HotelSettingsContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { HotelLayout } from "./components/layout/HotelLayout";
+import { MobileWrapper } from "./components/mobile/MobileWrapper";
+import MobileStaffLogin from "./components/mobile/MobileStaffLogin";
+import MobileStaffDashboard from "./components/mobile/MobileStaffDashboard";
 import Index from "./pages/Index";
 import BookingPage from "./pages/BookingPage";
 import POSSystem from "./pages/POSSystem";
@@ -48,13 +51,22 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <HotelSettingsProvider>
-          <TooltipProvider>
+          <MobileWrapper>
+            <TooltipProvider>
             <Toaster />
             <Sonner />
             <BrowserRouter>
               <SidebarProvider>
                 <div className="min-h-screen flex w-full">
               <Routes>
+                {/* Mobile Staff Routes */}
+                <Route path="/mobile/staff-login" element={<MobileStaffLogin />} />
+                <Route path="/mobile/staff-dashboard" element={
+                  <ProtectedRoute>
+                    <MobileStaffDashboard />
+                  </ProtectedRoute>
+                } />
+                
                 {/* Auth routes */}
                 <Route path="/auth" element={<Auth />} />
                 
@@ -220,6 +232,7 @@ const App = () => {
               </SidebarProvider>
             </BrowserRouter>
           </TooltipProvider>
+          </MobileWrapper>
         </HotelSettingsProvider>
       </AuthProvider>
     </QueryClientProvider>
