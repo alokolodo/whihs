@@ -1481,15 +1481,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_access_basic_employee_info: {
+        Args: { emp_id: string }
+        Returns: boolean
+      }
       can_access_employee_data: {
         Args: { emp_id: string }
         Returns: boolean
       }
-      can_access_employee_info: {
+      can_access_employee_record: {
         Args: { emp_id: string }
         Returns: boolean
       }
-      can_access_employee_record: {
+      can_access_financial_employee_info: {
+        Args: { emp_id: string }
+        Returns: boolean
+      }
+      can_access_sensitive_employee_info: {
         Args: { emp_id: string }
         Returns: boolean
       }
