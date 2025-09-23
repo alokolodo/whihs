@@ -2001,11 +2001,23 @@ export type Database = {
         Args: { emp_id: string }
         Returns: boolean
       }
+      can_access_employee_basic_info_only: {
+        Args: { emp_id: string }
+        Returns: boolean
+      }
       can_access_employee_data: {
         Args: { emp_id: string }
         Returns: boolean
       }
+      can_access_employee_financial_info_only: {
+        Args: { emp_id: string }
+        Returns: boolean
+      }
       can_access_employee_record: {
+        Args: { emp_id: string }
+        Returns: boolean
+      }
+      can_access_employee_sensitive_info_only: {
         Args: { emp_id: string }
         Returns: boolean
       }
