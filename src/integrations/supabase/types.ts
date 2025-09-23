@@ -2172,6 +2172,10 @@ export type Database = {
         Args: { password: string }
         Returns: boolean
       }
+      validate_strong_password: {
+        Args: { password: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
