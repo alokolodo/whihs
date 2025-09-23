@@ -1501,7 +1501,7 @@ export type Database = {
         Args: { employee_uuid: string }
         Returns: boolean
       }
-      get_all_profiles_admin: {
+      get_accessible_profiles: {
         Args: Record<PropertyKey, never>
         Returns: {
           created_at: string
@@ -1627,6 +1627,10 @@ export type Database = {
       is_hr_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      log_profile_access: {
+        Args: { accessed_profile_id: string }
+        Returns: undefined
       }
       update_inventory_quantity: {
         Args: { item_name_param: string; quantity_change: number }
