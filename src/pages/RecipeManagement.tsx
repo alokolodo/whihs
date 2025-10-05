@@ -112,7 +112,7 @@ const RecipeManagement = () => {
             </Badge>
             <Badge variant="outline">
               <Clock className="h-3 w-3 mr-1" />
-              {recipe.prepTime + recipe.cookTime}min
+              {recipe.prep_time + recipe.cook_time}min
             </Badge>
             <Badge variant="outline">
               <Users className="h-3 w-3 mr-1" />
@@ -125,10 +125,10 @@ const RecipeManagement = () => {
 
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="font-medium">Prep Time:</span> {recipe.prepTime}min
+              <span className="font-medium">Prep Time:</span> {recipe.prep_time}min
             </div>
             <div>
-              <span className="font-medium">Cook Time:</span> {recipe.cookTime}min
+              <span className="font-medium">Cook Time:</span> {recipe.cook_time}min
             </div>
           </div>
 

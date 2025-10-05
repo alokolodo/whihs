@@ -85,7 +85,7 @@ const GuestManagement = () => {
     const total = guests.length;
     const vip = guests.filter(g => g.status === 'vip').length;
     const active = guests.filter(g => g.status === 'active').length;
-    const totalRevenue = guests.reduce((sum, g) => sum + g.totalSpent, 0);
+    const totalRevenue = guests.reduce((sum, g) => sum + g.total_spent, 0);
 
     return { total, vip, active, totalRevenue };
   };
@@ -101,7 +101,7 @@ const GuestManagement = () => {
     setShowHistoryModal(true);
   };
 
-  const handleEditProfile = (guest: Guest) => {
+  const handleEditProfile = (guest: typeof guests[0]) => {
     setSelectedGuestId(guest.id);
     setSelectedGuestName(guest.name);
     setShowEditModal(true);
@@ -155,9 +155,9 @@ const GuestManagement = () => {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Badge className={getTierColor(guest.loyaltyTier)}>
+                      <Badge className={getTierColor(guest.loyalty_tier)}>
                         <Star className="h-3 w-3 mr-1" />
-                        {guest.loyaltyTier}
+                        {guest.loyalty_tier}
                       </Badge>
                       <Badge className={getStatusColor(guest.status)}>
                         {guest.status.toUpperCase()}
@@ -189,15 +189,15 @@ const GuestManagement = () => {
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm">{guest.totalBookings} bookings</span>
+                          <span className="text-sm">{guest.total_bookings} bookings</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <CreditCard className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm">${guest.totalSpent.toLocaleString()} spent</span>
+                          <span className="text-sm">${guest.total_spent.toLocaleString()} spent</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Clock className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm">Last stay: {guest.lastStay}</span>
+                          <span className="text-sm">Last stay: {guest.last_stay || 'N/A'}</span>
                         </div>
                       </div>
                     </div>

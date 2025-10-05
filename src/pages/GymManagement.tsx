@@ -219,15 +219,15 @@ const GymManagement = () => {
                       </div>
                     </div>
                     <div className="text-center">
-                      <Badge className={`${membershipColors[member.membershipType]} text-white mb-2`}>
-                        {member.membershipType}
+                      <Badge className={`${membershipColors[member.membership_type]} text-white mb-2`}>
+                        {member.membership_type}
                       </Badge>
                       <div className="text-sm text-muted-foreground">
-                        Expires: {member.endDate}
+                        Expires: {member.end_date}
                       </div>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold">{member.checkIns}</div>
+                      <div className="text-2xl font-bold">{member.check_ins}</div>
                       <div className="text-sm text-muted-foreground">Check-ins</div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -307,7 +307,7 @@ const GymManagement = () => {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-muted-foreground">Last Maintenance:</span>
-                      <span className="text-sm">{item.lastMaintenance}</span>
+                      <span className="text-sm">{item.last_maintenance || 'N/A'}</span>
                     </div>
                     <div className="flex gap-2">
                       <Button 
@@ -380,7 +380,7 @@ const GymManagement = () => {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-muted-foreground">Hourly Rate:</span>
-                      <span className="font-semibold">${trainer.hourlyRate}</span>
+                      <span className="font-semibold">${trainer.hourly_rate}</span>
                     </div>
                     <div className="flex gap-2">
                       <Button 
