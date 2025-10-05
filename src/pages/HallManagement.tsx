@@ -23,81 +23,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
-import { useHalls } from "@/hooks/useHalls";
-import { useGuests } from "@/hooks/useGuests";
+import { useHallsDB } from "@/hooks/useHallsDB";
+import { useGuestsDB } from "@/hooks/useGuestsDB";
 import { toast } from "@/hooks/use-toast";
 import { format, differenceInDays } from "date-fns";
 import { cn } from "@/lib/utils";
 
-interface Hall {
-  id: string;
-  name: string;
-  capacity: number;
-  location: string;
-  hourlyRate: number;
-  amenities: string[];
-  availability: "available" | "booked" | "maintenance";
-}
-
-interface Booking {
-  id: string;
-  hallId: string;
-  hallName: string;
-  event: string;
-  organizer: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  guests: number;
-  status: "confirmed" | "pending" | "cancelled";
-  totalAmount: number;
-}
-
 const HallManagement = () => {
-  const { halls } = useHalls();
-  const { guests: registeredGuests } = useGuests();
-
-  const [bookings] = useState<Booking[]>([
-    {
-      id: "1",
-      hallId: "1",
-      hallName: "Grand Ballroom",
-      event: "Wedding Reception",
-      organizer: "Smith Family",
-      date: "2024-01-20",
-      startTime: "18:00",
-      endTime: "23:00",
-      guests: 350,
-      status: "confirmed",
-      totalAmount: 1500
-    },
-    {
-      id: "2",
-      hallId: "2", 
-      hallName: "Conference Hall A",
-      event: "Corporate Meeting",
-      organizer: "Tech Corp Ltd",
-      date: "2024-01-18",
-      startTime: "09:00", 
-      endTime: "17:00",
-      guests: 80,
-      status: "confirmed",
-      totalAmount: 1200
-    },
-    {
-      id: "3",
-      hallId: "3",
-      hallName: "Banquet Hall", 
-      event: "Birthday Party",
-      organizer: "Johnson Family",
-      date: "2024-01-25",
-      startTime: "15:00",
-      endTime: "20:00", 
-      guests: 120,
-      status: "pending",
-      totalAmount: 1000
-    }
-  ]);
+  const { halls, bookings, loading, createBooking, updateBooking, cancelBooking } = useHallsDB();
+  const { guests: registeredGuests } = useGuestsDB();
 
   const [activeTab, setActiveTab] = useState("halls");
   const [searchQuery, setSearchQuery] = useState("");
