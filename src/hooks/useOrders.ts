@@ -1,8 +1,14 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
-import { MenuItem } from '@/hooks/useMenuItems';
 import { useGlobalSettings } from '@/contexts/HotelSettingsContext';
+
+// Flexible MenuItem interface that works with DB structure
+interface MenuItem {
+  name: string;
+  category: string;
+  price: number;
+}
 
 export interface Order {
   id: string;
