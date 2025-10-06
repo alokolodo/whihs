@@ -51,6 +51,12 @@ CREATE TABLE IF NOT EXISTS public.account_categories (
 -- Enable RLS on account_categories
 ALTER TABLE public.account_categories ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies and recreate
+DROP POLICY IF EXISTS "Financial staff can view account categories" ON public.account_categories;
+DROP POLICY IF EXISTS "Financial staff can insert account categories" ON public.account_categories;
+DROP POLICY IF EXISTS "Financial staff can update account categories" ON public.account_categories;
+DROP POLICY IF EXISTS "Only admins can delete account categories" ON public.account_categories;
+
 -- RLS Policies for account_categories
 CREATE POLICY "Financial staff can view account categories"
 ON public.account_categories
@@ -117,6 +123,12 @@ CREATE TABLE IF NOT EXISTS public.recipes (
 -- Enable RLS on recipes
 ALTER TABLE public.recipes ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies and recreate
+DROP POLICY IF EXISTS "Staff can view recipes" ON public.recipes;
+DROP POLICY IF EXISTS "Staff can insert recipes" ON public.recipes;
+DROP POLICY IF EXISTS "Staff can update recipes" ON public.recipes;
+DROP POLICY IF EXISTS "Management can delete recipes" ON public.recipes;
+
 -- RLS Policies for recipes
 CREATE POLICY "Staff can view recipes"
 ON public.recipes
@@ -160,6 +172,10 @@ CREATE TABLE IF NOT EXISTS public.gym_members (
 
 -- Enable RLS on gym_members
 ALTER TABLE public.gym_members ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies and recreate
+DROP POLICY IF EXISTS "Management can manage gym members" ON public.gym_members;
+DROP POLICY IF EXISTS "Staff can view gym members" ON public.gym_members;
 
 -- RLS Policies for gym_members
 CREATE POLICY "Management can manage gym members"
@@ -252,6 +268,11 @@ CREATE TABLE IF NOT EXISTS public.gym_trainer_bookings (
 
 -- Enable RLS on gym_trainer_bookings
 ALTER TABLE public.gym_trainer_bookings ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies and recreate
+DROP POLICY IF EXISTS "Management can manage trainer bookings" ON public.gym_trainer_bookings;
+DROP POLICY IF EXISTS "Staff can view trainer bookings" ON public.gym_trainer_bookings;
+DROP POLICY IF EXISTS "Staff can create trainer bookings" ON public.gym_trainer_bookings;
 
 -- RLS Policies for gym_trainer_bookings
 CREATE POLICY "Management can manage trainer bookings"
