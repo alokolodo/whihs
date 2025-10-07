@@ -182,6 +182,42 @@ export type Database = {
           },
         ]
       }
+      content_pages: {
+        Row: {
+          content: Json
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_published: boolean | null
+          page_slug: string
+          page_title: string
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          content?: Json
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_published?: boolean | null
+          page_slug: string
+          page_title: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          content?: Json
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_published?: boolean | null
+          page_slug?: string
+          page_title?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       departments: {
         Row: {
           budget: number | null

@@ -40,6 +40,7 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import UserManagement from "./pages/UserManagement";
 import DocumentationPage from "./pages/DocumentationPage";
+import ContentManagement from "./pages/ContentManagement";
 
 const queryClient = new QueryClient();
 
@@ -109,6 +110,13 @@ const App = () => {
                   <ProtectedRoute requiredRole="admin">
                     <HotelLayout>
                       <Settings />
+                    </HotelLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/content" element={
+                  <ProtectedRoute requiredRole="admin">
+                    <HotelLayout>
+                      <ContentManagement />
                     </HotelLayout>
                   </ProtectedRoute>
                 } />
