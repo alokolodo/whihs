@@ -1005,6 +1005,10 @@ export type Database = {
       }
       hotel_settings: {
         Row: {
+          accent_color: string | null
+          background_color: string | null
+          border_color: string | null
+          card_color: string | null
           created_at: string
           currency: string
           dark_mode: boolean | null
@@ -1023,15 +1027,21 @@ export type Database = {
           language: string
           notifications_enabled: boolean | null
           payment_gateways: Json | null
+          primary_color: string | null
           session_timeout: number | null
           sms_notifications: boolean | null
           tax_rate: number | null
+          text_color: string | null
           time_format: string | null
           timezone: string | null
           two_factor_enabled: boolean | null
           updated_at: string
         }
         Insert: {
+          accent_color?: string | null
+          background_color?: string | null
+          border_color?: string | null
+          card_color?: string | null
           created_at?: string
           currency?: string
           dark_mode?: boolean | null
@@ -1050,15 +1060,21 @@ export type Database = {
           language?: string
           notifications_enabled?: boolean | null
           payment_gateways?: Json | null
+          primary_color?: string | null
           session_timeout?: number | null
           sms_notifications?: boolean | null
           tax_rate?: number | null
+          text_color?: string | null
           time_format?: string | null
           timezone?: string | null
           two_factor_enabled?: boolean | null
           updated_at?: string
         }
         Update: {
+          accent_color?: string | null
+          background_color?: string | null
+          border_color?: string | null
+          card_color?: string | null
           created_at?: string
           currency?: string
           dark_mode?: boolean | null
@@ -1077,9 +1093,11 @@ export type Database = {
           language?: string
           notifications_enabled?: boolean | null
           payment_gateways?: Json | null
+          primary_color?: string | null
           session_timeout?: number | null
           sms_notifications?: boolean | null
           tax_rate?: number | null
+          text_color?: string | null
           time_format?: string | null
           timezone?: string | null
           two_factor_enabled?: boolean | null

@@ -3,13 +3,14 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { HotelSettingsProvider } from "@/contexts/HotelSettingsContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { HotelLayout } from "./components/layout/HotelLayout";
 import { MobileWrapper } from "./components/mobile/MobileWrapper";
+import { applyThemeColors } from "./utils/themeColors";
 import MobileStaffLogin from "./components/mobile/MobileStaffLogin";
 import MobileStaffDashboard from "./components/mobile/MobileStaffDashboard";
 import Index from "./pages/Index";
@@ -48,6 +49,11 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Apply theme colors on mount
+  useEffect(() => {
+    applyThemeColors();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
