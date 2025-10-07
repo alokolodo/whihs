@@ -1333,6 +1333,7 @@ export type Database = {
           quantity: number
           special_instructions: string | null
           status: string
+          tax_rate: number | null
           updated_at: string
         }
         Insert: {
@@ -1345,6 +1346,7 @@ export type Database = {
           quantity?: number
           special_instructions?: string | null
           status?: string
+          tax_rate?: number | null
           updated_at?: string
         }
         Update: {
@@ -1357,6 +1359,7 @@ export type Database = {
           quantity?: number
           special_instructions?: string | null
           status?: string
+          tax_rate?: number | null
           updated_at?: string
         }
         Relationships: [
