@@ -633,7 +633,7 @@ const RestaurantPOS = () => {
                   <span className="font-medium">{formatCurrency(getSelectedOrderTotals().subtotal)}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm text-gray-600">
-                  <span>Tax ({settings.tax_rate || 7.5}%):</span>
+                  <span>Tax (varies by item):</span>
                   <span>{formatCurrency(getSelectedOrderTotals().tax)}</span>
                 </div>
                 <div className="flex justify-between items-center text-2xl font-bold border-t pt-2">

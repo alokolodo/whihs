@@ -246,12 +246,17 @@ export const useOrders = () => {
 
       if (itemsError) throw itemsError;
 
-      const subtotal = (orderItems || []).reduce(
-        (total, item) => total + (item.price * item.quantity), 
-        0
-      );
-      const taxRate = (settings.tax_rate || 7.5) / 100; // Convert percentage to decimal
-      const taxAmount = subtotal * taxRate;
+      // Calculate tax based on each item's tax rate
+      let subtotal = 0;
+      let taxAmount = 0;
+      
+      (orderItems || []).forEach((item: any) => {
+        const itemSubtotal = item.price * item.quantity;
+        const itemTaxRate = (item.tax_rate || settings.tax_rate || 7.5) / 100;
+        subtotal += itemSubtotal;
+        taxAmount += itemSubtotal * itemTaxRate;
+      });
+      
       const totalAmount = subtotal + taxAmount;
 
       const { error } = await supabase
