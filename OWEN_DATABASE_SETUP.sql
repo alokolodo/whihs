@@ -4,7 +4,17 @@
 -- menu item creation from inventory drinks
 -- =====================================================
 
--- 1. Create the function that auto-creates menu items for drinks
+-- 1. Add missing columns to menu_items table if they don't exist
+ALTER TABLE public.menu_items 
+ADD COLUMN IF NOT EXISTS cost_price numeric DEFAULT 0;
+
+ALTER TABLE public.menu_items 
+ADD COLUMN IF NOT EXISTS tracks_inventory boolean DEFAULT false;
+
+ALTER TABLE public.menu_items 
+ADD COLUMN IF NOT EXISTS inventory_item_id uuid REFERENCES public.inventory(id) ON DELETE SET NULL;
+
+-- 2. Create the function that auto-creates menu items for drinks
 CREATE OR REPLACE FUNCTION public.create_menu_item_for_drink()
 RETURNS trigger
 LANGUAGE plpgsql
