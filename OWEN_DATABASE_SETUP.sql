@@ -83,4 +83,28 @@ CREATE TRIGGER update_menu_item_cost_trigger
   FOR EACH ROW
   EXECUTE FUNCTION public.update_menu_item_cost();
 
+-- 5. Fix RLS policies on menu_items to allow authenticated users to view them
+DROP POLICY IF EXISTS "Staff can view menu items" ON public.menu_items;
+DROP POLICY IF EXISTS "Authenticated users can view menu items" ON public.menu_items;
+
+CREATE POLICY "Authenticated users can view menu items"
+ON public.menu_items
+FOR SELECT
+TO authenticated
+USING (true);
+
+-- Keep other policies for insert/update/delete (only staff/admin)
+CREATE POLICY "Staff can manage menu items"
+ON public.menu_items
+FOR ALL
+TO authenticated
+USING (
+  (SELECT role FROM public.profiles WHERE id = auth.uid()) IN ('admin', 'manager', 'staff', 'kitchen')
+)
+WITH CHECK (
+  (SELECT role FROM public.profiles WHERE id = auth.uid()) IN ('admin', 'manager', 'staff', 'kitchen')
+);
+
 -- DONE! Now when Owen adds drinks to inventory, they'll automatically appear in menu items
+-- IMPORTANT: After running this SQL, go to Menu Management and set the PRICE for each menu item
+-- and toggle IS_AVAILABLE to true so they show up in the POS system!
