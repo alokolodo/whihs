@@ -1033,6 +1033,10 @@ export type Database = {
           id: string
           language: string
           logo_url: string | null
+          loyalty_bronze_threshold: number | null
+          loyalty_gold_threshold: number | null
+          loyalty_platinum_threshold: number | null
+          loyalty_silver_threshold: number | null
           notifications_enabled: boolean | null
           payment_gateways: Json | null
           primary_color: string | null
@@ -1072,6 +1076,10 @@ export type Database = {
           id?: string
           language?: string
           logo_url?: string | null
+          loyalty_bronze_threshold?: number | null
+          loyalty_gold_threshold?: number | null
+          loyalty_platinum_threshold?: number | null
+          loyalty_silver_threshold?: number | null
           notifications_enabled?: boolean | null
           payment_gateways?: Json | null
           primary_color?: string | null
@@ -1111,6 +1119,10 @@ export type Database = {
           id?: string
           language?: string
           logo_url?: string | null
+          loyalty_bronze_threshold?: number | null
+          loyalty_gold_threshold?: number | null
+          loyalty_platinum_threshold?: number | null
+          loyalty_silver_threshold?: number | null
           notifications_enabled?: boolean | null
           payment_gateways?: Json | null
           primary_color?: string | null
