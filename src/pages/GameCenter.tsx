@@ -21,6 +21,7 @@ import CreateTournamentModal from "@/components/game/CreateTournamentModal";
 import NewBookingModal from "@/components/game/NewBookingModal";
 import StartSessionModal from "@/components/game/StartSessionModal";
 import EditStationModal from "@/components/game/EditStationModal";
+import AddStationModal from "@/components/game/AddStationModal";
 import LeaderboardModal from "@/components/game/LeaderboardModal";
 import { useGameCenterDB, GameStation } from "@/hooks/useGameCenterDB";
 
@@ -44,6 +45,7 @@ const GameCenter = () => {
   const [newBookingOpen, setNewBookingOpen] = useState(false);
   const [startSessionOpen, setStartSessionOpen] = useState(false);
   const [editStationOpen, setEditStationOpen] = useState(false);
+  const [addStationOpen, setAddStationOpen] = useState(false);
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const [selectedStation, setSelectedStation] = useState<GameStation | null>(null);
 
@@ -107,6 +109,10 @@ const GameCenter = () => {
           <p className="text-muted-foreground">Manage gaming stations, tournaments, and bookings</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setAddStationOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Station
+          </Button>
           <Button variant="outline" onClick={() => setCreateTournamentOpen(true)}>
             <Trophy className="h-4 w-4 mr-2" />
             Create Tournament
@@ -468,6 +474,18 @@ const GameCenter = () => {
       <LeaderboardModal 
         open={leaderboardOpen} 
         onOpenChange={setLeaderboardOpen} 
+      />
+      
+      <EditStationModal 
+        open={editStationOpen} 
+        onOpenChange={setEditStationOpen}
+        station={selectedStation || undefined}
+        onUpdate={updateStation}
+      />
+
+      <AddStationModal 
+        open={addStationOpen} 
+        onOpenChange={setAddStationOpen}
       />
     </div>
   );
