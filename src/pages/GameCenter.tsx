@@ -10,7 +10,8 @@ import {
   Plus,
   Settings,
   Monitor,
-  Joystick
+  Joystick,
+  Edit
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CreateTournamentModal from "@/components/game/CreateTournamentModal";
 import NewBookingModal from "@/components/game/NewBookingModal";
 import StartSessionModal from "@/components/game/StartSessionModal";
+import EditStationModal from "@/components/game/EditStationModal";
 import LeaderboardModal from "@/components/game/LeaderboardModal";
 import { useGameCenterDB, GameStation } from "@/hooks/useGameCenterDB";
 
@@ -29,6 +31,7 @@ const GameCenter = () => {
     tournaments,
     bookings,
     loading,
+    updateStation,
     startSession,
     endSession,
     updateStationStatus,
@@ -40,6 +43,7 @@ const GameCenter = () => {
   const [createTournamentOpen, setCreateTournamentOpen] = useState(false);
   const [newBookingOpen, setNewBookingOpen] = useState(false);
   const [startSessionOpen, setStartSessionOpen] = useState(false);
+  const [editStationOpen, setEditStationOpen] = useState(false);
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const [selectedStation, setSelectedStation] = useState<GameStation | null>(null);
 
