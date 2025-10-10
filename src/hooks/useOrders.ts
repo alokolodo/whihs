@@ -254,7 +254,7 @@ export const useOrders = () => {
       
       (orderItems || []).forEach((item: any) => {
         const itemSubtotal = item.price * item.quantity;
-        const itemTaxRate = (item.tax_rate || settings.tax_rate || 7.5) / 100;
+        const itemTaxRate = (item.tax_rate ?? settings.tax_rate ?? 0) / 100;
         subtotal += itemSubtotal;
         taxAmount += itemSubtotal * itemTaxRate;
       });
