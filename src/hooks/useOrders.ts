@@ -429,56 +429,65 @@ export const useOrders = () => {
         'Cocktails', 'Juice', 'Water', 'Energy Drinks', 'Hot Beverages'
       ];
 
-      const beverageItems = order.order_items.filter(item => 
-        beverageCategories.includes(item.item_category)
-      );
-
-      if (beverageItems.length === 0) return;
-
-      // Get menu items to check which ones track inventory
+      // Get menu items to check beverages and recipes
       const { data: menuItems, error: menuError } = await supabase
         .from('menu_items')
-        .select('id, name, category, tracks_inventory, inventory_item_id, cost_price')
-        .in('name', beverageItems.map(item => item.item_name));
+        .select('id, name, category, tracks_inventory, inventory_item_id, recipe_id')
+        .in('name', order.order_items.map(item => item.item_name));
 
       if (menuError) {
         console.error('Error fetching menu items:', menuError);
         return;
       }
 
-      // Update inventory for beverage items that track inventory
-      for (const orderItem of beverageItems) {
+      // Process each order item
+      for (const orderItem of order.order_items) {
         const menuItem = menuItems?.find(mi => mi.name === orderItem.item_name);
         
-        if (menuItem?.tracks_inventory && menuItem.inventory_item_id) {
-          // Get current inventory
-          const { data: inventoryItem, error: fetchError } = await supabase
-            .from('inventory')
-            .select('current_quantity')
-            .eq('id', menuItem.inventory_item_id)
-            .single();
+        if (!menuItem) continue;
 
-          if (fetchError) {
-            console.error(`Error fetching inventory for ${orderItem.item_name}:`, fetchError);
-            continue;
+        // Handle beverages - direct inventory tracking
+        if (beverageCategories.includes(orderItem.item_category)) {
+          if (menuItem.tracks_inventory && menuItem.inventory_item_id) {
+            const { data: inventoryItem, error: fetchError } = await supabase
+              .from('inventory')
+              .select('current_quantity')
+              .eq('id', menuItem.inventory_item_id)
+              .single();
+
+            if (fetchError) {
+              console.error(`Error fetching inventory for ${orderItem.item_name}:`, fetchError);
+              continue;
+            }
+
+            const newQuantity = Math.max(0, inventoryItem.current_quantity - orderItem.quantity);
+
+            const { error: updateError } = await supabase
+              .from('inventory')
+              .update({ 
+                current_quantity: newQuantity,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', menuItem.inventory_item_id);
+
+            if (updateError) {
+              console.error(`Error updating inventory for ${orderItem.item_name}:`, updateError);
+            } else {
+              console.log(`✅ Deducted ${orderItem.quantity} of ${orderItem.item_name} (beverage) from inventory`);
+            }
           }
+        } 
+        // Handle kitchen/food items - recipe-based deduction
+        else if (menuItem.recipe_id) {
+          const { error: recipeError } = await supabase.rpc('deduct_recipe_ingredients', {
+            menu_item_uuid: menuItem.id,
+            quantity_sold: orderItem.quantity
+          });
 
-          // Calculate new quantity (don't go below 0)
-          const newQuantity = Math.max(0, inventoryItem.current_quantity - orderItem.quantity);
-
-          // Update inventory
-          const { error: updateError } = await supabase
-            .from('inventory')
-            .update({ 
-              current_quantity: newQuantity,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', menuItem.inventory_item_id);
-
-          if (updateError) {
-            console.error(`Error updating inventory for ${orderItem.item_name}:`, updateError);
+          if (recipeError) {
+            console.error(`Error deducting recipe ingredients for ${orderItem.item_name}:`, recipeError);
           } else {
-            console.log(`✅ Deducted ${orderItem.quantity} of ${orderItem.item_name} from inventory (new: ${newQuantity})`);
+            console.log(`✅ Deducted recipe ingredients for ${orderItem.quantity}x ${orderItem.item_name} (food)`);
           }
         }
       }
