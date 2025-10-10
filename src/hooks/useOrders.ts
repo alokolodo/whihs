@@ -420,26 +420,52 @@ export const useOrders = () => {
       const order = orders.find(o => o.id === orderId);
       if (!order) return;
 
-      // Categories that affect inventory (beverages and drinks)
-      const inventoryCategories = [
-        'Soft Drinks', 'Alcoholic Beverages', 'Beer', 'Spirits', 
-        'Red Wine', 'White Wine', 'Rosé Wine', 'Sparkling Wine'
-      ];
+      if (!order.order_items || order.order_items.length === 0) return;
 
-      const inventoryItems = order.order_items?.filter(item => 
-        inventoryCategories.includes(item.item_category)
-      );
+      // Get menu items to check which ones track inventory
+      const { data: menuItems, error: menuError } = await supabase
+        .from('menu_items')
+        .select('id, name, tracks_inventory, inventory_item_id')
+        .in('name', order.order_items.map(item => item.item_name));
 
-      if (inventoryItems && inventoryItems.length > 0) {
-        for (const item of inventoryItems) {
-          // Update inventory quantity using RPC function
-          const { error } = await supabase.rpc('update_inventory_quantity', {
-            item_name_param: item.item_name,
-            quantity_change: -item.quantity
-          });
+      if (menuError) {
+        console.error('Error fetching menu items:', menuError);
+        return;
+      }
 
-          if (error) {
-            console.error(`Error updating inventory for ${item.item_name}:`, error);
+      // Update inventory for items that track inventory
+      for (const orderItem of order.order_items) {
+        const menuItem = menuItems?.find(mi => mi.name === orderItem.item_name);
+        
+        if (menuItem?.tracks_inventory && menuItem.inventory_item_id) {
+          // Get current inventory
+          const { data: inventoryItem, error: fetchError } = await supabase
+            .from('inventory')
+            .select('current_quantity')
+            .eq('id', menuItem.inventory_item_id)
+            .single();
+
+          if (fetchError) {
+            console.error(`Error fetching inventory for ${orderItem.item_name}:`, fetchError);
+            continue;
+          }
+
+          // Calculate new quantity (don't go below 0)
+          const newQuantity = Math.max(0, inventoryItem.current_quantity - orderItem.quantity);
+
+          // Update inventory
+          const { error: updateError } = await supabase
+            .from('inventory')
+            .update({ 
+              current_quantity: newQuantity,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', menuItem.inventory_item_id);
+
+          if (updateError) {
+            console.error(`Error updating inventory for ${orderItem.item_name}:`, updateError);
+          } else {
+            console.log(`Deducted ${orderItem.quantity} of ${orderItem.item_name} from inventory (new quantity: ${newQuantity})`);
           }
         }
       }
