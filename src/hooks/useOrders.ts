@@ -422,19 +422,32 @@ export const useOrders = () => {
 
       if (!order.order_items || order.order_items.length === 0) return;
 
+      // Only track beverages - filter by category
+      const beverageCategories = [
+        'Soft Drinks', 'Alcoholic Beverages', 'Beer', 'Spirits', 
+        'Red Wine', 'White Wine', 'Rosé Wine', 'Sparkling Wine',
+        'Cocktails', 'Juice', 'Water', 'Energy Drinks', 'Hot Beverages'
+      ];
+
+      const beverageItems = order.order_items.filter(item => 
+        beverageCategories.includes(item.item_category)
+      );
+
+      if (beverageItems.length === 0) return;
+
       // Get menu items to check which ones track inventory
       const { data: menuItems, error: menuError } = await supabase
         .from('menu_items')
-        .select('id, name, tracks_inventory, inventory_item_id')
-        .in('name', order.order_items.map(item => item.item_name));
+        .select('id, name, category, tracks_inventory, inventory_item_id, cost_price')
+        .in('name', beverageItems.map(item => item.item_name));
 
       if (menuError) {
         console.error('Error fetching menu items:', menuError);
         return;
       }
 
-      // Update inventory for items that track inventory
-      for (const orderItem of order.order_items) {
+      // Update inventory for beverage items that track inventory
+      for (const orderItem of beverageItems) {
         const menuItem = menuItems?.find(mi => mi.name === orderItem.item_name);
         
         if (menuItem?.tracks_inventory && menuItem.inventory_item_id) {
@@ -465,7 +478,7 @@ export const useOrders = () => {
           if (updateError) {
             console.error(`Error updating inventory for ${orderItem.item_name}:`, updateError);
           } else {
-            console.log(`Deducted ${orderItem.quantity} of ${orderItem.item_name} from inventory (new quantity: ${newQuantity})`);
+            console.log(`✅ Deducted ${orderItem.quantity} of ${orderItem.item_name} from inventory (new: ${newQuantity})`);
           }
         }
       }
