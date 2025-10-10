@@ -154,6 +154,7 @@ export const useOrders = () => {
             item_category: item.category,
             price: item.price,
             quantity,
+            tax_rate: item.tax_rate ?? settings.tax_rate ?? 0,
             status: 'pending'
           }])
           .select()
