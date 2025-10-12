@@ -79,7 +79,7 @@ const MenuManagement = () => {
   const filterItems = (items: typeof menuItems) => {
     return items.filter((item) => {
       const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchTerm.toLowerCase());
+        (item.description || '').toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
@@ -89,7 +89,7 @@ const MenuManagement = () => {
   const filteredDrinkItems = filterItems(drinkItems);
 
   const MenuItemCard = ({ item, isDrink = false }: { item: MenuItem; isDrink?: boolean }) => {
-    const profitMargin = item.cost_price && item.price 
+    const profitMargin = item.cost_price != null && item.price && item.price > 0
       ? ((item.price - item.cost_price) / item.price * 100).toFixed(1)
       : null;
 
