@@ -159,6 +159,7 @@ const AdminDashboard = () => {
                     <li>All paid orders (restaurant/bar)</li>
                     <li>All gym/game sessions</li>
                     <li>All order items</li>
+                    <li>All accounting journal entries</li>
                     <li>Room bookings will be marked as cancelled</li>
                   </ul>
                   <p className="mt-2 font-semibold text-destructive">This action cannot be undone!</p>
