@@ -40,13 +40,16 @@ export const useClearSalesData = () => {
 
       if (bookingsError) throw bookingsError;
 
-      // Delete all account entries (accounting data)
+      // Delete all account entries (accounting data) - this will reset accounting module to zero
       const { error: accountEntriesError } = await supabase
         .from('account_entries')
         .delete()
         .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
 
       if (accountEntriesError) throw accountEntriesError;
+
+      // Note: Categories and budgets are preserved as they are configuration data
+      // Only transaction data (account_entries) is cleared
 
       return { success: true };
     },
