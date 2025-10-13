@@ -8,7 +8,12 @@
 -- PART 1: CREATE ENUMS AND TYPES
 -- =====================================================
 
-CREATE TYPE public.app_role AS ENUM ('admin', 'moderator', 'user', 'staff', 'manager', 'kitchen', 'front_desk', 'housekeeping', 'procurement', 'bartender', 'supervisor', 'maintenance', 'security', 'accounting', 'hr');
+-- Create app_role enum only if it doesn't exist
+DO $$ BEGIN
+    CREATE TYPE public.app_role AS ENUM ('admin', 'moderator', 'user', 'staff', 'manager', 'kitchen', 'front_desk', 'housekeeping', 'procurement', 'bartender', 'supervisor', 'maintenance', 'security', 'accounting', 'hr');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 -- =====================================================
 -- PART 2: CREATE ALL TABLES
