@@ -38,7 +38,15 @@ export const useMenuItemsDB = () => {
         .order('name');
 
       if (error) throw error;
-      setMenuItems(data || []);
+      
+      // Ensure allergens and ingredients are always arrays
+      const normalizedData = (data || []).map(item => ({
+        ...item,
+        allergens: item.allergens || [],
+        ingredients: item.ingredients || []
+      }));
+      
+      setMenuItems(normalizedData);
     } catch (error: any) {
       console.error('Error fetching menu items:', error);
       toast({
@@ -147,11 +155,21 @@ export const useMenuItemsDB = () => {
         (payload) => {
           console.log('Menu item change detected:', payload);
           if (payload.eventType === 'INSERT') {
-            setMenuItems(current => [...current, payload.new as MenuItem]);
+            const newItem = {
+              ...payload.new as MenuItem,
+              allergens: payload.new.allergens || [],
+              ingredients: payload.new.ingredients || []
+            };
+            setMenuItems(current => [...current, newItem]);
           } else if (payload.eventType === 'UPDATE') {
+            const updatedItem = {
+              ...payload.new as MenuItem,
+              allergens: payload.new.allergens || [],
+              ingredients: payload.new.ingredients || []
+            };
             setMenuItems(current => 
               current.map(item => 
-                item.id === payload.new.id ? payload.new as MenuItem : item
+                item.id === payload.new.id ? updatedItem : item
               )
             );
           } else if (payload.eventType === 'DELETE') {
