@@ -22,14 +22,20 @@ BEGIN
 END $$;
 
 -- =====================================================
--- STEP 2: DROP TABLES THAT MIGHT HAVE INCORRECT SCHEMA
+-- STEP 2: SAFELY DROP AND RECREATE PROBLEMATIC TABLES
 -- =====================================================
 
--- Drop accounting tables if they exist (in case they were created with wrong schema)
+-- These tables may have been created with incorrect schema in previous migrations
+-- We drop them completely and recreate them with correct structure
+
+-- Drop all accounting tables in correct order (handle foreign keys)
 DROP TABLE IF EXISTS public.account_entries CASCADE;
 DROP TABLE IF EXISTS public.budgets CASCADE;
 DROP TABLE IF EXISTS public.financial_reports CASCADE;
 DROP TABLE IF EXISTS public.account_categories CASCADE;
+
+-- Also ensure hotel_settings uses correct structure
+DROP TABLE IF EXISTS public.hotel_settings CASCADE;
 
 -- =====================================================
 -- STEP 3: CREATE ALL TABLES (IF NOT EXISTS)
@@ -57,8 +63,8 @@ CREATE TABLE IF NOT EXISTS public.user_roles (
     UNIQUE(user_id, role)
 );
 
--- Hotel settings
-CREATE TABLE IF NOT EXISTS public.hotel_settings (
+-- Hotel settings (recreate to ensure correct schema)
+CREATE TABLE public.hotel_settings (
     id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     hotel_name text NOT NULL DEFAULT 'My Hotel',
     hotel_address text,
