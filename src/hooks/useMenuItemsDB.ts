@@ -17,8 +17,8 @@ export interface MenuItem {
   inventory_item_id?: string;
   recipe_id?: string;
   tax_rate?: number;
-  allergens: string[];
-  ingredients: string[];
+  allergens: string[]; // Always an array, never null/undefined
+  ingredients: string[]; // Always an array, never null/undefined
   image_url?: string;
   created_at?: string;
   updated_at?: string;
