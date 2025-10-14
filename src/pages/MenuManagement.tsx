@@ -73,8 +73,15 @@ const MenuManagement = () => {
   // Separate kitchen items from drinks (match database categories)
   const drinkCategories = ['soft drinks', 'alcoholic beverages', 'spirits', 'hot beverages', 'beer', 'wine', 'liquor', 'juice', 'water', 'energy drinks', 'cocktails', 'drinks', 'beverages'];
   
-  const kitchenItems = menuItems.filter(item => !drinkCategories.includes(item.category.toLowerCase()));
-  const drinkItems = menuItems.filter(item => drinkCategories.includes(item.category.toLowerCase()));
+  // Ensure all items have allergens and ingredients arrays
+  const safeMenuItems = menuItems.map(item => ({
+    ...item,
+    allergens: Array.isArray(item.allergens) ? item.allergens : [],
+    ingredients: Array.isArray(item.ingredients) ? item.ingredients : []
+  }));
+  
+  const kitchenItems = safeMenuItems.filter(item => !drinkCategories.includes(item.category.toLowerCase()));
+  const drinkItems = safeMenuItems.filter(item => drinkCategories.includes(item.category.toLowerCase()));
 
   const filterItems = (items: typeof menuItems) => {
     return items.filter((item) => {
@@ -223,6 +230,17 @@ const MenuManagement = () => {
     </Card>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading menu items...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-8">
