@@ -131,7 +131,7 @@ CREATE TABLE public.account_categories (
     name text NOT NULL,
     type text NOT NULL,
     parent_id uuid,
-    code text,
+    account_code text,
     description text,
     is_active boolean DEFAULT true,
     created_at timestamp with time zone NOT NULL DEFAULT now(),
@@ -141,12 +141,20 @@ CREATE TABLE public.account_categories (
 -- Account entries (force recreate since we dropped it)
 CREATE TABLE public.account_entries (
     id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
-    date date NOT NULL,
+    entry_date date NOT NULL,
     category_id uuid REFERENCES public.account_categories(id),
+    sub_category text,
     description text NOT NULL,
     amount numeric NOT NULL,
+    debit_amount numeric DEFAULT 0,
+    credit_amount numeric DEFAULT 0,
     payment_method text,
     reference_number text,
+    status text NOT NULL DEFAULT 'pending',
+    source_type text,
+    source_id text,
+    posted_by uuid REFERENCES auth.users(id),
+    posted_at timestamp with time zone,
     created_by uuid REFERENCES auth.users(id),
     notes text,
     created_at timestamp with time zone NOT NULL DEFAULT now(),
@@ -1501,9 +1509,9 @@ DROP POLICY IF EXISTS "inventory_management_update" ON public.inventory;
 DROP POLICY IF EXISTS "inventory_admin_delete" ON public.inventory;
 
 CREATE POLICY "inventory_staff_access_select" ON public.inventory FOR SELECT USING (has_hotel_staff_access());
-CREATE POLICY "inventory_management_insert" ON public.inventory FOR INSERT WITH CHECK (has_management_access() OR has_role(auth.uid(), 'procurement'::app_role));
-CREATE POLICY "inventory_management_update" ON public.inventory FOR UPDATE USING (has_management_access() OR has_role(auth.uid(), 'procurement'::app_role)) WITH CHECK (has_management_access() OR has_role(auth.uid(), 'procurement'::app_role));
-CREATE POLICY "inventory_admin_delete" ON public.inventory FOR DELETE USING (has_role(auth.uid(), 'admin'::app_role));
+CREATE POLICY "inventory_management_insert" ON public.inventory FOR INSERT WITH CHECK (has_management_access() OR (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'procurement');
+CREATE POLICY "inventory_management_update" ON public.inventory FOR UPDATE USING (has_management_access() OR (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'procurement') WITH CHECK (has_management_access() OR (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'procurement');
+CREATE POLICY "inventory_admin_delete" ON public.inventory FOR DELETE USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin');
 
 -- Menu items policies
 DROP POLICY IF EXISTS "menu_items_staff_access_select" ON public.menu_items;
@@ -1577,7 +1585,7 @@ VALUES ('Owen Hotel', 'USD', 7.5)
 ON CONFLICT (id) DO NOTHING;
 
 -- Insert account categories
-INSERT INTO public.account_categories (name, type, code, description) VALUES
+INSERT INTO public.account_categories (name, type, account_code, description) VALUES
 ('Room Revenue', 'income', 'INC-001', 'Revenue from room bookings'),
 ('Food & Beverage', 'income', 'INC-002', 'Revenue from restaurant and bar'),
 ('Gym & Spa', 'income', 'INC-003', 'Revenue from gym and spa services'),
