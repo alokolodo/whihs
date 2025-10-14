@@ -20,9 +20,9 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
-          is_active: boolean
+          is_active: boolean | null
           name: string
-          parent_category_id: string | null
+          parent_id: string | null
           type: string
           updated_at: string
         }
@@ -31,9 +31,9 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
-          is_active?: boolean
+          is_active?: boolean | null
           name: string
-          parent_category_id?: string | null
+          parent_id?: string | null
           type: string
           updated_at?: string
         }
@@ -42,16 +42,16 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
-          is_active?: boolean
+          is_active?: boolean | null
           name?: string
-          parent_category_id?: string | null
+          parent_id?: string | null
           type?: string
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "account_categories_parent_category_id_fkey"
-            columns: ["parent_category_id"]
+            foreignKeyName: "account_categories_parent_id_fkey"
+            columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "account_categories"
             referencedColumns: ["id"]
@@ -63,12 +63,14 @@ export type Database = {
           amount: number
           category_id: string | null
           created_at: string
+          created_by: string | null
           credit_amount: number | null
           debit_amount: number | null
           description: string
           entry_date: string
           id: string
           notes: string | null
+          payment_method: string | null
           posted_at: string | null
           posted_by: string | null
           reference_number: string | null
@@ -82,12 +84,14 @@ export type Database = {
           amount: number
           category_id?: string | null
           created_at?: string
+          created_by?: string | null
           credit_amount?: number | null
           debit_amount?: number | null
           description: string
-          entry_date?: string
+          entry_date: string
           id?: string
           notes?: string | null
+          payment_method?: string | null
           posted_at?: string | null
           posted_by?: string | null
           reference_number?: string | null
@@ -101,12 +105,14 @@ export type Database = {
           amount?: number
           category_id?: string | null
           created_at?: string
+          created_by?: string | null
           credit_amount?: number | null
           debit_amount?: number | null
           description?: string
           entry_date?: string
           id?: string
           notes?: string | null
+          payment_method?: string | null
           posted_at?: string | null
           posted_by?: string | null
           reference_number?: string | null
@@ -627,33 +633,45 @@ export type Database = {
       financial_reports: {
         Row: {
           created_at: string
-          generated_at: string
+          generated_at: string | null
           generated_by: string | null
           id: string
+          net_profit: number | null
           period_end: string
           period_start: string
-          report_data: Json
+          report_data: Json | null
           report_type: string
+          total_expenses: number | null
+          total_income: number | null
+          updated_at: string
         }
         Insert: {
           created_at?: string
-          generated_at?: string
+          generated_at?: string | null
           generated_by?: string | null
           id?: string
+          net_profit?: number | null
           period_end: string
           period_start: string
-          report_data: Json
+          report_data?: Json | null
           report_type: string
+          total_expenses?: number | null
+          total_income?: number | null
+          updated_at?: string
         }
         Update: {
           created_at?: string
-          generated_at?: string
+          generated_at?: string | null
           generated_by?: string | null
           id?: string
+          net_profit?: number | null
           period_end?: string
           period_start?: string
-          report_data?: Json
+          report_data?: Json | null
           report_type?: string
+          total_expenses?: number | null
+          total_income?: number | null
+          updated_at?: string
         }
         Relationships: []
       }
