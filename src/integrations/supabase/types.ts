@@ -1687,7 +1687,7 @@ export type Database = {
       }
       menu_items: {
         Row: {
-          allergens: string[] | null
+          allergens: string[]
           calories: number | null
           category: string
           cost_price: number | null
@@ -1695,7 +1695,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
-          ingredients: string[] | null
+          ingredients: string[]
           inventory_item_id: string | null
           is_available: boolean | null
           is_popular: boolean | null
@@ -1708,7 +1708,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          allergens?: string[] | null
+          allergens?: string[]
           calories?: number | null
           category: string
           cost_price?: number | null
@@ -1716,7 +1716,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
-          ingredients?: string[] | null
+          ingredients?: string[]
           inventory_item_id?: string | null
           is_available?: boolean | null
           is_popular?: boolean | null
@@ -1729,7 +1729,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          allergens?: string[] | null
+          allergens?: string[]
           calories?: number | null
           category?: string
           cost_price?: number | null
@@ -1737,7 +1737,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
-          ingredients?: string[] | null
+          ingredients?: string[]
           inventory_item_id?: string | null
           is_available?: boolean | null
           is_popular?: boolean | null
