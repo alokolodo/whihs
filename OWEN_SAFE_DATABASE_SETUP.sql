@@ -1575,30 +1575,7 @@ INSERT INTO public.account_categories (name, type, code, description) VALUES
 ('Administrative', 'expense', 'EXP-006', 'Office and administrative costs')
 ON CONFLICT DO NOTHING;
 
--- Insert rooms
-INSERT INTO public.rooms (room_number, room_type, price_per_night, status, floor, max_occupancy, description, amenities, is_active) VALUES
-('101', 'Standard', 100, 'available', 1, 2, 'Cozy standard room with garden view', ARRAY['WiFi', 'TV', 'Air Conditioning'], true),
-('102', 'Standard', 100, 'available', 1, 2, 'Comfortable standard room', ARRAY['WiFi', 'TV', 'Air Conditioning'], true),
-('103', 'Standard', 100, 'available', 1, 2, 'Standard room with city view', ARRAY['WiFi', 'TV', 'Air Conditioning'], true),
-('201', 'Deluxe', 150, 'available', 2, 2, 'Spacious deluxe room with modern amenities', ARRAY['WiFi', 'TV', 'Air Conditioning', 'Mini Bar', 'Balcony'], true),
-('202', 'Deluxe', 150, 'available', 2, 2, 'Elegant deluxe room', ARRAY['WiFi', 'TV', 'Air Conditioning', 'Mini Bar', 'Balcony'], true),
-('203', 'Deluxe', 150, 'available', 2, 2, 'Deluxe room with ocean view', ARRAY['WiFi', 'TV', 'Air Conditioning', 'Mini Bar', 'Balcony'], true),
-('204', 'Deluxe', 150, 'available', 2, 2, 'Premium deluxe room', ARRAY['WiFi', 'TV', 'Air Conditioning', 'Mini Bar', 'Balcony'], true),
-('301', 'Suite', 250, 'available', 3, 4, 'Luxurious suite with separate living area', ARRAY['WiFi', 'TV', 'Air Conditioning', 'Mini Bar', 'Balcony', 'Kitchen', 'Jacuzzi'], true),
-('302', 'Suite', 250, 'available', 3, 4, 'Executive suite with premium amenities', ARRAY['WiFi', 'TV', 'Air Conditioning', 'Mini Bar', 'Balcony', 'Kitchen', 'Jacuzzi'], true),
-('303', 'Suite', 250, 'available', 3, 4, 'Deluxe suite with panoramic view', ARRAY['WiFi', 'TV', 'Air Conditioning', 'Mini Bar', 'Balcony', 'Kitchen', 'Jacuzzi'], true),
-('401', 'Presidential', 500, 'available', 4, 6, 'Ultimate luxury presidential suite', ARRAY['WiFi', 'TV', 'Air Conditioning', 'Mini Bar', 'Balcony', 'Kitchen', 'Jacuzzi', 'Private Terrace', 'Butler Service'], true),
-('402', 'Presidential', 500, 'available', 4, 6, 'Premium presidential suite with exclusive services', ARRAY['WiFi', 'TV', 'Air Conditioning', 'Mini Bar', 'Balcony', 'Kitchen', 'Jacuzzi', 'Private Terrace', 'Butler Service'], true),
-('104', 'Standard', 100, 'available', 1, 2, 'Standard room near lobby', ARRAY['WiFi', 'TV', 'Air Conditioning'], true),
-('105', 'Standard', 100, 'available', 1, 2, 'Quiet standard room', ARRAY['WiFi', 'TV', 'Air Conditioning'], true),
-('205', 'Deluxe', 150, 'available', 2, 2, 'Corner deluxe room', ARRAY['WiFi', 'TV', 'Air Conditioning', 'Mini Bar', 'Balcony'], true),
-('206', 'Deluxe', 150, 'available', 2, 2, 'Deluxe room with extra space', ARRAY['WiFi', 'TV', 'Air Conditioning', 'Mini Bar', 'Balcony'], true),
-('304', 'Suite', 250, 'available', 3, 4, 'Family suite', ARRAY['WiFi', 'TV', 'Air Conditioning', 'Mini Bar', 'Balcony', 'Kitchen', 'Jacuzzi'], true),
-('305', 'Suite', 250, 'available', 3, 4, 'Honeymoon suite', ARRAY['WiFi', 'TV', 'Air Conditioning', 'Mini Bar', 'Balcony', 'Kitchen', 'Jacuzzi'], true),
-('106', 'Standard', 100, 'available', 1, 2, 'Budget-friendly standard room', ARRAY['WiFi', 'TV', 'Air Conditioning'], true),
-('207', 'Deluxe', 150, 'available', 2, 2, 'Business deluxe room', ARRAY['WiFi', 'TV', 'Air Conditioning', 'Mini Bar', 'Balcony', 'Work Desk'], true),
-('306', 'Suite', 250, 'available', 3, 4, 'VIP suite', ARRAY['WiFi', 'TV', 'Air Conditioning', 'Mini Bar', 'Balcony', 'Kitchen', 'Jacuzzi', 'Private Lounge'], true)
-ON CONFLICT (room_number) DO NOTHING;
+-- Room data removed - add rooms manually through the application
 
 -- =====================================================
 -- COMPLETE! Database setup finished

@@ -23,7 +23,8 @@ This SQL file will:
 - ✅ Create all missing tables for your hotel system
 - ✅ Set up proper security policies (RLS)
 - ✅ Add all database functions and triggers
-- ✅ Insert default data (rooms, categories, settings)
+- ✅ Insert default data (hotel settings, account categories)
+- ℹ️ **Note:** Room data is NOT included - you'll add rooms manually through the application
 
 ## Important Notes
 
@@ -36,7 +37,7 @@ This SQL file will:
 
 Once the SQL runs successfully:
 1. Your database will have all tables from the main system
-2. All 21 rooms will be created with proper rates
+2. Go to Room Management to add your rooms manually
 3. Accounting module will be fully set up
 4. Security policies will be active
 
