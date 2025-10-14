@@ -190,11 +190,11 @@ const MenuManagement = () => {
             )}
           </div>
 
-          {item.allergens.length > 0 && (
+          {(item.allergens?.length ?? 0) > 0 && (
             <div className="space-y-2">
               <h4 className="font-medium text-sm">Allergens</h4>
               <div className="flex flex-wrap gap-1">
-                {item.allergens.map((allergen) => (
+                {(item.allergens || []).map((allergen) => (
                   <Badge key={allergen} variant="outline" className="text-xs">
                     {allergen}
                   </Badge>
@@ -206,14 +206,14 @@ const MenuManagement = () => {
           <div className="space-y-2">
             <h4 className="font-medium text-sm">Main Ingredients</h4>
             <div className="flex flex-wrap gap-1">
-              {item.ingredients.slice(0, 3).map((ingredient, idx) => (
+              {(item.ingredients || []).slice(0, 3).map((ingredient, idx) => (
                 <Badge key={idx} variant="secondary" className="text-xs">
                   {ingredient}
                 </Badge>
               ))}
-              {item.ingredients.length > 3 && (
+              {(item.ingredients?.length ?? 0) > 3 && (
                 <Badge variant="secondary" className="text-xs">
-                  +{item.ingredients.length - 3} more
+                  +{(item.ingredients?.length ?? 0) - 3} more
                 </Badge>
               )}
             </div>
