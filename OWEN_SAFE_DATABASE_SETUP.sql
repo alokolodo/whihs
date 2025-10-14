@@ -119,8 +119,8 @@ CREATE TABLE IF NOT EXISTS public.rooms (
     updated_at timestamp with time zone DEFAULT now()
 );
 
--- Account categories
-CREATE TABLE IF NOT EXISTS public.account_categories (
+-- Account categories (force recreate since we dropped it)
+CREATE TABLE public.account_categories (
     id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     name text NOT NULL,
     type text NOT NULL,
@@ -132,8 +132,8 @@ CREATE TABLE IF NOT EXISTS public.account_categories (
     updated_at timestamp with time zone NOT NULL DEFAULT now()
 );
 
--- Account entries
-CREATE TABLE IF NOT EXISTS public.account_entries (
+-- Account entries (force recreate since we dropped it)
+CREATE TABLE public.account_entries (
     id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     date date NOT NULL,
     category_id uuid REFERENCES public.account_categories(id),
@@ -147,8 +147,8 @@ CREATE TABLE IF NOT EXISTS public.account_entries (
     updated_at timestamp with time zone NOT NULL DEFAULT now()
 );
 
--- Financial reports
-CREATE TABLE IF NOT EXISTS public.financial_reports (
+-- Financial reports (force recreate since we dropped it)
+CREATE TABLE public.financial_reports (
     id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     report_type text NOT NULL,
     start_date date NOT NULL,
@@ -161,8 +161,8 @@ CREATE TABLE IF NOT EXISTS public.financial_reports (
     created_at timestamp with time zone NOT NULL DEFAULT now()
 );
 
--- Budgets
-CREATE TABLE IF NOT EXISTS public.budgets (
+-- Budgets (force recreate since we dropped it)
+CREATE TABLE public.budgets (
     id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     name text NOT NULL,
     fiscal_year integer NOT NULL,
