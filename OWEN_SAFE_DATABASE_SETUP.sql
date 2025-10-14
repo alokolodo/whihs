@@ -22,7 +22,17 @@ BEGIN
 END $$;
 
 -- =====================================================
--- STEP 2: CREATE ALL TABLES (IF NOT EXISTS)
+-- STEP 2: DROP TABLES THAT MIGHT HAVE INCORRECT SCHEMA
+-- =====================================================
+
+-- Drop accounting tables if they exist (in case they were created with wrong schema)
+DROP TABLE IF EXISTS public.account_entries CASCADE;
+DROP TABLE IF EXISTS public.budgets CASCADE;
+DROP TABLE IF EXISTS public.financial_reports CASCADE;
+DROP TABLE IF EXISTS public.account_categories CASCADE;
+
+-- =====================================================
+-- STEP 3: CREATE ALL TABLES (IF NOT EXISTS)
 -- =====================================================
 
 -- Profiles table
@@ -743,7 +753,7 @@ CREATE TABLE IF NOT EXISTS public.content_pages (
 );
 
 -- =====================================================
--- STEP 3: CREATE ALL FUNCTIONS
+-- STEP 4: CREATE ALL FUNCTIONS
 -- =====================================================
 
 -- Update timestamp function
@@ -1236,7 +1246,7 @@ END;
 $$;
 
 -- =====================================================
--- STEP 4: CREATE TRIGGERS (DROP IF EXISTS FIRST)
+-- STEP 5: CREATE TRIGGERS (DROP IF EXISTS FIRST)
 -- =====================================================
 
 -- Drop all triggers first (safe to run even if they don't exist)
@@ -1335,7 +1345,7 @@ CREATE TRIGGER update_performance_reviews_updated_at BEFORE UPDATE ON public.per
 CREATE TRIGGER update_budgets_updated_at BEFORE UPDATE ON public.budgets FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 -- =====================================================
--- STEP 5: ENABLE ROW LEVEL SECURITY
+-- STEP 6: ENABLE ROW LEVEL SECURITY
 -- =====================================================
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
@@ -1386,7 +1396,7 @@ ALTER TABLE public.gym_training_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.content_pages ENABLE ROW LEVEL SECURITY;
 
 -- =====================================================
--- STEP 6: CREATE RLS POLICIES (DROP IF EXISTS FIRST)
+-- STEP 7: CREATE RLS POLICIES (DROP IF EXISTS FIRST)
 -- =====================================================
 
 -- Profiles policies
@@ -1552,7 +1562,7 @@ DROP POLICY IF EXISTS "Staff can manage gym members" ON public.gym_members;
 CREATE POLICY "Staff can manage gym members" ON public.gym_members FOR ALL USING (has_hotel_staff_access()) WITH CHECK (has_hotel_staff_access());
 
 -- =====================================================
--- STEP 7: INSERT DEFAULT DATA
+-- STEP 8: INSERT DEFAULT DATA
 -- =====================================================
 
 -- Insert default hotel settings

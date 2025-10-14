@@ -20,6 +20,7 @@ After running, you should see "Success. No rows returned" - this is normal and c
 
 This SQL file will:
 - ✅ Skip creating objects that already exist (no errors!)
+- ✅ **Drop and recreate** accounting tables if they have incorrect schemas
 - ✅ Create all missing tables for your hotel system
 - ✅ Set up proper security policies (RLS)
 - ✅ Add all database functions and triggers
