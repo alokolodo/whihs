@@ -2109,6 +2109,47 @@ export type Database = {
           },
         ]
       }
+      positions: {
+        Row: {
+          base_salary: number | null
+          code: string
+          created_at: string
+          department_id: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          base_salary?: number | null
+          code: string
+          created_at?: string
+          department_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          base_salary?: number | null
+          code?: string
+          created_at?: string
+          department_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "positions_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -2372,6 +2413,33 @@ export type Database = {
           status?: string
           tax_rate?: number | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      sales_data_clear_log: {
+        Row: {
+          cleared_at: string
+          cleared_by: string | null
+          data_type: string
+          id: string
+          notes: string | null
+          record_count: number | null
+        }
+        Insert: {
+          cleared_at?: string
+          cleared_by?: string | null
+          data_type: string
+          id?: string
+          notes?: string | null
+          record_count?: number | null
+        }
+        Update: {
+          cleared_at?: string
+          cleared_by?: string | null
+          data_type?: string
+          id?: string
+          notes?: string | null
+          record_count?: number | null
         }
         Relationships: []
       }
@@ -3030,6 +3098,10 @@ export type Database = {
       can_view_employee_sensitive_data: {
         Args: { employee_uuid: string }
         Returns: boolean
+      }
+      clear_sales_data: {
+        Args: { data_type: string }
+        Returns: Json
       }
       deduct_recipe_ingredients: {
         Args: { menu_item_uuid: string; quantity_sold: number }
