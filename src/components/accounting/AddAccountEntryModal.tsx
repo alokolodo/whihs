@@ -17,7 +17,7 @@ interface AddAccountEntryModalProps {
   onClose: () => void;
 }
 
-export const AddAccountEntryModal = ({ isOpen, onClose }: AddAccountEntryModalProps) => {
+export const AddAccountEntryModal = ({ isOpen, onClose, defaultType }: AddAccountEntryModalProps & { defaultType?: 'income' | 'expense' }) => {
   const [formData, setFormData] = useState({
     entry_date: format(new Date(), "yyyy-MM-dd"),
     description: "",
@@ -30,9 +30,15 @@ export const AddAccountEntryModal = ({ isOpen, onClose }: AddAccountEntryModalPr
     notes: ""
   });
   const [date, setDate] = useState<Date>(new Date());
+  const [entryType, setEntryType] = useState<string>(defaultType || "all");
 
   const { data: categories = [] } = useAccountCategories();
   const addEntryMutation = useAddAccountEntry();
+
+  // Filter categories by entry type
+  const filteredCategories = entryType === "all" 
+    ? categories 
+    : categories.filter(cat => cat.type === entryType);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,13 +81,34 @@ export const AddAccountEntryModal = ({ isOpen, onClose }: AddAccountEntryModalPr
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Add New Journal Entry</DialogTitle>
+          <DialogTitle>Add New {defaultType === 'expense' ? 'Expense' : defaultType === 'income' ? 'Income' : 'Journal'} Entry</DialogTitle>
           <DialogDescription>
-            Create a new accounting entry for the general ledger.
+            {defaultType === 'expense' ? 'Record a new expense transaction.' : defaultType === 'income' ? 'Record a new income transaction.' : 'Create a new accounting entry for the general ledger.'}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {!defaultType && (
+            <div className="space-y-2">
+              <Label htmlFor="entry_type">Entry Type</Label>
+              <Select
+                value={entryType}
+                onValueChange={setEntryType}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select entry type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value="income">Income</SelectItem>
+                  <SelectItem value="expense">Expense</SelectItem>
+                  <SelectItem value="asset">Asset</SelectItem>
+                  <SelectItem value="liability">Liability</SelectItem>
+                  <SelectItem value="equity">Equity</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="entry_date">Entry Date</Label>
@@ -142,7 +169,7 @@ export const AddAccountEntryModal = ({ isOpen, onClose }: AddAccountEntryModalPr
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
-                {categories.map((category) => (
+                {filteredCategories.map((category) => (
                   <SelectItem key={category.id} value={category.id}>
                     {category.account_code} - {category.name} ({category.type})
                   </SelectItem>

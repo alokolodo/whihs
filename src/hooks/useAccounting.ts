@@ -142,6 +142,7 @@ export const useFinancialSummary = () => {
         const type = entry.account_categories?.type;
 
         switch (type) {
+          case 'income':
           case 'revenue':
             summary.revenue += Math.abs(amount);
             break;
