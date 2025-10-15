@@ -102,6 +102,7 @@ export const useRoomsDB = () => {
     guest_name: string;
     guest_phone?: string;
     guest_email?: string;
+    check_in_date: string;
     check_out_date: string;
     nights: number;
     total_amount: number;

@@ -103,6 +103,7 @@ const BookingPage = () => {
         guest_name: formData.fullName,
         guest_email: formData.email,
         guest_phone: formData.phone,
+        check_in_date: formData.checkInDate,
         check_out_date: formData.checkOutDate,
         nights,
         total_amount: total,

@@ -193,6 +193,7 @@ const BookingManagement = () => {
       await createRoomBooking({
         room_id: bookingData.roomId,
         guest_name: bookingData.guestName,
+        check_in_date: bookingData.checkIn,
         check_out_date: bookingData.checkOut,
         nights: bookingData.nights,
         total_amount: bookingData.totalAmount,
