@@ -31,15 +31,17 @@ interface UserRole {
 const HOTEL_ROLES = [
   { value: 'admin', label: 'Administrator', color: 'bg-red-100 text-red-800' },
   { value: 'manager', label: 'Manager', color: 'bg-blue-100 text-blue-800' },
-  { value: 'reception', label: 'Reception', color: 'bg-green-100 text-green-800' },
-  { value: 'housekeeping', label: 'Housekeeper', color: 'bg-purple-100 text-purple-800' },
+  { value: 'front_desk', label: 'Front Desk', color: 'bg-green-100 text-green-800' },
+  { value: 'housekeeping', label: 'Housekeeping', color: 'bg-purple-100 text-purple-800' },
   { value: 'kitchen', label: 'Kitchen Staff', color: 'bg-orange-100 text-orange-800' },
   { value: 'bartender', label: 'Bartender', color: 'bg-pink-100 text-pink-800' },
   { value: 'supervisor', label: 'Supervisor', color: 'bg-indigo-100 text-indigo-800' },
-  { value: 'storekeeper', label: 'Store Keeper', color: 'bg-yellow-100 text-yellow-800' },
-  { value: 'accountclerk', label: 'Account Clerk', color: 'bg-teal-100 text-teal-800' },
+  { value: 'procurement', label: 'Procurement', color: 'bg-yellow-100 text-yellow-800' },
+  { value: 'accounting', label: 'Accounting', color: 'bg-teal-100 text-teal-800' },
+  { value: 'hr', label: 'HR', color: 'bg-cyan-100 text-cyan-800' },
   { value: 'maintenance', label: 'Maintenance', color: 'bg-gray-100 text-gray-800' },
   { value: 'security', label: 'Security', color: 'bg-slate-100 text-slate-800' },
+  { value: 'staff', label: 'General Staff', color: 'bg-emerald-100 text-emerald-800' },
 ];
 
 export default function UserManagement() {

@@ -118,51 +118,83 @@ export const useFinancialSummary = () => {
   return useQuery({
     queryKey: ['financial-summary'],
     queryFn: async () => {
-      const { data: entries, error } = await supabase
+      // Get revenue from room bookings
+      const { data: roomBookings } = await supabase
+        .from('room_bookings')
+        .select('total_amount')
+        .eq('payment_status', 'paid');
+
+      // Get revenue from POS orders
+      const { data: posOrders } = await supabase
+        .from('orders')
+        .select('total_amount')
+        .eq('status', 'paid');
+
+      // Get revenue from game sessions
+      const { data: gameSessions } = await supabase
+        .from('game_sessions')
+        .select('total_amount')
+        .eq('payment_status', 'paid');
+
+      // Get expenses from account entries
+      const { data: expenseEntries } = await supabase
         .from('account_entries')
-        .select(`
-          amount,
-          account_categories (type)
-        `)
+        .select('amount, account_categories(type)')
+        .in('status', ['posted', 'pending']);
+
+      // Get assets from account entries
+      const { data: assetEntries } = await supabase
+        .from('account_entries')
+        .select('amount, account_categories(type)')
         .eq('status', 'posted');
 
-      if (error) throw error;
+      // Calculate totals
+      const roomRevenue = roomBookings?.reduce((sum, b) => sum + Number(b.total_amount || 0), 0) || 0;
+      const posRevenue = posOrders?.reduce((sum, o) => sum + Number(o.total_amount || 0), 0) || 0;
+      const gameRevenue = gameSessions?.reduce((sum, g) => sum + Number(g.total_amount || 0), 0) || 0;
 
-      const summary = {
-        revenue: 0,
-        expenses: 0,
-        assets: 0,
-        liabilities: 0,
-        equity: 0,
-        netIncome: 0
-      };
+      const totalRevenue = roomRevenue + posRevenue + gameRevenue;
 
-      entries.forEach((entry: any) => {
-        const amount = parseFloat(entry.amount);
+      // Calculate expenses, assets, liabilities, equity from account entries
+      let expenses = 0;
+      let assets = 0;
+      let liabilities = 0;
+      let equity = 0;
+
+      expenseEntries?.forEach((entry: any) => {
+        const amount = Math.abs(Number(entry.amount || 0));
+        const type = entry.account_categories?.type;
+        
+        if (type === 'expense') {
+          expenses += amount;
+        }
+      });
+
+      assetEntries?.forEach((entry: any) => {
+        const amount = Math.abs(Number(entry.amount || 0));
         const type = entry.account_categories?.type;
 
         switch (type) {
-          case 'income':
-          case 'revenue':
-            summary.revenue += Math.abs(amount);
-            break;
-          case 'expense':
-            summary.expenses += Math.abs(amount);
-            break;
           case 'asset':
-            summary.assets += Math.abs(amount);
+            assets += amount;
             break;
           case 'liability':
-            summary.liabilities += Math.abs(amount);
+            liabilities += amount;
             break;
           case 'equity':
-            summary.equity += Math.abs(amount);
+            equity += amount;
             break;
         }
       });
 
-      summary.netIncome = summary.revenue - summary.expenses;
-      return summary;
+      return {
+        revenue: totalRevenue,
+        expenses,
+        assets,
+        liabilities,
+        equity,
+        netIncome: totalRevenue - expenses
+      };
     }
   });
 };
