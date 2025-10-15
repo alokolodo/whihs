@@ -96,17 +96,20 @@ export default function UserManagement() {
 
   const createUserMutation = useMutation({
     mutationFn: async (userData: typeof formData & { roles: string[] }) => {
-      // Create auth user first
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      // Create auth user using regular signUp (works from client)
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
-        user_metadata: {
-          first_name: userData.firstName,
-          last_name: userData.lastName,
-        },
+        options: {
+          data: {
+            first_name: userData.firstName,
+            last_name: userData.lastName,
+          },
+        }
       });
 
       if (authError) throw authError;
+      if (!authData.user) throw new Error('User creation failed');
 
       // Update profile with additional data
       const { error: profileError } = await supabase
