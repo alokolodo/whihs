@@ -87,20 +87,19 @@ export const SalesReportTab = () => {
 
       if (ordersError) throw ordersError;
 
-      // Get menu items with recipe costs
+      // Get menu items with costs
       const { data: menuItems, error: menuError } = await supabase
         .from('menu_items')
-        .select(`
-          name, 
-          cost_price,
-          recipe_id,
-          recipes (
-            id,
-            cost
-          )
-        `);
+        .select('name, cost_price, recipe_id');
 
       if (menuError) throw menuError;
+
+      // Get recipes separately
+      const { data: recipes, error: recipesError } = await supabase
+        .from('recipes')
+        .select('id, cost');
+
+      if (recipesError) throw recipesError;
 
       // Process sales data
       const processedSales: SaleItem[] = [];
@@ -109,8 +108,15 @@ export const SalesReportTab = () => {
         order.order_items?.forEach((item: any) => {
           const menuItem = menuItems?.find(mi => mi.name === item.item_name);
           
-          // Use recipe cost if available, otherwise use cost_price
-          const costPrice = menuItem?.recipes?.cost || menuItem?.cost_price || 0;
+          // Find recipe cost if menu item has a recipe
+          let costPrice = menuItem?.cost_price || 0;
+          if (menuItem?.recipe_id) {
+            const recipe = recipes?.find(r => r.id === menuItem.recipe_id);
+            if (recipe?.cost) {
+              costPrice = recipe.cost;
+            }
+          }
+          
           const totalRevenue = item.price * item.quantity;
           const totalCost = costPrice * item.quantity;
           const profit = totalRevenue - totalCost;
