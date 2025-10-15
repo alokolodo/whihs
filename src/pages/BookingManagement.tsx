@@ -191,13 +191,15 @@ const BookingManagement = () => {
       }
 
       await createRoomBooking({
-        room_id: bookingData.roomId,
-        guest_name: bookingData.guestName,
-        check_in_date: bookingData.checkIn,
-        check_out_date: bookingData.checkOut,
+        room_id: bookingData.room_id,
+        guest_name: bookingData.guest_name,
+        guest_phone: bookingData.guest_phone,
+        guest_email: bookingData.guest_email,
+        check_in_date: bookingData.check_in_date,
+        check_out_date: bookingData.check_out_date,
         nights: bookingData.nights,
-        total_amount: bookingData.totalAmount,
-        special_requests: bookingData.specialRequests
+        total_amount: bookingData.total_amount,
+        special_requests: bookingData.special_requests
       });
     } catch (error) {
       // Error already handled by hook
