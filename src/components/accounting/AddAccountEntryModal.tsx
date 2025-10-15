@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useAccountCategories, useAddAccountEntry } from "@/hooks/useAccounting";
+import { useToast } from "@/hooks/use-toast";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
@@ -18,6 +19,7 @@ interface AddAccountEntryModalProps {
 }
 
 export const AddAccountEntryModal = ({ isOpen, onClose, defaultType }: AddAccountEntryModalProps & { defaultType?: 'income' | 'expense' }) => {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     entry_date: format(new Date(), "yyyy-MM-dd"),
     description: "",
@@ -43,12 +45,32 @@ export const AddAccountEntryModal = ({ isOpen, onClose, defaultType }: AddAccoun
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate required fields
+    if (!formData.category_id) {
+      toast({
+        title: "Error",
+        description: "Please select an account category",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!formData.description) {
+      toast({
+        title: "Error",
+        description: "Please enter a description",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     const entryData = {
       ...formData,
       entry_date: format(date, "yyyy-MM-dd"),
       amount: parseFloat(formData.amount) || 0,
       debit_amount: parseFloat(formData.debit_amount) || 0,
       credit_amount: parseFloat(formData.credit_amount) || 0,
+      category_id: formData.category_id, // Ensure it's the actual UUID
     };
 
     try {
