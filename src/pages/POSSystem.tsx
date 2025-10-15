@@ -425,6 +425,7 @@ const POSSystem = () => {
             await createRoomBooking({
               room_id: roomId,
               guest_name: currentGuest.name,
+              check_in_date: new Date().toISOString().split('T')[0],
               check_out_date: checkOutDate.toISOString().split('T')[0],
               nights: roomItem.quantity,
               total_amount: roomItem.price * roomItem.quantity,
