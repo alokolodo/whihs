@@ -31,27 +31,27 @@ export const Header = () => {
   };
 
   return (
-    <header className="h-16 border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-40">
-      <div className="flex items-center justify-between h-full px-4">
-        <div className="flex items-center gap-4">
-          <SidebarTrigger className="p-2" />
-          <div className="hidden md:block">
-            <h1 className="text-lg font-semibold text-foreground">{settings.hotel_name} Management System</h1>
+    <header className="h-14 md:h-16 border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-40 shrink-0">
+      <div className="flex items-center justify-between h-full px-3 md:px-4">
+        <div className="flex items-center gap-2 md:gap-4">
+          <SidebarTrigger className="p-2 touch-target" />
+          <div className="hidden sm:block">
+            <h1 className="text-sm md:text-lg font-semibold text-foreground truncate max-w-[200px] md:max-w-none">{settings.hotel_name}</h1>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1 md:gap-3">
           {/* Notifications */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="relative">
-                <Bell className="h-5 w-5" />
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs bg-destructive">
+              <Button variant="ghost" size="sm" className="relative touch-target p-2">
+                <Bell className="h-4 w-4 md:h-5 md:w-5" />
+                <Badge className="absolute -top-1 -right-1 h-4 w-4 md:h-5 md:w-5 flex items-center justify-center text-[10px] md:text-xs bg-destructive p-0">
                   3
                 </Badge>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80 bg-background border z-50">
+            <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] sm:w-80 max-w-sm bg-popover border z-[100]">
               <DropdownMenuLabel>Notifications (3)</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="p-4">
@@ -82,18 +82,18 @@ export const Header = () => {
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
-                  <User className="h-4 w-4 text-primary-foreground" />
+              <Button variant="ghost" size="sm" className="flex items-center gap-1 md:gap-2 touch-target p-2">
+                <div className="w-7 h-7 md:w-8 md:h-8 bg-gradient-primary rounded-full flex items-center justify-center shrink-0">
+                  <User className="h-3 w-3 md:h-4 md:w-4 text-primary-foreground" />
                 </div>
-                <span className="hidden md:inline text-sm font-medium">
+                <span className="hidden lg:inline text-sm font-medium truncate max-w-[100px]">
                   {profile?.first_name && profile?.last_name 
                     ? `${profile.first_name} ${profile.last_name}` 
                     : 'User'}
                 </span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-background border z-50">
+            <DropdownMenuContent align="end" className="w-48 sm:w-56 bg-popover border z-[100]">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setShowProfile(true)}>

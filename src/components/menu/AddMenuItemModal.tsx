@@ -101,67 +101,71 @@ const AddMenuItemModal = ({ isOpen, onClose, onAdd, categories, allergens }: Add
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-[calc(100%-1rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New Menu Item</DialogTitle>
-          <DialogDescription>Create a new item for your restaurant menu</DialogDescription>
+          <DialogTitle className="text-base sm:text-lg">Add New Menu Item</DialogTitle>
+          <DialogDescription className="text-xs sm:text-sm">Create a new item for your restaurant menu</DialogDescription>
         </DialogHeader>
         
         <Tabs defaultValue="basic" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="basic">Basic Info</TabsTrigger>
-            <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="allergens">Allergens</TabsTrigger>
+            <TabsTrigger value="basic" className="text-xs sm:text-sm">Basic Info</TabsTrigger>
+            <TabsTrigger value="details" className="text-xs sm:text-sm">Details</TabsTrigger>
+            <TabsTrigger value="allergens" className="text-xs sm:text-sm">Allergens</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="basic" className="space-y-4">
+          <TabsContent value="basic" className="space-y-3 sm:space-y-4">
             <div className="space-y-2">
-              <Label>Item Name</Label>
+              <Label className="text-sm">Item Name</Label>
               <Input 
                 placeholder="Enter item name"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
+                className="text-sm touch-target"
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
               <div className="space-y-2">
-                <Label>Selling Price ($)</Label>
+                <Label className="text-sm">Selling Price ($)</Label>
                 <Input 
                   type="number" 
                   step="0.01" 
                   placeholder="0.00"
                   value={formData.price}
                   onChange={(e) => setFormData({...formData, price: parseFloat(e.target.value) || 0})}
+                  className="text-sm touch-target"
                 />
               </div>
               <div className="space-y-2">
-                <Label>Cost Price ($)</Label>
+                <Label className="text-sm">Cost Price ($)</Label>
                 <Input 
                   type="number" 
                   step="0.01" 
                   placeholder="0.00"
                   value={formData.cost_price}
                   onChange={(e) => setFormData({...formData, cost_price: parseFloat(e.target.value) || 0})}
+                  className="text-sm touch-target"
                 />
               </div>
               <div className="space-y-2">
-                <Label>Tax Rate (%)</Label>
+                <Label className="text-sm">Tax Rate (%)</Label>
                 <Input 
                   type="number" 
                   step="0.01" 
                   placeholder="0.00"
                   value={formData.tax_rate}
                   onChange={(e) => setFormData({...formData, tax_rate: parseFloat(e.target.value) || 0})}
+                  className="text-sm touch-target"
                 />
               </div>
             </div>
 
             {formData.price > 0 && formData.cost_price > 0 && (
-              <div className="bg-muted p-3 rounded-lg">
-                <p className="text-sm">
+              <div className="bg-muted p-2 sm:p-3 rounded-lg">
+                <p className="text-xs sm:text-sm">
                   <span className="font-medium">Profit Margin:</span> {profitMargin}%
-                  <span className="ml-2 text-muted-foreground">
+                  <span className="ml-1 sm:ml-2 text-muted-foreground">
                     (${(formData.price - formData.cost_price).toFixed(2)} profit per item)
                   </span>
                 </p>
@@ -169,22 +173,23 @@ const AddMenuItemModal = ({ isOpen, onClose, onAdd, categories, allergens }: Add
             )}
             
             <div className="space-y-2">
-              <Label>Description</Label>
+              <Label className="text-sm">Description</Label>
               <Textarea 
                 placeholder="Describe the menu item..."
                 value={formData.description}
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
+                className="text-sm min-h-[80px]"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className="space-y-2">
-                <Label>Category</Label>
+                <Label className="text-sm">Category</Label>
                 <Select 
                   value={formData.category}
                   onValueChange={(value) => setFormData({...formData, category: value})}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="touch-target">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -195,12 +200,13 @@ const AddMenuItemModal = ({ isOpen, onClose, onAdd, categories, allergens }: Add
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Prep Time (min)</Label>
+                <Label className="text-sm">Prep Time (min)</Label>
                 <Input 
                   type="number" 
                   placeholder="15"
                   value={formData.preparation_time}
                   onChange={(e) => setFormData({...formData, preparation_time: parseInt(e.target.value) || 15})}
+                  className="text-sm touch-target"
                 />
               </div>
             </div>
@@ -314,12 +320,12 @@ const AddMenuItemModal = ({ isOpen, onClose, onAdd, categories, allergens }: Add
           </TabsContent>
         </Tabs>
 
-        <div className="flex gap-2 pt-4">
-          <Button variant="outline" onClick={onClose}>
+        <div className="flex flex-col sm:flex-row gap-2 pt-4">
+          <Button variant="outline" onClick={onClose} className="touch-target">
             Cancel
           </Button>
           <Button 
-            className="button-luxury"
+            className="button-luxury touch-target"
             onClick={handleSave}
             disabled={!formData.name || formData.price <= 0}
           >

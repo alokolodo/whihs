@@ -93,16 +93,19 @@ export function HotelSidebar() {
   const IconComponent = getIconComponent(settings.hotel_icon || "Hotel");
 
   return (
-    <Sidebar className={state === "collapsed" ? "w-14" : "w-64"}>
-      <SidebarHeader className="border-b border-border/50 p-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-gradient-primary rounded-lg">
-            <IconComponent className="h-6 w-6 text-primary-foreground" />
+    <Sidebar 
+      className={state === "collapsed" ? "w-14" : "w-64"}
+      collapsible="icon"
+    >
+      <SidebarHeader className="border-b border-border/50 p-3 md:p-4">
+        <div className="flex items-center gap-2 md:gap-3">
+          <div className="p-1.5 md:p-2 bg-gradient-primary rounded-lg shrink-0">
+            <IconComponent className="h-5 w-5 md:h-6 md:w-6 text-primary-foreground" />
           </div>
           {state !== "collapsed" && (
-            <div>
-              <h2 className="text-lg font-bold text-foreground">{settings.hotel_name}</h2>
-              <p className="text-sm text-muted-foreground">Hotel Management</p>
+            <div className="overflow-hidden">
+              <h2 className="text-base md:text-lg font-bold text-foreground truncate">{settings.hotel_name}</h2>
+              <p className="text-xs md:text-sm text-muted-foreground truncate">Management</p>
             </div>
           )}
         </div>
@@ -117,8 +120,8 @@ export function HotelSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} className={getNavCls}>
-                      <item.icon className="mr-3 h-5 w-5" />
-                      {state !== "collapsed" && <span>{item.title}</span>}
+                      <item.icon className="mr-2 md:mr-3 h-4 w-4 md:h-5 md:w-5 shrink-0" />
+                      {state !== "collapsed" && <span className="text-sm md:text-base truncate">{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -139,8 +142,8 @@ export function HotelSidebar() {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
                       <NavLink to={item.url} className={getNavCls}>
-                        <item.icon className="mr-3 h-5 w-5" />
-                        {state !== "collapsed" && <span>{item.title}</span>}
+                        <item.icon className="mr-2 md:mr-3 h-4 w-4 md:h-5 md:w-5 shrink-0" />
+                        {state !== "collapsed" && <span className="text-sm md:text-base truncate">{item.title}</span>}
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -154,13 +157,13 @@ export function HotelSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <div className="p-2 border-t border-border">
+                <div className="p-2 md:p-3 border-t border-border">
                   {state !== "collapsed" && (
                     <div className="mb-2">
-                      <p className="text-sm font-medium">
+                      <p className="text-xs md:text-sm font-medium truncate">
                         {profile?.first_name} {profile?.last_name}
                       </p>
-                      <p className="text-xs text-muted-foreground capitalize">
+                      <p className="text-[10px] md:text-xs text-muted-foreground capitalize truncate">
                         {userRoles[0] || 'Staff'}
                       </p>
                     </div>
@@ -169,10 +172,10 @@ export function HotelSidebar() {
                     variant="outline"
                     size="sm"
                     onClick={() => signOut()}
-                    className="w-full justify-start"
+                    className="w-full justify-start touch-target"
                   >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    {state !== "collapsed" && "Sign Out"}
+                    <LogOut className="h-3 w-3 md:h-4 md:w-4 mr-2 shrink-0" />
+                    {state !== "collapsed" && <span className="text-xs md:text-sm">Sign Out</span>}
                   </Button>
                 </div>
               </SidebarMenuItem>
