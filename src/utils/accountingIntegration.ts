@@ -16,29 +16,29 @@ export interface PaymentRecord {
  */
 export const createAccountingEntryForPayment = async (payment: PaymentRecord) => {
   try {
-    // Get the appropriate revenue category based on source type
-    let categoryCode = 'REV-004'; // Default to "Other Revenue"
+    // Get the appropriate category based on source type
+    let categoryCode = 'INC-999'; // Default to "Other Income"
     
     switch (payment.source_type) {
       case 'room_booking':
-        categoryCode = 'REV-001'; // Room Revenue
+        categoryCode = 'INC-001'; // Room Revenue
         break;
       case 'hall_booking':
-        categoryCode = 'REV-003'; // Hall Rental Revenue
+        categoryCode = 'INC-004'; // Hall Bookings
         break;
       case 'pos_order':
-        categoryCode = 'REV-002'; // Food & Beverage Revenue
+        categoryCode = 'INC-002'; // Food & Beverage
         break;
       case 'gym_session':
       case 'trainer_booking':
-        categoryCode = 'REV-004'; // Other Revenue - Gym
+        categoryCode = 'INC-003'; // Gym & Spa
         break;
       case 'game_session':
       case 'game_booking':
-        categoryCode = 'REV-004'; // Other Revenue - Game Center
+        categoryCode = 'INC-999'; // Other Income - Game Center
         break;
       case 'supplier_payment':
-        categoryCode = 'EXP-003'; // Food & Beverage Costs (or other expense)
+        categoryCode = 'EXP-003'; // Supplies
         break;
     }
 

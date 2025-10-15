@@ -35,6 +35,7 @@ const AccountingModule = () => {
   const { formatCurrency } = useGlobalSettings();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isAddEntryModalOpen, setIsAddEntryModalOpen] = useState(false);
+  const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isDateRangeModalOpen, setIsDateRangeModalOpen] = useState(false);
 
@@ -104,6 +105,10 @@ const AccountingModule = () => {
           <Button variant="outline" onClick={() => setIsExportModalOpen(true)}>
             <Download className="h-4 w-4 mr-2" />
             Export Data
+          </Button>
+          <Button variant="outline" onClick={() => setIsAddExpenseModalOpen(true)}>
+            <TrendingDown className="h-4 w-4 mr-2" />
+            Add Expense
           </Button>
           <Button onClick={() => setIsAddEntryModalOpen(true)}>
             <Receipt className="h-4 w-4 mr-2" />
@@ -400,6 +405,12 @@ const AccountingModule = () => {
       <AddAccountEntryModal
         isOpen={isAddEntryModalOpen}
         onClose={() => setIsAddEntryModalOpen(false)}
+      />
+
+      <AddAccountEntryModal
+        isOpen={isAddExpenseModalOpen}
+        onClose={() => setIsAddExpenseModalOpen(false)}
+        defaultType="expense"
       />
 
       <ExportDataModal
