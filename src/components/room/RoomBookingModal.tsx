@@ -81,22 +81,17 @@ export const RoomBookingModal = ({ open, onOpenChange, room, availableRooms, onB
       checkOutDate.setDate(checkOutDate.getDate() + numberOfNights);
 
       const booking = {
-      id: Date.now().toString(),
-      roomId: currentRoom.id,
-      roomNumber: currentRoom.number,
-      roomType: currentRoom.type,
-      guestId: guest.id,
-      guestName: guest.name,
-      guestEmail: guest.email || '',
-      guestPhone: guest.phone || '',
-      checkIn: format(checkInDate, "yyyy-MM-dd"),
-      checkOut: format(checkOutDate, "yyyy-MM-dd"),
+      room_id: currentRoom.id,
+      guest_name: guest.name,
+      guest_email: guest.email || '',
+      guest_phone: guest.phone || '',
+      check_in_date: format(checkInDate, "yyyy-MM-dd"),
+      check_out_date: format(checkOutDate, "yyyy-MM-dd"),
       nights: numberOfNights,
-      rate: currentRoom.rate,
-      totalAmount: currentRoom.rate * numberOfNights,
-      specialRequests,
-      status: "confirmed",
-      bookingDate: format(new Date(), "yyyy-MM-dd HH:mm")
+      total_amount: currentRoom.rate * numberOfNights,
+      special_requests: specialRequests || '',
+      payment_status: 'pending' as const,
+      booking_status: 'confirmed' as const,
     };
 
       // Send to Hotel Services order list
@@ -108,8 +103,8 @@ export const RoomBookingModal = ({ open, onOpenChange, room, availableRooms, onB
         image: "/placeholder.svg",
         description: `${numberOfNights} night${numberOfNights > 1 ? 's' : ''} stay`,
         guestName: guest.name,
-        checkIn: booking.checkIn,
-        checkOut: booking.checkOut,
+        checkIn: booking.check_in_date,
+        checkOut: booking.check_out_date,
         specialRequests
       };
 
