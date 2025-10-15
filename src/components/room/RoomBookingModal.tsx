@@ -87,6 +87,8 @@ export const RoomBookingModal = ({ open, onOpenChange, room, availableRooms, onB
       roomType: currentRoom.type,
       guestId: guest.id,
       guestName: guest.name,
+      guestEmail: guest.email || '',
+      guestPhone: guest.phone || '',
       checkIn: format(checkInDate, "yyyy-MM-dd"),
       checkOut: format(checkOutDate, "yyyy-MM-dd"),
       nights: numberOfNights,
