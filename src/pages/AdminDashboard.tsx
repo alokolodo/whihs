@@ -37,6 +37,7 @@ import { useRoomsDB } from "@/hooks/useRoomsDB";
 import { useGlobalSettings } from "@/contexts/HotelSettingsContext";
 import { useDailyStats } from "@/hooks/useDailyStats";
 import { useClearSalesData } from "@/hooks/useClearSalesData";
+import { useAuth } from "@/contexts/AuthContext";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -45,6 +46,7 @@ const AdminDashboard = () => {
   const { rooms, bookings } = useRoomsDB();
   const { data: dailyStats } = useDailyStats();
   const clearSalesData = useClearSalesData();
+  const { hasRole } = useAuth();
 
   // Calculate real stats - DAILY ONLY (resets at midnight)
   const stats = useMemo(() => {
@@ -143,13 +145,14 @@ const AdminDashboard = () => {
         </div>
         <div className="flex items-center gap-3">
           <NetworkStatus showDetails />
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="sm">
-                <Trash2 className="h-4 w-4 mr-2" />
-                Clear All Sales
-              </Button>
-            </AlertDialogTrigger>
+          {hasRole('admin') && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Clear All Sales
+                </Button>
+              </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
@@ -176,6 +179,7 @@ const AdminDashboard = () => {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+          )}
           <Button variant="outline" onClick={() => navigate('/admin/content')}>
             <FileEdit className="h-4 w-4 mr-2" />
             Edit Content
