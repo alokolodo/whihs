@@ -220,15 +220,15 @@ const RoomManagement = () => {
 
   const handleBookingConfirm = async (booking: any) => {
     await createRoomBooking({
-      room_id: booking.roomId,
-      guest_name: booking.guestName,
-      guest_phone: booking.guestPhone,
-      guest_email: booking.guestEmail,
-      check_in_date: booking.checkIn,
-      check_out_date: booking.checkOut,
+      room_id: booking.room_id,
+      guest_name: booking.guest_name,
+      guest_phone: booking.guest_phone,
+      guest_email: booking.guest_email,
+      check_in_date: booking.check_in_date,
+      check_out_date: booking.check_out_date,
       nights: booking.nights || 1,
-      total_amount: booking.totalAmount || 0,
-      special_requests: booking.specialRequests
+      total_amount: booking.total_amount || 0,
+      special_requests: booking.special_requests
     });
   };
 

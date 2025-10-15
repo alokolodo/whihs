@@ -53,7 +53,7 @@ export const RoomBookingModal = ({ open, onOpenChange, room, availableRooms, onB
   const currentRoom = room || roomsToShow.find(r => r.id === selectedRoom);
 
   const handleBooking = async () => {
-    if (!currentRoom) {
+    if (!currentRoom || !currentRoom.id) {
       toast.error("Please select a room");
       return;
     }
