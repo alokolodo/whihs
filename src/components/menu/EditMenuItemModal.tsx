@@ -84,17 +84,10 @@ const EditMenuItemModal = ({ isOpen, onClose, item, onUpdate, categories, allerg
   const handleSave = async () => {
     if (!item) return;
     try {
-      // Clean up the data - convert empty strings to null for UUID fields
-      const cleanedData = {
+      await onUpdate(item.id, {
         ...formData,
-        inventory_item_id: formData.tracks_inventory && formData.inventory_item_id && formData.inventory_item_id.trim() !== "" 
-          ? formData.inventory_item_id 
-          : null,
-        recipe_id: null // Ensure recipe_id is null if not set
-      };
-      
-      console.log("Updating menu item with data:", cleanedData);
-      await onUpdate(item.id, cleanedData);
+        inventory_item_id: formData.tracks_inventory && formData.inventory_item_id ? formData.inventory_item_id : null
+      });
       onClose();
     } catch (error) {
       console.error("Error updating menu item:", error);
