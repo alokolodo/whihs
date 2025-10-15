@@ -34,7 +34,7 @@ export const AddAccountEntryModal = ({ isOpen, onClose, defaultType }: AddAccoun
   const [date, setDate] = useState<Date>(new Date());
   const [entryType, setEntryType] = useState<string>(defaultType || "all");
 
-  const { data: categories = [] } = useAccountCategories();
+  const { data: categories = [], isLoading: categoriesLoading } = useAccountCategories();
   const addEntryMutation = useAddAccountEntry();
 
   // Filter categories by entry type
@@ -186,16 +186,23 @@ export const AddAccountEntryModal = ({ isOpen, onClose, defaultType }: AddAccoun
             <Select
               value={formData.category_id}
               onValueChange={(value) => setFormData({ ...formData, category_id: value })}
+              disabled={categoriesLoading}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select a category" />
+                <SelectValue placeholder={categoriesLoading ? "Loading categories..." : "Select a category"} />
               </SelectTrigger>
               <SelectContent>
-                {filteredCategories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.account_code} - {category.name} ({category.type})
-                  </SelectItem>
-                ))}
+                {filteredCategories.length === 0 ? (
+                  <div className="p-2 text-sm text-muted-foreground text-center">
+                    No categories available
+                  </div>
+                ) : (
+                  filteredCategories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.account_code} - {category.name} ({category.type})
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           </div>
