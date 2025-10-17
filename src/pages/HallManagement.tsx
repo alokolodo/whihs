@@ -30,9 +30,10 @@ import { toast } from "@/hooks/use-toast";
 import { format, differenceInHours } from "date-fns";
 import { cn } from "@/lib/utils";
 import { HallPaymentModal } from "@/components/hall/HallPaymentModal";
+import { AddHallModal } from "@/components/hall/AddHallModal";
 
 const HallManagement = () => {
-  const { halls, bookings, loading, createBooking, updateBooking, cancelBooking, addPayment, getHallsByType } = useHallsDB();
+  const { halls, bookings, loading, createBooking, updateBooking, cancelBooking, addPayment, addHall, getHallsByType } = useHallsDB();
   const { guests: registeredGuests } = useGuestsDB();
 
   const [activeTab, setActiveTab] = useState("halls");
@@ -40,6 +41,7 @@ const HallManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showCalendar, setShowCalendar] = useState(false);
   const [showNewBooking, setShowNewBooking] = useState(false);
+  const [showAddHall, setShowAddHall] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedBookingForPayment, setSelectedBookingForPayment] = useState<any>(null);
   
@@ -169,6 +171,11 @@ const HallManagement = () => {
           <p className="text-sm md:text-base text-muted-foreground">Manage event halls, lounges and bookings</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => setShowAddHall(true)} className="flex-1 md:flex-none">
+            <Plus className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">Add Hall/Lounge</span>
+            <span className="sm:hidden">Add</span>
+          </Button>
           <Button variant="outline" onClick={() => setShowCalendar(true)} className="flex-1 md:flex-none">
             <CalendarIcon className="h-4 w-4 mr-2" />
             <span className="hidden sm:inline">View Calendar</span>
@@ -668,6 +675,19 @@ const HallManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Add Hall/Lounge Modal */}
+      <AddHallModal
+        open={showAddHall}
+        onOpenChange={setShowAddHall}
+        onAdd={async (hallData) => {
+          try {
+            await addHall(hallData);
+          } catch (error) {
+            console.error('Error adding venue:', error);
+          }
+        }}
+      />
 
       {/* Payment Modal */}
       {selectedBookingForPayment && (
