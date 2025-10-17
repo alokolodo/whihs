@@ -148,6 +148,12 @@ export const useFinancialSummary = () => {
         .select('amount, account_categories(type)')
         .eq('status', 'posted');
 
+      // Get inventory value (quantity * cost per unit)
+      const { data: inventoryItems } = await supabase
+        .from('inventory')
+        .select('current_quantity, cost_per_unit')
+        .gt('current_quantity', 0);
+
       // Calculate totals
       const roomRevenue = roomBookings?.reduce((sum, b) => sum + Number(b.total_amount || 0), 0) || 0;
       const posRevenue = posOrders?.reduce((sum, o) => sum + Number(o.total_amount || 0), 0) || 0;
@@ -155,9 +161,14 @@ export const useFinancialSummary = () => {
 
       const totalRevenue = roomRevenue + posRevenue + gameRevenue;
 
+      // Calculate inventory value
+      const inventoryValue = inventoryItems?.reduce((sum, item) => {
+        return sum + (Number(item.current_quantity || 0) * Number(item.cost_per_unit || 0));
+      }, 0) || 0;
+
       // Calculate expenses, assets, liabilities, equity from account entries
       let expenses = 0;
-      let assets = 0;
+      let assetsFromEntries = 0;
       let liabilities = 0;
       let equity = 0;
 
@@ -176,7 +187,7 @@ export const useFinancialSummary = () => {
 
         switch (type) {
           case 'asset':
-            assets += amount;
+            assetsFromEntries += amount;
             break;
           case 'liability':
             liabilities += amount;
@@ -187,13 +198,17 @@ export const useFinancialSummary = () => {
         }
       });
 
+      // Total assets = asset entries + inventory value
+      const totalAssets = assetsFromEntries + inventoryValue;
+
       return {
         revenue: totalRevenue,
         expenses,
-        assets,
+        assets: totalAssets,
         liabilities,
         equity,
-        netIncome: totalRevenue - expenses
+        netIncome: totalRevenue - expenses,
+        inventoryValue
       };
     }
   });
