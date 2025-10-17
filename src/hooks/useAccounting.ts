@@ -136,17 +136,17 @@ export const useFinancialSummary = () => {
         .select('total_amount')
         .eq('payment_status', 'paid');
 
-      // Get expenses from account entries
+      // Get expenses from account entries (using new payment status values)
       const { data: expenseEntries } = await supabase
         .from('account_entries')
         .select('amount, account_categories(type)')
-        .in('status', ['posted', 'pending']);
+        .in('status', ['paid_transfer', 'paid_cash', 'refund_cash', 'refund_transfer', 'posted', 'pending']);
 
-      // Get assets from account entries
+      // Get assets from account entries (using new payment status values)
       const { data: assetEntries } = await supabase
         .from('account_entries')
         .select('amount, account_categories(type)')
-        .eq('status', 'posted');
+        .in('status', ['paid_transfer', 'paid_cash', 'refund_cash', 'refund_transfer', 'posted', 'pending']);
 
       // Get inventory value (quantity * cost per unit)
       const { data: inventoryItems } = await supabase
