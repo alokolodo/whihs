@@ -679,26 +679,26 @@ const POSSystem = () => {
   }, [posGuests, registeredGuests]);
 
   return (
-    <div className="h-screen flex bg-background">
+    <div className="h-screen flex flex-col md:flex-row bg-background overflow-hidden">
       {/* Left Sidebar - Guest Orders */}
-      <div className="w-80 bg-card border-r border-border">
+      <div className="w-full md:w-80 bg-card border-r md:border-r border-b md:border-b-0 border-border max-h-[40vh] md:max-h-none overflow-auto md:overflow-visible">
         {/* Header */}
-        <div className="p-4 border-b border-border bg-muted/30">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-bold text-lg">Services</h2>
+        <div className="p-3 md:p-4 border-b border-border bg-muted/30">
+          <div className="flex items-center justify-between mb-2 md:mb-3">
+            <h2 className="font-bold text-base md:text-lg">Services</h2>
           </div>
-          <div className="text-sm text-muted-foreground mb-2">SERVER: Staff Member</div>
+          <div className="text-xs md:text-sm text-muted-foreground mb-2">SERVER: Staff Member</div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="SEARCH" className="pl-10" />
+            <Input placeholder="SEARCH" className="pl-10 h-9" />
           </div>
         </div>
 
         {/* Guest Selection */}
-        <div className="p-4 border-b border-border">
-          <div className="flex items-center gap-2 mb-3">
+        <div className="p-3 md:p-4 border-b border-border">
+          <div className="flex items-center gap-2 mb-2 md:mb-3">
             <Users className="h-4 w-4" />
-            <span className="font-medium">GUEST {posGuests.length} OF 3</span>
+            <span className="font-medium text-xs md:text-sm">GUEST {posGuests.length} OF 3</span>
           </div>
           <div className="space-y-2">
             {posGuests.length > 0 ? (
@@ -742,31 +742,31 @@ const POSSystem = () => {
             )}
           </div>
           
-          <div className="space-y-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-2">
             <Button
               variant="outline"
-              className="w-full"
+              className="w-full h-10 text-xs md:text-sm"
               onClick={() => setShowGuestSelection(true)}
             >
               <UserPlus className="h-4 w-4 mr-2" />
-              Add Registered Guest
+              <span className="truncate">Add Registered</span>
             </Button>
             <Button
               variant="outline"
-              className="w-full"
+              className="w-full h-10 text-xs md:text-sm"
               onClick={() => setShowWalkInForm(true)}
             >
               <User className="h-4 w-4 mr-2" />
-              Add Walk-in Guest
+              <span className="truncate">Add Walk-in</span>
             </Button>
           </div>
         </div>
 
         {/* Current Guest Order */}
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 max-h-[30vh] md:max-h-none">
           {currentGuest && (
-            <div className="p-4">
-              <h3 className="font-medium mb-4 text-accent">{currentGuest.name}</h3>
+            <div className="p-3 md:p-4">
+              <h3 className="font-medium text-sm md:text-base mb-3 md:mb-4 text-accent truncate">{currentGuest.name}</h3>
               <div className="space-y-3">
                 {currentGuest.items.map((item, index) => (
                   <div key={`${item.id}-${index}`} className="flex items-center justify-between py-2 border-b border-border/50">
@@ -824,24 +824,25 @@ const POSSystem = () => {
 
         {/* Total & Payment */}
         {currentGuest && currentGuest.items.length > 0 && (
-          <div className="p-4 border-t border-border bg-muted/30">
-            <div className="space-y-2 mb-4">
-              <div className="flex justify-between text-2xl font-bold">
-                <span>{formatCurrency(getGuestTotal(currentGuest))}</span>
-                <span className="text-sm font-normal">
+          <div className="p-3 md:p-4 border-t border-border bg-muted/30">
+            <div className="space-y-1 md:space-y-2 mb-3 md:mb-4">
+              <div className="flex justify-between items-center">
+                <span className="text-lg md:text-2xl font-bold">{formatCurrency(getGuestTotal(currentGuest))}</span>
+                <span className="text-xs md:text-sm font-normal">
                   TAX {formatCurrency(getTotalTax(getGuestTotal(currentGuest)))}
                 </span>
               </div>
             </div>
             
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-1.5 md:gap-2">
               <Button 
                 variant={paymentState.printReceipt ? "outline" : "default"} 
                 size="sm"
                 onClick={toggleReceipt}
+                className="h-12 md:h-10"
               >
-                <Receipt className="h-4 w-4" />
-                <span className="text-xs">
+                <Receipt className="h-4 w-4 md:mr-1" />
+                <span className="text-[10px] md:text-xs hidden md:inline ml-1">
                   {paymentState.printReceipt ? "RECEIPT" : "NO RECEIPT"}
                 </span>
               </Button>
@@ -849,24 +850,24 @@ const POSSystem = () => {
                 variant="outline" 
                 size="sm"
                 onClick={() => handlePayment("BANK_TRANSFER")}
-                className="bg-orange-600 hover:bg-orange-700 text-white"
+                className="bg-orange-600 hover:bg-orange-700 text-white h-12 md:h-10"
               >
-                <DollarSign className="h-4 w-4" />
-                <span className="text-xs">BANK</span>
+                <DollarSign className="h-4 w-4 md:mr-1" />
+                <span className="text-[10px] md:text-xs ml-1">BANK</span>
               </Button>
               <Button 
                 variant="default" 
                 size="sm" 
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-green-600 hover:bg-green-700 h-12 md:h-10"
                 onClick={() => handlePayment("CARD")}
               >
-                <CreditCard className="h-4 w-4" />
-                <span className="text-xs">CARD</span>
+                <CreditCard className="h-4 w-4 md:mr-1" />
+                <span className="text-[10px] md:text-xs ml-1">CARD</span>
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <span className="text-xs">CHARGE</span>
+                  <Button variant="outline" size="sm" className="h-12 md:h-10">
+                    <span className="text-[10px] md:text-xs">CHARGE</span>
                     <ChevronDown className="h-3 w-3 ml-1" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -908,40 +909,41 @@ const POSSystem = () => {
               </DropdownMenu>
             </div>
             
-            <div className="grid grid-cols-4 gap-2 mt-2">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-1.5 md:gap-2 mt-2">
               <Button 
                 variant="destructive" 
                 size="sm"
                 onClick={handleCancel}
+                className="h-12 md:h-10"
               >
-                <span className="text-xs">CANCEL</span>
+                <span className="text-[10px] md:text-xs">CANCEL</span>
               </Button>
               <Button 
                 variant="outline" 
                 size="sm"
                 onClick={() => handlePayment("CASH")}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                className="bg-blue-600 hover:bg-blue-700 text-white h-12 md:h-10"
               >
-                <Banknote className="h-4 w-4" />
-                <span className="text-xs">CASH</span>
+                <Banknote className="h-4 w-4 md:mr-1" />
+                <span className="text-[10px] md:text-xs ml-1">CASH</span>
               </Button>
               <Button 
                 variant="outline" 
                 size="sm"
                 onClick={() => handlePayment("MOBILE_MONEY")}
-                className="bg-purple-600 hover:bg-purple-700 text-white"
+                className="bg-purple-600 hover:bg-purple-700 text-white h-12 md:h-10"
               >
-                <DollarSign className="h-4 w-4" />
-                <span className="text-xs">MOBILE</span>
+                <DollarSign className="h-4 w-4 md:mr-1" />
+                <span className="text-[10px] md:text-xs ml-1">MOBILE</span>
               </Button>
               <Button 
                 variant="outline" 
                 size="sm"
                 onClick={() => handlePayment("PAYSTACK")}
-                className="bg-teal-600 hover:bg-teal-700 text-white"
+                className="bg-teal-600 hover:bg-teal-700 text-white h-12 md:h-10"
               >
-                <CreditCard className="h-4 w-4" />
-                <span className="text-xs">PAYSTACK</span>
+                <CreditCard className="h-4 w-4 md:mr-1" />
+                <span className="text-[10px] md:text-xs ml-1">PAYSTACK</span>
               </Button>
             </div>
           </div>
@@ -949,21 +951,21 @@ const POSSystem = () => {
       </div>
 
       {/* Right Panel - Categories & Items */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
         {/* Categories */}
-        <div className="p-4 border-b border-border">
-          <div className="flex justify-between items-center mb-4">
-            <div className="grid grid-cols-5 gap-2 flex-1">
+        <div className="p-2 md:p-4 border-b border-border shrink-0">
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-4 mb-2 md:mb-4">
+            <div className="grid grid-cols-3 md:grid-cols-5 gap-1.5 md:gap-2 flex-1">
               {categories.map((category) => (
                 <Button
                   key={category.id}
                   variant="outline"
-                  className={`h-16 text-white font-bold text-xs ${category.color} ${
+                  className={`h-14 md:h-16 text-white font-bold text-[10px] md:text-xs ${category.color} ${
                     activeCategory === category.id ? "ring-2 ring-primary" : ""
-                  } break-words hyphens-auto`}
+                  } break-words hyphens-auto touch-target`}
                   onClick={() => setActiveCategory(category.id)}
                 >
-                  <span className="leading-tight text-center px-1">
+                  <span className="leading-tight text-center px-0.5 md:px-1">
                     {category.name}
                   </span>
                 </Button>
@@ -974,35 +976,35 @@ const POSSystem = () => {
         </div>
 
         {/* Items Grid */}
-        <ScrollArea className="flex-1 p-4">
-          <div className="grid grid-cols-5 gap-3">
+        <ScrollArea className="flex-1 p-2 md:p-4 min-h-0">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-3">
             {filteredItems.map((item) => (
               <Button
                 key={item.id}
                 variant="outline"
-                className={`aspect-square h-28 w-full text-white font-bold text-xs ${item.color} hover:opacity-90 transition-opacity flex flex-col justify-center p-2 ${
+                className={`aspect-square min-h-[120px] md:h-28 w-full text-white font-bold text-xs ${item.color} hover:opacity-90 transition-opacity flex flex-col justify-center p-2 touch-target ${
                   item.isAvailable === false ? 'opacity-50' : ''
                 }`}
                 onClick={() => addItemToGuest(item)}
                 disabled={item.isAvailable === false}
               >
                 <div className="text-center space-y-1 w-full">
-                  <div className="text-xs leading-tight break-words hyphens-auto px-1 whitespace-normal">
+                  <div className="text-[11px] md:text-xs leading-tight break-words hyphens-auto px-0.5 md:px-1 whitespace-normal">
                     {item.name}
                   </div>
                   {item.price > 0 && (
-                    <div className="text-xs opacity-90">{formatCurrency(item.price)}</div>
+                    <div className="text-[10px] md:text-xs opacity-90">{formatCurrency(item.price)}</div>
                   )}
                   {item.bookedDays && (
-                    <div className="text-xs opacity-75 bg-black/20 px-1 py-0.5 rounded">
+                    <div className="text-[10px] md:text-xs opacity-75 bg-black/20 px-1 py-0.5 rounded">
                       {item.bookedDays} days
                     </div>
                   )}
                   {item.isAvailable === false && (
-                    <div className="text-xs opacity-75">UNAVAILABLE</div>
+                    <div className="text-[10px] md:text-xs opacity-75">UNAVAILABLE</div>
                   )}
                   {item.capacity && (
-                    <div className="text-xs opacity-75">{item.capacity} seats</div>
+                    <div className="text-[10px] md:text-xs opacity-75">{item.capacity} seats</div>
                   )}
                 </div>
               </Button>
