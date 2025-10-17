@@ -2248,6 +2248,7 @@ export type Database = {
           instructions: Json
           name: string
           prep_time: number
+          selling_price: number | null
           servings: number
           updated_at: string | null
         }
@@ -2264,6 +2265,7 @@ export type Database = {
           instructions: Json
           name: string
           prep_time: number
+          selling_price?: number | null
           servings: number
           updated_at?: string | null
         }
@@ -2280,6 +2282,7 @@ export type Database = {
           instructions?: Json
           name?: string
           prep_time?: number
+          selling_price?: number | null
           servings?: number
           updated_at?: string | null
         }
@@ -3056,6 +3059,10 @@ export type Database = {
     }
     Functions: {
       calculate_recipe_cost: {
+        Args: { recipe_uuid: string }
+        Returns: number
+      }
+      calculate_recipe_profit: {
         Args: { recipe_uuid: string }
         Returns: number
       }
