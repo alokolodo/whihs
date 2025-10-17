@@ -1139,6 +1139,7 @@ export type Database = {
       }
       hall_bookings: {
         Row: {
+          amount_paid: number | null
           booking_date: string
           created_at: string | null
           end_time: string
@@ -1148,6 +1149,9 @@ export type Database = {
           id: string
           number_of_guests: number | null
           organizer_name: string
+          payment_history: Json | null
+          payment_method: string | null
+          payment_status: string | null
           special_requests: string | null
           start_time: string
           status: string | null
@@ -1155,6 +1159,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          amount_paid?: number | null
           booking_date: string
           created_at?: string | null
           end_time: string
@@ -1164,6 +1169,9 @@ export type Database = {
           id?: string
           number_of_guests?: number | null
           organizer_name: string
+          payment_history?: Json | null
+          payment_method?: string | null
+          payment_status?: string | null
           special_requests?: string | null
           start_time: string
           status?: string | null
@@ -1171,6 +1179,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          amount_paid?: number | null
           booking_date?: string
           created_at?: string | null
           end_time?: string
@@ -1180,6 +1189,9 @@ export type Database = {
           id?: string
           number_of_guests?: number | null
           organizer_name?: string
+          payment_history?: Json | null
+          payment_method?: string | null
+          payment_status?: string | null
           special_requests?: string | null
           start_time?: string
           status?: string | null
@@ -1207,6 +1219,7 @@ export type Database = {
           location: string
           name: string
           updated_at: string | null
+          venue_type: string
         }
         Insert: {
           amenities?: string[] | null
@@ -1218,6 +1231,7 @@ export type Database = {
           location: string
           name: string
           updated_at?: string | null
+          venue_type?: string
         }
         Update: {
           amenities?: string[] | null
@@ -1229,6 +1243,7 @@ export type Database = {
           location?: string
           name?: string
           updated_at?: string | null
+          venue_type?: string
         }
         Relationships: []
       }
