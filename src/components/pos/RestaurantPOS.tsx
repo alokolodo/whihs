@@ -231,7 +231,7 @@ const RestaurantPOS = () => {
   };
 
   return (
-    <div className="h-full flex bg-gray-50">
+    <div className="h-full flex flex-col md:flex-row bg-gray-50">
       {/* Add Table Modal */}
       {showAddTableModal && (
         <AddTableModal onClose={() => setShowAddTableModal(false)} />
@@ -239,9 +239,9 @@ const RestaurantPOS = () => {
 
       {/* Table Selection Modal */}
       {showTableView && (
-        <div className="absolute inset-0 bg-black/50 z-20 flex items-center justify-center">
-          <Card className="w-4/5 h-4/5 bg-white">
-            <div className="p-6 h-full flex flex-col">
+        <div className="absolute inset-0 bg-black/50 z-20 flex items-center justify-center p-2 md:p-4">
+          <Card className="w-full md:w-4/5 h-full md:h-4/5 bg-white">
+            <div className="p-3 md:p-6 h-full flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold">Select Table</h3>
                 <div className="flex gap-2">
@@ -257,7 +257,7 @@ const RestaurantPOS = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-4 gap-4 flex-1">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 flex-1">
                 {tables.map((table) => (
                   <Card
                     key={table.id}
@@ -309,15 +309,15 @@ const RestaurantPOS = () => {
 
       {/* Room Selection Modal */}
       {showRoomView && (
-        <div className="absolute inset-0 bg-black/50 z-20 flex items-center justify-center">
-          <Card className="w-4/5 h-4/5 bg-white">
-            <div className="p-6 h-full flex flex-col">
+        <div className="absolute inset-0 bg-black/50 z-20 flex items-center justify-center p-2 md:p-4">
+          <Card className="w-full md:w-4/5 h-full md:h-4/5 bg-white">
+            <div className="p-3 md:p-6 h-full flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold">Select Room</h3>
                 <Button variant="ghost" onClick={() => setShowRoomView(false)}>✕</Button>
               </div>
               
-              <div className="grid grid-cols-4 gap-4 flex-1 overflow-auto">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 flex-1 overflow-auto">
                 {rooms.map((room) => (
                   <Card
                     key={room.id}
@@ -356,8 +356,8 @@ const RestaurantPOS = () => {
 
       {/* Guest Type Selection Modal */}
       {showGuestTypeModal && (
-        <div className="absolute inset-0 bg-black/50 z-30 flex items-center justify-center">
-          <Card className="w-96 bg-white">
+        <div className="absolute inset-0 bg-black/50 z-30 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md bg-white">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold">Select Guest Type</h3>
@@ -424,23 +424,23 @@ const RestaurantPOS = () => {
       )}
 
       {/* Left Panel - Guest Orders */}
-      <div className="w-80 bg-white border-r flex flex-col">
+      <div className="w-full md:w-80 bg-white border-r flex flex-col md:h-auto h-1/3">
         {/* Header */}
-        <div className="p-4 bg-gray-800 text-white">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold">ORDERS</h2>
-            <div className="flex gap-2">
-              <Button size="sm" onClick={() => setShowTableView(true)} className="bg-green-600 hover:bg-green-700">
-                <Plus className="h-4 w-4 mr-1" />
+        <div className="p-3 md:p-4 bg-gray-800 text-white">
+          <div className="flex items-center justify-between mb-2 md:mb-4">
+            <h2 className="text-base md:text-lg font-bold">ORDERS</h2>
+            <div className="flex gap-1 md:gap-2">
+              <Button size="sm" onClick={() => setShowTableView(true)} className="bg-green-600 hover:bg-green-700 text-xs md:text-sm">
+                <Plus className="h-3 w-3 md:h-4 md:w-4 mr-1" />
                 Table
               </Button>
-              <Button size="sm" onClick={() => setShowGuestTypeModal(true)} className="bg-blue-600 hover:bg-blue-700">
-                <Plus className="h-4 w-4 mr-1" />
+              <Button size="sm" onClick={() => setShowGuestTypeModal(true)} className="bg-blue-600 hover:bg-blue-700 text-xs md:text-sm">
+                <Plus className="h-3 w-3 md:h-4 md:w-4 mr-1" />
                 Guest
               </Button>
             </div>
           </div>
-          <div className="text-sm text-gray-300">
+          <div className="text-xs md:text-sm text-gray-300">
             SERVER: WAITER 1 • {selectedOrder ? 
               selectedOrder.guest_type === 'room' ? `ROOM: ${selectedOrder.room_number}` :
               selectedOrder.guest_type === 'table' ? `TABLE: ${tables.find(t => t.id === selectedOrder.table_id)?.table_number}` :
@@ -552,31 +552,31 @@ const RestaurantPOS = () => {
       {/* Right Panel - Categories and Items */}
       <div className="flex-1 flex flex-col">
         {/* Search Bar */}
-        <div className="p-4 bg-white border-b">
-          <div className="flex items-center gap-4">
-            <div className="flex-1 bg-gray-100 rounded-lg px-4 py-3">
-              <div className="text-sm text-gray-600">SEARCH</div>
+        <div className="p-3 md:p-4 bg-white border-b">
+          <div className="flex items-center gap-2 md:gap-4">
+            <div className="flex-1 bg-gray-100 rounded-lg px-3 md:px-4 py-2 md:py-3">
+              <div className="text-xs md:text-sm text-gray-600">SEARCH</div>
             </div>
-            <Badge className="bg-teal-500">{selectedOrder?.guest_name || 'SELECT ORDER'}</Badge>
+            <Badge className="bg-teal-500 text-xs md:text-sm">{selectedOrder?.guest_name || 'SELECT ORDER'}</Badge>
           </div>
         </div>
 
         {/* Categories Grid */}
-        <div className="flex-1 p-6">
-          <div className="grid grid-cols-4 gap-4 h-full">
+        <div className="flex-1 p-3 md:p-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 h-full">
             {availableCategories.map((category) => {
               const Icon = category.icon;
               return (
                 <Button
                   key={category.id}
-                  className={`${category.color} text-white border-0 rounded-lg h-24 flex flex-col items-center justify-center text-lg font-bold shadow-lg transition-all duration-200 hover:scale-105 ${
+                  className={`${category.color} text-white border-0 rounded-lg h-16 md:h-20 lg:h-24 flex flex-col items-center justify-center text-base md:text-lg font-bold shadow-lg transition-all duration-200 hover:scale-105 ${
                     !selectedOrderId ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                   onClick={() => selectedOrderId && setActiveCategory(category.id)}
                   disabled={!selectedOrderId}
                 >
-                  <Icon className="h-8 w-8 mb-2" />
-                  <span className="text-sm">{category.name}</span>
+                  <Icon className="h-6 w-6 md:h-8 md:w-8 mb-1 md:mb-2" />
+                  <span className="text-xs md:text-sm">{category.name}</span>
                 </Button>
               );
             })}
@@ -585,9 +585,9 @@ const RestaurantPOS = () => {
 
         {/* Items Display (Modal-like overlay when category selected) */}
         {activeCategory && (
-          <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center">
-            <Card className="w-4/5 h-4/5 bg-white">
-              <div className="p-6 h-full flex flex-col">
+          <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center p-2 md:p-4">
+            <Card className="w-full md:w-4/5 h-full md:h-4/5 bg-white">
+              <div className="p-3 md:p-6 h-full flex flex-col">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-bold">
                     {availableCategories.find(c => c.id === activeCategory)?.name || activeCategory.toUpperCase()}
@@ -610,7 +610,7 @@ const RestaurantPOS = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                       {filteredItems.map((item) => (
                         <Card
                           key={item.id}
@@ -647,33 +647,33 @@ const RestaurantPOS = () => {
         )}
 
         {/* Bottom Payment Section */}
-        <div className="bg-white border-t p-6">
+        <div className="bg-white border-t p-3 md:p-6">
           {selectedOrderId ? (
             <>
-              <div className="space-y-2 mb-4">
-                <div className="flex justify-between items-center text-sm">
+              <div className="space-y-1 md:space-y-2 mb-3 md:mb-4">
+                <div className="flex justify-between items-center text-xs md:text-sm">
                   <span>Subtotal:</span>
                   <span className="font-medium">{formatCurrency(getSelectedOrderTotals().subtotal)}</span>
                 </div>
-                <div className="flex justify-between items-center text-sm text-gray-600">
+                <div className="flex justify-between items-center text-xs md:text-sm text-gray-600">
                   <span>Tax (varies by item):</span>
                   <span>{formatCurrency(getSelectedOrderTotals().tax)}</span>
                 </div>
-                <div className="flex justify-between items-center text-2xl font-bold border-t pt-2">
+                <div className="flex justify-between items-center text-lg md:text-2xl font-bold border-t pt-1 md:pt-2">
                   <span>Total:</span>
                   <span>{formatCurrency(getSelectedOrderTotals().total)}</span>
                 </div>
               </div>
             </>
           ) : (
-            <div className="text-center text-gray-500 mb-4">
-              <p className="text-lg">Select an order to process payment</p>
+            <div className="text-center text-gray-500 mb-3 md:mb-4">
+              <p className="text-sm md:text-lg">Select an order to process payment</p>
             </div>
           )}
 
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
             <Button 
-              className="h-16 flex flex-col items-center bg-green-600 hover:bg-green-700"
+              className="h-14 md:h-16 flex flex-col items-center bg-green-600 hover:bg-green-700"
               onClick={() => handlePayment('credit')}
               disabled={!selectedOrderId}
             >
@@ -681,7 +681,7 @@ const RestaurantPOS = () => {
               <span className="text-xs">CREDIT</span>
             </Button>
             <Button 
-              className="h-16 flex flex-col items-center bg-blue-600 hover:bg-blue-700"
+              className="h-14 md:h-16 flex flex-col items-center bg-blue-600 hover:bg-blue-700"
               onClick={() => handlePayment('cash')}
               disabled={!selectedOrderId}
             >
@@ -690,7 +690,7 @@ const RestaurantPOS = () => {
             </Button>
             <Button 
               variant="outline" 
-              className="h-16 flex flex-col items-center"
+              className="h-14 md:h-16 flex flex-col items-center"
               onClick={() => handlePayment('bank_transfer')}
               disabled={!selectedOrderId}
             >
@@ -699,7 +699,7 @@ const RestaurantPOS = () => {
             </Button>
             <Button 
               variant="outline" 
-              className="h-16 flex flex-col items-center"
+              className="h-14 md:h-16 flex flex-col items-center"
               onClick={() => handlePayment('no_receipt')}
               disabled={!selectedOrderId}
             >
