@@ -286,18 +286,18 @@ const MenuManagement = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search menu items..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+            className="pl-10 h-10"
           />
         </div>
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-full sm:w-48">
+          <SelectTrigger className="w-full sm:w-48 h-10">
             <SelectValue placeholder="All Categories" />
           </SelectTrigger>
           <SelectContent>
@@ -310,60 +310,60 @@ const MenuManagement = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
         <Card className="card-luxury">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <Menu className="h-8 w-8 text-accent" />
-              <div>
-                <p className="text-2xl font-bold">{kitchenItems.length}</p>
-                <p className="text-sm text-muted-foreground">Kitchen Items</p>
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Menu className="h-6 w-6 sm:h-8 sm:w-8 text-accent shrink-0" />
+              <div className="min-w-0">
+                <p className="text-lg sm:text-2xl font-bold truncate">{kitchenItems.length}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">Kitchen Items</p>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card className="card-luxury">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <TrendingUp className="h-8 w-8 text-blue-600" />
-              <div>
-                <p className="text-2xl font-bold">{drinkItems.length}</p>
-                <p className="text-sm text-muted-foreground">Drinks</p>
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-lg sm:text-2xl font-bold truncate">{drinkItems.length}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">Drinks</p>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card className="card-luxury">
-          <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <Eye className="h-8 w-8 text-green-600" />
-                <div>
-                  <p className="text-2xl font-bold">{menuItems.filter(i => i.is_available).length}</p>
-                  <p className="text-sm text-muted-foreground">Available</p>
+          <CardContent className="p-3 sm:p-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Eye className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-lg sm:text-2xl font-bold truncate">{menuItems.filter(i => i.is_available).length}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Available</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           <Card className="card-luxury">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <Star className="h-8 w-8 text-yellow-500" />
-                <div>
-                  <p className="text-2xl font-bold">{menuItems.filter(i => i.is_popular).length}</p>
-                  <p className="text-sm text-muted-foreground">Popular Items</p>
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Star className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-lg sm:text-2xl font-bold truncate">{menuItems.filter(i => i.is_popular).length}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Popular Items</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           <Card className="card-luxury">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <DollarSign className="h-8 w-8 text-purple-600" />
-                <div>
-                  <p className="text-2xl font-bold">
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <DollarSign className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-lg sm:text-2xl font-bold truncate">
                     {formatCurrency(menuItems.length > 0 ? menuItems.reduce((sum, item) => sum + item.price, 0) / menuItems.length : 0)}
                   </p>
-                  <p className="text-sm text-muted-foreground">Avg Price</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Avg Price</p>
               </div>
             </div>
           </CardContent>
@@ -371,28 +371,28 @@ const MenuManagement = () => {
       </div>
 
       {/* Kitchen Items Section */}
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div className="flex items-center gap-2">
-          <h2 className="text-2xl font-semibold">🍳 Kitchen Items</h2>
+          <h2 className="text-xl sm:text-2xl font-semibold">🍳 Kitchen Items</h2>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
           {filteredKitchenItems.map((item) => (
             <MenuItemCard key={item.id} item={item} isDrink={false} />
           ))}
         </div>
         {filteredKitchenItems.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No kitchen items found</p>
+          <div className="text-center py-8 sm:py-12">
+            <p className="text-sm sm:text-base text-muted-foreground">No kitchen items found</p>
           </div>
         )}
       </div>
 
       {/* Drinks Section */}
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div className="flex items-center gap-2">
-          <h2 className="text-2xl font-semibold">🍹 Drinks</h2>
+          <h2 className="text-xl sm:text-2xl font-semibold">🍹 Drinks</h2>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
           {filteredDrinkItems.map((item) => (
             <MenuItemCard key={item.id} item={item} isDrink={true} />
           ))}

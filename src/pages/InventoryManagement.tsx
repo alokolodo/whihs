@@ -371,12 +371,12 @@ const InventoryManagement = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6 max-w-[100vw] overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Inventory Management</h1>
-          <p className="text-muted-foreground">Track stock levels and manage supply chain operations</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground truncate">Inventory Management</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">Track stock levels and manage supply chain operations</p>
         </div>
         <InventoryActionButtons
           userRole={userRole}
@@ -402,45 +402,45 @@ const InventoryManagement = () => {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="inventory">Inventory</TabsTrigger>
-          <TabsTrigger value="issuances">Issuances</TabsTrigger>
-          <TabsTrigger value="pos-sync">POS Integration</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+          <TabsTrigger value="inventory" className="text-xs sm:text-sm">Inventory</TabsTrigger>
+          <TabsTrigger value="issuances" className="text-xs sm:text-sm">Issuances</TabsTrigger>
+          <TabsTrigger value="pos-sync" className="text-xs sm:text-sm">POS</TabsTrigger>
+          <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analytics</TabsTrigger>
         </TabsList>
 
         {/* Inventory Tab */}
-        <TabsContent value="inventory" className="space-y-6">
-          <div className="flex items-center gap-4">
+        <TabsContent value="inventory" className="space-y-4 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search items by name, category, or supplier..."
+                placeholder="Search items..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 h-10"
               />
             </div>
           </div>
 
-          <div className="grid gap-4">
+          <div className="grid gap-3 sm:gap-4">
             {filteredInventory.map((item) => {
               const stockStatus = getStockStatus(item.currentStock, item.minimumStock);
               
               return (
                 <Card key={item.id} className="card-luxury">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
-                          <Package className="h-6 w-6 text-primary-foreground" />
+                  <CardContent className="p-3 sm:p-4 md:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+                      <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-primary rounded-full flex items-center justify-center shrink-0">
+                          <Package className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
                         </div>
-                        <div>
-                          <h3 className="text-xl font-bold">{item.name}</h3>
-                          <p className="text-muted-foreground">ID: {item.id} • {item.supplier}</p>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-base sm:text-xl font-bold truncate">{item.name}</h3>
+                          <p className="text-xs sm:text-sm text-muted-foreground truncate">ID: {item.id} • {item.supplier}</p>
                         </div>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 shrink-0">
                         <Badge className={getCategoryColor(item.category)}>
                           {item.category.toUpperCase()}
                         </Badge>
@@ -450,10 +450,10 @@ const InventoryManagement = () => {
                       </div>
                     </div>
 
-                    <div className="grid md:grid-cols-4 gap-6">
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                       <div className="space-y-2">
-                        <h4 className="font-semibold">Stock Information</h4>
-                        <div className="space-y-1">
+                        <h4 className="font-semibold text-sm">Stock Information</h4>
+                        <div className="space-y-1 text-sm">
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">Current Stock</span>
                             <span className="font-bold">{item.currentStock} {item.unit}</span>
@@ -470,11 +470,11 @@ const InventoryManagement = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <h4 className="font-semibold">Location & Dates</h4>
+                        <h4 className="font-semibold text-sm">Location & Dates</h4>
                         <div className="space-y-1">
                           <div className="text-sm">
                             <span className="text-muted-foreground">Location:</span>
-                            <p className="font-medium">{item.location}</p>
+                            <p className="font-medium truncate">{item.location}</p>
                           </div>
                           <div className="text-sm">
                             <span className="text-muted-foreground">Last Restocked:</span>
@@ -490,8 +490,8 @@ const InventoryManagement = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <h4 className="font-semibold">Value & Analytics</h4>
-                        <div className="space-y-1">
+                        <h4 className="font-semibold text-sm">Value & Analytics</h4>
+                        <div className="space-y-1 text-sm">
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">Total Value</span>
                             <span className="font-bold">{formatCurrency(item.currentStock * item.unitPrice)}</span>
