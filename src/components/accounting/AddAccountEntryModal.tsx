@@ -28,7 +28,7 @@ export const AddAccountEntryModal = ({ isOpen, onClose, defaultType }: AddAccoun
     amount: "",
     debit_amount: "",
     credit_amount: "",
-    status: "pending" as const,
+    status: "paid_transfer" as const,
     notes: ""
   });
   const [date, setDate] = useState<Date>(new Date());
@@ -90,7 +90,7 @@ export const AddAccountEntryModal = ({ isOpen, onClose, defaultType }: AddAccoun
       amount: "",
       debit_amount: "",
       credit_amount: "",
-      status: "pending",
+      status: "paid_transfer",
       notes: ""
     });
     setDate(new Date());
@@ -246,7 +246,7 @@ export const AddAccountEntryModal = ({ isOpen, onClose, defaultType }: AddAccoun
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="status">Status</Label>
+            <Label htmlFor="status">Payment Status</Label>
             <Select
               value={formData.status}
               onValueChange={(value) => setFormData({ ...formData, status: value as any })}
@@ -255,9 +255,10 @@ export const AddAccountEntryModal = ({ isOpen, onClose, defaultType }: AddAccoun
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="posted">Posted</SelectItem>
-                <SelectItem value="reconciled">Reconciled</SelectItem>
+                <SelectItem value="paid_transfer">Paid with Transfer</SelectItem>
+                <SelectItem value="paid_cash">Paid with Cash</SelectItem>
+                <SelectItem value="refund_cash">Refund to Customer with Cash</SelectItem>
+                <SelectItem value="refund_transfer">Refund to Customer with Transfer</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -71,11 +71,29 @@ const AccountingModule = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case 'paid_transfer': return 'bg-green-500 text-white';
+      case 'paid_cash': return 'bg-blue-500 text-white';
+      case 'refund_cash': return 'bg-orange-500 text-white';
+      case 'refund_transfer': return 'bg-purple-500 text-white';
       case 'posted': return 'bg-green-500 text-white';
       case 'pending': return 'bg-yellow-500 text-white';
       case 'draft': return 'bg-gray-500 text-white';
       case 'cancelled': return 'bg-red-500 text-white';
       default: return 'bg-blue-500 text-white';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'paid_transfer': return 'Paid with Transfer';
+      case 'paid_cash': return 'Paid with Cash';
+      case 'refund_cash': return 'Refund (Cash)';
+      case 'refund_transfer': return 'Refund (Transfer)';
+      case 'posted': return 'Posted';
+      case 'pending': return 'Pending';
+      case 'reconciled': return 'Reconciled';
+      case 'cancelled': return 'Cancelled';
+      default: return status;
     }
   };
 
@@ -262,8 +280,8 @@ const AccountingModule = () => {
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium">{entry.description}</p>
                         <div className="flex items-center space-x-2">
-                          <Badge className={getStatusColor(entry.status || 'pending')}>
-                            {entry.status || 'pending'}
+                          <Badge className={getStatusColor(entry.status || 'paid_transfer')}>
+                            {getStatusLabel(entry.status || 'paid_transfer')}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
                             {entry.entry_date} • Ref: {entry.reference_number}
