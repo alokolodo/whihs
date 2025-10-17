@@ -5,7 +5,8 @@ export interface Hall {
   name: string;
   capacity: number;
   location: string;
-  hourlyRate: number;
+  rate: number;
+  rate_type: 'hourly' | 'daily';
   amenities: string[];
   availability: "available" | "booked" | "maintenance";
   bookedDays?: number; // New field for tracking booking days
@@ -32,7 +33,8 @@ export const useHalls = () => {
       name: "Grand Ballroom",
       capacity: 500,
       location: "Ground Floor",
-      hourlyRate: 300,
+      rate: 300,
+      rate_type: 'hourly',
       amenities: ["Stage", "Sound System", "Lighting", "AC", "Catering Kitchen"],
       availability: "available"
     },
@@ -41,7 +43,8 @@ export const useHalls = () => {
       name: "Conference Hall A",
       capacity: 100,
       location: "First Floor",
-      hourlyRate: 150,
+      rate: 150,
+      rate_type: 'hourly',
       amenities: ["Projector", "WiFi", "Whiteboard", "AC", "Coffee Station"],
       availability: "booked",
       bookedDays: 3
@@ -51,7 +54,8 @@ export const useHalls = () => {
       name: "Banquet Hall",
       capacity: 200,
       location: "Ground Floor", 
-      hourlyRate: 200,
+      rate: 200,
+      rate_type: 'hourly',
       amenities: ["Dance Floor", "Bar Counter", "Kitchen Access", "Garden View"],
       availability: "available"
     },
@@ -60,7 +64,8 @@ export const useHalls = () => {
       name: "Meeting Room B",
       capacity: 50,
       location: "Second Floor",
-      hourlyRate: 80,
+      rate: 80,
+      rate_type: 'hourly',
       amenities: ["Video Conferencing", "WiFi", "Presentation Screen"],
       availability: "maintenance"
     }

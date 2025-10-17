@@ -172,7 +172,7 @@ const POSSystem = () => {
       .map(hall => ({
         id: `hall-${hall.id}`,
         name: hall.name.toUpperCase(),
-        price: hall.hourlyRate,
+        price: hall.rate,
         category: "facilities",
         color: "bg-green-600",
         isAvailable: true,
