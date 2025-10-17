@@ -16,7 +16,8 @@ interface AddHallModalProps {
     venue_type: 'hall' | 'lounge';
     location: string;
     capacity: number;
-    hourly_rate: number;
+    rate: number;
+    rate_type: 'hourly' | 'daily';
     amenities: string[];
     availability: 'available' | 'booked' | 'maintenance';
   }) => void;
@@ -28,7 +29,8 @@ export const AddHallModal = ({ open, onOpenChange, onAdd }: AddHallModalProps) =
   const [venueType, setVenueType] = useState<'hall' | 'lounge'>('hall');
   const [location, setLocation] = useState("");
   const [capacity, setCapacity] = useState("");
-  const [hourlyRate, setHourlyRate] = useState("");
+  const [rate, setRate] = useState("");
+  const [rateType, setRateType] = useState<'hourly' | 'daily'>('hourly');
   const [availability, setAvailability] = useState<'available' | 'booked' | 'maintenance'>('available');
   const [amenities, setAmenities] = useState<string[]>([]);
   const [newAmenity, setNewAmenity] = useState("");
@@ -60,7 +62,7 @@ export const AddHallModal = ({ open, onOpenChange, onAdd }: AddHallModalProps) =
   };
 
   const handleSubmit = () => {
-    if (!name.trim() || !location.trim() || !capacity || !hourlyRate) {
+    if (!name.trim() || !location.trim() || !capacity || !rate) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields",
@@ -70,12 +72,12 @@ export const AddHallModal = ({ open, onOpenChange, onAdd }: AddHallModalProps) =
     }
 
     const capacityNum = parseInt(capacity);
-    const rateNum = parseFloat(hourlyRate);
+    const rateNum = parseFloat(rate);
 
     if (capacityNum <= 0 || rateNum <= 0) {
       toast({
         title: "Invalid Values",
-        description: "Capacity and hourly rate must be positive numbers",
+        description: "Capacity and rate must be positive numbers",
         variant: "destructive",
       });
       return;
@@ -86,7 +88,8 @@ export const AddHallModal = ({ open, onOpenChange, onAdd }: AddHallModalProps) =
       venue_type: venueType,
       location: location.trim(),
       capacity: capacityNum,
-      hourly_rate: rateNum,
+      rate: rateNum,
+      rate_type: rateType,
       amenities,
       availability,
     });
@@ -96,7 +99,8 @@ export const AddHallModal = ({ open, onOpenChange, onAdd }: AddHallModalProps) =
     setVenueType('hall');
     setLocation("");
     setCapacity("");
-    setHourlyRate("");
+    setRate("");
+    setRateType('hourly');
     setAvailability('available');
     setAmenities([]);
     setNewAmenity("");
@@ -158,7 +162,7 @@ export const AddHallModal = ({ open, onOpenChange, onAdd }: AddHallModalProps) =
           </div>
 
           {/* Capacity and Rate */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="capacity">Capacity (People) *</Label>
               <Input
@@ -172,16 +176,29 @@ export const AddHallModal = ({ open, onOpenChange, onAdd }: AddHallModalProps) =
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="rate">Hourly Rate ($) *</Label>
+              <Label htmlFor="rate">Rate Amount *</Label>
               <Input
                 id="rate"
                 type="number"
                 placeholder="e.g., 150"
-                value={hourlyRate}
-                onChange={(e) => setHourlyRate(e.target.value)}
+                value={rate}
+                onChange={(e) => setRate(e.target.value)}
                 min="0"
                 step="0.01"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Rate Type *</Label>
+              <Select value={rateType} onValueChange={(value: 'hourly' | 'daily') => setRateType(value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="hourly">Per Hour</SelectItem>
+                  <SelectItem value="daily">Per Day</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -288,7 +305,7 @@ export const AddHallModal = ({ open, onOpenChange, onAdd }: AddHallModalProps) =
               </div>
               <div>
                 <span className="text-muted-foreground">Rate:</span>
-                <span className="ml-2 font-medium">${hourlyRate || '0'}/hour</span>
+                <span className="ml-2 font-medium">{rate || '0'}/{rateType === 'hourly' ? 'hr' : 'day'}</span>
               </div>
               <div>
                 <span className="text-muted-foreground">Amenities:</span>

@@ -7,7 +7,8 @@ export interface Hall {
   name: string;
   capacity: number;
   location: string;
-  hourly_rate: number;
+  rate: number;
+  rate_type: 'hourly' | 'daily';
   amenities: string[];
   availability: 'available' | 'booked' | 'maintenance';
   venue_type: 'hall' | 'lounge';

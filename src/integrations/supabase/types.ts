@@ -1214,10 +1214,11 @@ export type Database = {
           availability: string | null
           capacity: number
           created_at: string | null
-          hourly_rate: number
           id: string
           location: string
           name: string
+          rate: number
+          rate_type: string
           updated_at: string | null
           venue_type: string
         }
@@ -1226,10 +1227,11 @@ export type Database = {
           availability?: string | null
           capacity: number
           created_at?: string | null
-          hourly_rate: number
           id?: string
           location: string
           name: string
+          rate: number
+          rate_type?: string
           updated_at?: string | null
           venue_type?: string
         }
@@ -1238,10 +1240,11 @@ export type Database = {
           availability?: string | null
           capacity?: number
           created_at?: string | null
-          hourly_rate?: number
           id?: string
           location?: string
           name?: string
+          rate?: number
+          rate_type?: string
           updated_at?: string | null
           venue_type?: string
         }

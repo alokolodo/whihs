@@ -26,8 +26,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useHallsDB } from "@/hooks/useHallsDB";
 import { useGuestsDB } from "@/hooks/useGuestsDB";
+import { useHotelSettings } from "@/hooks/useHotelSettings";
 import { toast } from "@/hooks/use-toast";
-import { format, differenceInHours } from "date-fns";
+import { format, differenceInHours, differenceInDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import { HallPaymentModal } from "@/components/hall/HallPaymentModal";
 import { AddHallModal } from "@/components/hall/AddHallModal";
@@ -35,6 +36,9 @@ import { AddHallModal } from "@/components/hall/AddHallModal";
 const HallManagement = () => {
   const { halls, bookings, loading, createBooking, updateBooking, cancelBooking, addPayment, addHall, getHallsByType } = useHallsDB();
   const { guests: registeredGuests } = useGuestsDB();
+  const { settings } = useHotelSettings();
+  
+  const currency = settings?.currency || 'USD';
 
   const [activeTab, setActiveTab] = useState("halls");
   const [venueTypeFilter, setVenueTypeFilter] = useState<"all" | "hall" | "lounge">("all");
@@ -116,11 +120,17 @@ const HallManagement = () => {
     
     if (!hall || !guest) return;
 
-    // Calculate total amount based on hours
-    const start = new Date(`${format(selectedDate, 'yyyy-MM-dd')}T${startTime}`);
-    const end = new Date(`${format(selectedDate, 'yyyy-MM-dd')}T${endTime}`);
-    const hours = differenceInHours(end, start);
-    const totalAmount = hours * hall.hourly_rate;
+    // Calculate total amount based on rate type
+    let totalAmount = 0;
+    if (hall.rate_type === 'hourly') {
+      const start = new Date(`${format(selectedDate, 'yyyy-MM-dd')}T${startTime}`);
+      const end = new Date(`${format(selectedDate, 'yyyy-MM-dd')}T${endTime}`);
+      const hours = differenceInHours(end, start);
+      totalAmount = hours * hall.rate;
+    } else {
+      // Daily rate
+      totalAmount = hall.rate;
+    }
 
     try {
       await createBooking({
@@ -281,13 +291,15 @@ const HallManagement = () => {
                         <span className="text-sm md:text-base font-semibold">{hall.capacity}</span>
                       </div>
                     </div>
-                    <div>
-                      <div className="text-xs text-muted-foreground">Hourly Rate</div>
-                      <div className="flex items-center gap-1">
-                        <DollarSign className="h-3 w-3 md:h-4 md:w-4" />
-                        <span className="text-sm md:text-base font-semibold">${hall.hourly_rate}</span>
+                      <div>
+                        <div className="text-xs text-muted-foreground">Rate</div>
+                        <div className="flex items-center gap-1">
+                          <DollarSign className="h-3 w-3 md:h-4 md:w-4" />
+                          <span className="text-sm md:text-base font-semibold">
+                            {currency} {hall.rate}/{hall.rate_type === 'hourly' ? 'hr' : 'day'}
+                          </span>
+                        </div>
                       </div>
-                    </div>
                   </div>
 
                   <div>
@@ -412,13 +424,13 @@ const HallManagement = () => {
                         {booking.payment_status !== 'paid' && (
                           <div className="flex items-center gap-2 text-xs md:text-sm">
                             <span className="text-muted-foreground">Balance:</span>
-                            <span className="font-bold text-red-600">${remainingAmount.toLocaleString()}</span>
-                            <span className="text-muted-foreground">of ${booking.total_amount.toLocaleString()}</span>
+                            <span className="font-bold text-red-600">{currency} {remainingAmount.toLocaleString()}</span>
+                            <span className="text-muted-foreground">of {currency} {booking.total_amount.toLocaleString()}</span>
                           </div>
                         )}
                       </div>
                       <div className="flex flex-row md:flex-col items-center md:items-end gap-2">
-                        <div className="text-lg md:text-2xl font-bold">${Number(booking.total_amount).toLocaleString()}</div>
+                        <div className="text-lg md:text-2xl font-bold">{currency} {Number(booking.total_amount).toLocaleString()}</div>
                         <div className="flex flex-wrap gap-2">
                           {booking.payment_status !== 'paid' && (
                             <Button 
@@ -575,7 +587,7 @@ const HallManagement = () => {
                   <SelectContent>
                     {halls.filter(hall => hall.availability === "available").map((hall) => (
                       <SelectItem key={hall.id} value={hall.id}>
-                        {hall.name} ({hall.venue_type}) - ${hall.hourly_rate}/hr
+                        {hall.name} ({hall.venue_type}) - {currency} {hall.rate}/{hall.rate_type === 'hourly' ? 'hr' : 'day'}
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { DollarSign, CreditCard, Wallet } from "lucide-react";
 import { HallBooking } from "@/hooks/useHallsDB";
+import { useHotelSettings } from "@/hooks/useHotelSettings";
 
 interface HallPaymentModalProps {
   open: boolean;
@@ -16,6 +17,9 @@ interface HallPaymentModalProps {
 }
 
 export const HallPaymentModal = ({ open, onOpenChange, booking, onPayment }: HallPaymentModalProps) => {
+  const { settings } = useHotelSettings();
+  const currency = settings?.currency || 'USD';
+  
   const [amount, setAmount] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<string>("cash");
   const [reference, setReference] = useState("");
@@ -65,15 +69,15 @@ export const HallPaymentModal = ({ open, onOpenChange, booking, onPayment }: Hal
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Total Amount:</span>
-              <span className="text-lg font-bold">${booking.total_amount.toLocaleString()}</span>
+              <span className="text-lg font-bold">{currency} {booking.total_amount.toLocaleString()}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Amount Paid:</span>
-              <span className="text-green-600 font-semibold">${booking.amount_paid.toLocaleString()}</span>
+              <span className="text-green-600 font-semibold">{currency} {booking.amount_paid.toLocaleString()}</span>
             </div>
             <div className="flex justify-between items-center pt-2 border-t">
               <span className="text-sm font-medium">Balance Due:</span>
-              <span className="text-xl font-bold text-red-600">${remainingAmount.toLocaleString()}</span>
+              <span className="text-xl font-bold text-red-600">{currency} {remainingAmount.toLocaleString()}</span>
             </div>
           </div>
 
@@ -207,7 +211,7 @@ export const HallPaymentModal = ({ open, onOpenChange, booking, onPayment }: Hal
                 {booking.payment_history.map((payment, index) => (
                   <div key={index} className="flex justify-between items-center p-2 bg-muted rounded text-sm">
                     <div>
-                      <div className="font-medium">${payment.amount.toLocaleString()}</div>
+                      <div className="font-medium">{currency} {payment.amount.toLocaleString()}</div>
                       <div className="text-xs text-muted-foreground">
                         {payment.method} • {new Date(payment.date).toLocaleDateString()}
                       </div>
