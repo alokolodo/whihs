@@ -39,24 +39,25 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
+// Role-based navigation configuration
 const navigationItems = [
-  { title: "Dashboard", url: "/admin", icon: BarChart3 },
-  { title: "Hotel Services", url: "/pos", icon: ShoppingCart },
-  { title: "Restaurant POS", url: "/pos/restaurant", icon: ChefHat },
-  { title: "Bookings", url: "/admin/bookings", icon: Calendar },
-  { title: "Rooms", url: "/admin/rooms", icon: Hotel },
-  { title: "Halls", url: "/admin/halls", icon: Building },
-  { title: "Gym", url: "/admin/gym", icon: Dumbbell },
-  { title: "Game Center", url: "/admin/game-center", icon: Gamepad2 },
-  { title: "Guests", url: "/admin/guests", icon: Users },
-  { title: "Menu Management", url: "/admin/menu", icon: ChefHat },
-  { title: "Recipe Management", url: "/admin/recipes", icon: ChefHat },
-  { title: "Payments", url: "/admin/payments", icon: CreditCard },
-  { title: "Inventory", url: "/admin/inventory", icon: Package },
-  { title: "Suppliers", url: "/admin/suppliers", icon: Truck },
-  { title: "Accounting", url: "/admin/accounting", icon: BarChart3 },
-  { title: "HR Management", url: "/admin/hr", icon: Users },
-  { title: "Housekeeping", url: "/admin/housekeeping", icon: Home },
+  { title: "Dashboard", url: "/admin", icon: BarChart3, roles: ['admin', 'manager', 'supervisor', 'staff', 'front_desk', 'accounting'] },
+  { title: "Hotel Services", url: "/pos", icon: ShoppingCart, roles: ['admin', 'manager', 'supervisor', 'staff', 'bartender', 'front_desk'] },
+  { title: "Restaurant POS", url: "/pos/restaurant", icon: ChefHat, roles: ['admin', 'manager', 'supervisor', 'kitchen', 'staff', 'bartender'] },
+  { title: "Bookings", url: "/admin/bookings", icon: Calendar, roles: ['admin', 'manager', 'supervisor', 'front_desk', 'staff'] },
+  { title: "Rooms", url: "/admin/rooms", icon: Hotel, roles: ['admin', 'manager', 'supervisor', 'front_desk', 'housekeeping'] },
+  { title: "Halls", url: "/admin/halls", icon: Building, roles: ['admin', 'manager', 'supervisor', 'front_desk'] },
+  { title: "Gym", url: "/admin/gym", icon: Dumbbell, roles: ['admin', 'manager', 'supervisor', 'staff'] },
+  { title: "Game Center", url: "/admin/game-center", icon: Gamepad2, roles: ['admin', 'manager', 'supervisor', 'staff'] },
+  { title: "Guests", url: "/admin/guests", icon: Users, roles: ['admin', 'manager', 'supervisor', 'front_desk', 'staff'] },
+  { title: "Menu Management", url: "/admin/menu", icon: ChefHat, roles: ['admin', 'manager', 'supervisor', 'kitchen'] },
+  { title: "Recipe Management", url: "/admin/recipes", icon: ChefHat, roles: ['admin', 'manager', 'supervisor', 'kitchen'] },
+  { title: "Payments", url: "/admin/payments", icon: CreditCard, roles: ['admin', 'manager', 'accounting', 'front_desk'] },
+  { title: "Inventory", url: "/admin/inventory", icon: Package, roles: ['admin', 'manager', 'supervisor', 'procurement', 'kitchen', 'housekeeping'] },
+  { title: "Suppliers", url: "/admin/suppliers", icon: Truck, roles: ['admin', 'manager', 'procurement', 'accounting'] },
+  { title: "Accounting", url: "/admin/accounting", icon: BarChart3, roles: ['admin', 'manager', 'accounting'] },
+  { title: "HR Management", url: "/admin/hr", icon: Users, roles: ['admin', 'manager', 'hr'] },
+  { title: "Housekeeping", url: "/admin/housekeeping", icon: Home, roles: ['admin', 'manager', 'supervisor', 'housekeeping'] },
 ];
 
 const adminItems = [
@@ -92,6 +93,15 @@ export function HotelSidebar() {
 
   const IconComponent = getIconComponent(settings.hotel_icon || "Hotel");
 
+  // Filter navigation items based on user roles
+  const userRolesList = userRoles || [];
+  const filteredNavItems = navigationItems.filter(item => {
+    // Admin and manager can see everything
+    if (isAdmin || userRolesList.includes('manager')) return true;
+    // Check if user has any of the required roles for this item
+    return item.roles?.some(role => userRolesList.includes(role));
+  });
+
   return (
     <Sidebar 
       className={state === "collapsed" ? "w-14" : "w-64"}
@@ -116,7 +126,7 @@ export function HotelSidebar() {
           <SidebarGroupLabel>Management</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigationItems.map((item) => (
+              {filteredNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} className={getNavCls}>
