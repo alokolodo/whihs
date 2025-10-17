@@ -1,14 +1,6 @@
--- =====================================================
--- FIX: Clear All Sales Button - Add WHERE Clauses
--- =====================================================
--- This SQL updates the clear_sales_data function to add
--- WHERE clauses to satisfy database safety requirements
--- that block DELETE statements without WHERE conditions.
--- 
--- Copy and paste this entire file into Owen's Supabase SQL Editor
--- =====================================================
+-- Fix: Clear ALL sales data - Add WHERE clauses to satisfy database safety
+-- This ensures DELETE statements work even with safety restrictions
 
--- Drop and recreate the clear_sales_data function
 DROP FUNCTION IF EXISTS public.clear_sales_data(text);
 
 CREATE OR REPLACE FUNCTION public.clear_sales_data(data_type text)
@@ -87,20 +79,3 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.clear_sales_data(text) TO authenticated;
-
--- =====================================================
--- VERIFICATION
--- =====================================================
--- After running this SQL, the "Clear All Sales" button will:
--- ✅ Clear ALL orders (not just paid)
--- ✅ Clear ALL room bookings (not just paid)
--- ✅ Clear ALL game sessions (not just paid)
--- ✅ Clear ALL account entries
--- 
--- This means the accounting page will show $0 for:
--- - Total Revenue
--- - Total Expenses
--- - Net Profit
--- - All journal entries
--- - All bookings cleared from the system
--- =====================================================

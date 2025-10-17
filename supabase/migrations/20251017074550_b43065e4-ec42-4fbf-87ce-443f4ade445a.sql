@@ -1,12 +1,5 @@
--- =====================================================
--- FIX: Clear All Sales Button - Add WHERE Clauses
--- =====================================================
--- This SQL updates the clear_sales_data function to add
--- WHERE clauses to satisfy database safety requirements
--- that block DELETE statements without WHERE conditions.
--- 
--- Copy and paste this entire file into Owen's Supabase SQL Editor
--- =====================================================
+-- Fix: Clear All Sales Button - Include Account Entries
+-- This updates the clear_sales_data function to clear account entries
 
 -- Drop and recreate the clear_sales_data function
 DROP FUNCTION IF EXISTS public.clear_sales_data(text);
@@ -33,33 +26,30 @@ BEGIN
   -- Clear based on data type
   CASE data_type
     WHEN 'orders' THEN
-      -- Clear all orders with WHERE clause
-      DELETE FROM public.orders WHERE id IS NOT NULL;
+      -- Clear orders
+      DELETE FROM public.orders;
       GET DIAGNOSTICS orders_deleted = ROW_COUNT;
       deleted_count := orders_deleted;
       
     WHEN 'bookings' THEN
-      -- Clear ALL room bookings with WHERE clause
-      DELETE FROM public.room_bookings WHERE id IS NOT NULL;
+      -- Clear room bookings
+      DELETE FROM public.room_bookings WHERE payment_status = 'paid';
       GET DIAGNOSTICS bookings_deleted = ROW_COUNT;
       deleted_count := bookings_deleted;
       
     WHEN 'all_sales' THEN
       -- Clear all sales data including accounting entries
-      -- Clear ALL orders with WHERE clause
-      DELETE FROM public.orders WHERE id IS NOT NULL;
+      DELETE FROM public.orders;
       GET DIAGNOSTICS orders_deleted = ROW_COUNT;
       
-      -- Clear ALL room bookings with WHERE clause
-      DELETE FROM public.room_bookings WHERE id IS NOT NULL;
+      DELETE FROM public.room_bookings WHERE payment_status = 'paid';
       GET DIAGNOSTICS bookings_deleted = ROW_COUNT;
       
-      -- Clear ALL game sessions with WHERE clause
-      DELETE FROM public.game_sessions WHERE id IS NOT NULL;
+      DELETE FROM public.game_sessions WHERE payment_status = 'paid';
       GET DIAGNOSTICS game_sessions_deleted = ROW_COUNT;
       
-      -- Clear all account entries with WHERE clause
-      DELETE FROM public.account_entries WHERE id IS NOT NULL;
+      -- Clear all account entries (expenses, income, etc.)
+      DELETE FROM public.account_entries;
       GET DIAGNOSTICS account_entries_deleted = ROW_COUNT;
       
       deleted_count := orders_deleted + bookings_deleted + game_sessions_deleted + account_entries_deleted;
@@ -86,21 +76,5 @@ BEGIN
 END;
 $$;
 
+-- Grant execute permission
 GRANT EXECUTE ON FUNCTION public.clear_sales_data(text) TO authenticated;
-
--- =====================================================
--- VERIFICATION
--- =====================================================
--- After running this SQL, the "Clear All Sales" button will:
--- ✅ Clear ALL orders (not just paid)
--- ✅ Clear ALL room bookings (not just paid)
--- ✅ Clear ALL game sessions (not just paid)
--- ✅ Clear ALL account entries
--- 
--- This means the accounting page will show $0 for:
--- - Total Revenue
--- - Total Expenses
--- - Net Profit
--- - All journal entries
--- - All bookings cleared from the system
--- =====================================================
