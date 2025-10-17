@@ -104,10 +104,10 @@ export function HotelSidebar() {
 
   return (
     <Sidebar 
-      className={state === "collapsed" ? "w-14" : "w-64"}
       collapsible="icon"
+      className="border-r bg-background"
     >
-      <SidebarHeader className="border-b border-border/50 p-3 md:p-4">
+      <SidebarHeader className="border-b border-border/50 p-3 md:p-4 bg-card">
         <div className="flex items-center gap-2 md:gap-3">
           <div className="p-1.5 md:p-2 bg-gradient-primary rounded-lg shrink-0">
             <IconComponent className="h-5 w-5 md:h-6 md:w-6 text-primary-foreground" />
@@ -121,9 +121,9 @@ export function HotelSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="bg-background">
         <SidebarGroup>
-          <SidebarGroupLabel>Management</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-muted-foreground font-semibold">Management</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {filteredNavItems.map((item) => (
@@ -131,7 +131,7 @@ export function HotelSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} className={getNavCls}>
                       <item.icon className="mr-2 md:mr-3 h-4 w-4 md:h-5 md:w-5 shrink-0" />
-                      {state !== "collapsed" && <span className="text-sm md:text-base truncate">{item.title}</span>}
+                      {state !== "collapsed" && <span className="text-sm md:text-base truncate font-medium">{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -142,7 +142,7 @@ export function HotelSidebar() {
 
         {isAdmin && (
           <SidebarGroup>
-            <SidebarGroupLabel>
+            <SidebarGroupLabel className="text-muted-foreground font-semibold">
               <Shield className="h-4 w-4 mr-2" />
               {state !== "collapsed" && "Administration"}
             </SidebarGroupLabel>
@@ -153,7 +153,7 @@ export function HotelSidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink to={item.url} className={getNavCls}>
                         <item.icon className="mr-2 md:mr-3 h-4 w-4 md:h-5 md:w-5 shrink-0" />
-                        {state !== "collapsed" && <span className="text-sm md:text-base truncate">{item.title}</span>}
+                        {state !== "collapsed" && <span className="text-sm md:text-base truncate font-medium">{item.title}</span>}
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -167,10 +167,10 @@ export function HotelSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <div className="p-2 md:p-3 border-t border-border">
+                <div className="p-2 md:p-3 border-t border-border bg-card">
                   {state !== "collapsed" && (
                     <div className="mb-2">
-                      <p className="text-xs md:text-sm font-medium truncate">
+                      <p className="text-xs md:text-sm font-semibold truncate text-foreground">
                         {profile?.first_name} {profile?.last_name}
                       </p>
                       <p className="text-[10px] md:text-xs text-muted-foreground capitalize truncate">
@@ -182,10 +182,10 @@ export function HotelSidebar() {
                     variant="outline"
                     size="sm"
                     onClick={() => signOut()}
-                    className="w-full justify-start touch-target"
+                    className="w-full justify-start touch-target bg-background"
                   >
                     <LogOut className="h-3 w-3 md:h-4 md:w-4 mr-2 shrink-0" />
-                    {state !== "collapsed" && <span className="text-xs md:text-sm">Sign Out</span>}
+                    {state !== "collapsed" && <span className="text-xs md:text-sm font-medium">Sign Out</span>}
                   </Button>
                 </div>
               </SidebarMenuItem>

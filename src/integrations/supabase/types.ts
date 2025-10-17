@@ -1139,6 +1139,7 @@ export type Database = {
       }
       hall_bookings: {
         Row: {
+          amount_paid: number | null
           booking_date: string
           created_at: string | null
           end_time: string
@@ -1148,6 +1149,9 @@ export type Database = {
           id: string
           number_of_guests: number | null
           organizer_name: string
+          payment_history: Json | null
+          payment_method: string | null
+          payment_status: string | null
           special_requests: string | null
           start_time: string
           status: string | null
@@ -1155,6 +1159,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          amount_paid?: number | null
           booking_date: string
           created_at?: string | null
           end_time: string
@@ -1164,6 +1169,9 @@ export type Database = {
           id?: string
           number_of_guests?: number | null
           organizer_name: string
+          payment_history?: Json | null
+          payment_method?: string | null
+          payment_status?: string | null
           special_requests?: string | null
           start_time: string
           status?: string | null
@@ -1171,6 +1179,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          amount_paid?: number | null
           booking_date?: string
           created_at?: string | null
           end_time?: string
@@ -1180,6 +1189,9 @@ export type Database = {
           id?: string
           number_of_guests?: number | null
           organizer_name?: string
+          payment_history?: Json | null
+          payment_method?: string | null
+          payment_status?: string | null
           special_requests?: string | null
           start_time?: string
           status?: string | null
@@ -1202,33 +1214,39 @@ export type Database = {
           availability: string | null
           capacity: number
           created_at: string | null
-          hourly_rate: number
           id: string
           location: string
           name: string
+          rate: number
+          rate_type: string
           updated_at: string | null
+          venue_type: string
         }
         Insert: {
           amenities?: string[] | null
           availability?: string | null
           capacity: number
           created_at?: string | null
-          hourly_rate: number
           id?: string
           location: string
           name: string
+          rate: number
+          rate_type?: string
           updated_at?: string | null
+          venue_type?: string
         }
         Update: {
           amenities?: string[] | null
           availability?: string | null
           capacity?: number
           created_at?: string | null
-          hourly_rate?: number
           id?: string
           location?: string
           name?: string
+          rate?: number
+          rate_type?: string
           updated_at?: string | null
+          venue_type?: string
         }
         Relationships: []
       }
@@ -2248,6 +2266,7 @@ export type Database = {
           instructions: Json
           name: string
           prep_time: number
+          selling_price: number | null
           servings: number
           updated_at: string | null
         }
@@ -2264,6 +2283,7 @@ export type Database = {
           instructions: Json
           name: string
           prep_time: number
+          selling_price?: number | null
           servings: number
           updated_at?: string | null
         }
@@ -2280,6 +2300,7 @@ export type Database = {
           instructions?: Json
           name?: string
           prep_time?: number
+          selling_price?: number | null
           servings?: number
           updated_at?: string | null
         }
@@ -3056,6 +3077,10 @@ export type Database = {
     }
     Functions: {
       calculate_recipe_cost: {
+        Args: { recipe_uuid: string }
+        Returns: number
+      }
+      calculate_recipe_profit: {
         Args: { recipe_uuid: string }
         Returns: number
       }

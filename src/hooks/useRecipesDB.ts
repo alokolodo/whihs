@@ -39,7 +39,14 @@ export const useRecipesDB = () => {
       return;
     }
 
-    setRecipes(data as Recipe[] || []);
+    // Parse the JSONB fields properly
+    const parsedRecipes = (data || []).map(recipe => ({
+      ...recipe,
+      ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients as unknown as { name: string; quantity: number; unit: string; cost: number }[] : [],
+      instructions: Array.isArray(recipe.instructions) ? recipe.instructions as unknown as string[] : []
+    })) as Recipe[];
+
+    setRecipes(parsedRecipes);
   };
 
   useEffect(() => {

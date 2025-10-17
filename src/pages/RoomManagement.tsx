@@ -287,40 +287,42 @@ const RoomManagement = () => {
 
       {/* Filters */}
       <Card>
-        <CardContent className="p-4">
-          <div className="flex gap-4 items-center">
-            <div className="relative flex-1 max-w-sm">
+        <CardContent className="p-3 md:p-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input 
                 placeholder="Search rooms, guests..." 
-                className="pl-10"
+                className="pl-10 h-10"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="ready">Ready</SelectItem>
-                <SelectItem value="occupied">Occupied</SelectItem>
-                <SelectItem value="vacant-dirty">Vacant Dirty</SelectItem>
-                <SelectItem value="under-repairs">Under Repairs</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={filterFloor} onValueChange={setFilterFloor}>
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder="Floor" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Floors</SelectItem>
-                <SelectItem value="1">Floor 1</SelectItem>
-                <SelectItem value="2">Floor 2</SelectItem>
-                <SelectItem value="3">Floor 3</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="grid grid-cols-2 sm:flex gap-2 sm:gap-3">
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="w-full sm:w-40 h-10">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="ready">Ready</SelectItem>
+                  <SelectItem value="occupied">Occupied</SelectItem>
+                  <SelectItem value="vacant-dirty">Vacant Dirty</SelectItem>
+                  <SelectItem value="under-repairs">Under Repairs</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={filterFloor} onValueChange={setFilterFloor}>
+                <SelectTrigger className="w-full sm:w-32 h-10">
+                  <SelectValue placeholder="Floor" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Floors</SelectItem>
+                  <SelectItem value="1">Floor 1</SelectItem>
+                  <SelectItem value="2">Floor 2</SelectItem>
+                  <SelectItem value="3">Floor 3</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>

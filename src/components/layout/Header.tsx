@@ -31,10 +31,10 @@ export const Header = () => {
   };
 
   return (
-    <header className="h-14 md:h-16 border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-40 shrink-0">
+    <header className="h-14 md:h-16 border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50 shrink-0">
       <div className="flex items-center justify-between h-full px-3 md:px-4">
         <div className="flex items-center gap-2 md:gap-4">
-          <SidebarTrigger className="p-2 touch-target" />
+          <SidebarTrigger className="p-2 touch-target shrink-0" />
           <div className="hidden sm:block">
             <h1 className="text-sm md:text-lg font-semibold text-foreground truncate max-w-[200px] md:max-w-none">{settings.hotel_name}</h1>
           </div>

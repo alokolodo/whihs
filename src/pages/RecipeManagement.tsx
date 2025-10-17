@@ -8,7 +8,9 @@ import {
   Clock, 
   Users, 
   DollarSign,
-  BookOpen
+  BookOpen,
+  TrendingUp,
+  Percent
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,6 +38,20 @@ const RecipeManagement = () => {
   const categories = [
     "Appetizers", "Main Course", "Desserts", "Beverages", "Salads", "Soups", "Sides"
   ];
+
+  // Calculate profit for a recipe
+  const calculateProfit = (recipe: typeof recipes[0]) => {
+    const sellingPrice = (recipe as any).selling_price || 0;
+    const cost = recipe.cost || 0;
+    return sellingPrice - cost;
+  };
+
+  const calculateProfitMargin = (recipe: typeof recipes[0]) => {
+    const sellingPrice = (recipe as any).selling_price || 0;
+    if (sellingPrice === 0) return 0;
+    const profit = calculateProfit(recipe);
+    return (profit / sellingPrice) * 100;
+  };
 
   // Handler functions
   const handleAddRecipe = async (newRecipe: any) => {
@@ -81,98 +97,129 @@ const RecipeManagement = () => {
 
   const filteredRecipes = recipes.filter(recipe => {
     const matchesSearch = recipe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         recipe.description.toLowerCase().includes(searchTerm.toLowerCase());
+                         (recipe.description || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "all" || recipe.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const RecipeCard = ({ recipe }: { recipe: typeof recipes[0] }) => (
-    <Card className="card-luxury">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-lg">{recipe.name}</CardTitle>
-            <CardDescription className="mt-1">{recipe.description}</CardDescription>
+  // Calculate stats
+  const totalProfit = recipes.reduce((sum, recipe) => sum + calculateProfit(recipe), 0);
+  const avgCost = recipes.length > 0 ? recipes.reduce((sum, r) => sum + (r.cost || 0), 0) / recipes.length : 0;
+  const avgTime = recipes.length > 0 ? recipes.reduce((sum, r) => sum + (r.prep_time + r.cook_time), 0) / recipes.length : 0;
+
+  const RecipeCard = ({ recipe }: { recipe: typeof recipes[0] }) => {
+    const profit = calculateProfit(recipe);
+    const profitMargin = calculateProfitMargin(recipe);
+    const profitPerServing = recipe.servings > 0 ? profit / recipe.servings : 0;
+    const isProfitable = profit > 0;
+
+    return (
+      <Card className="card-luxury hover:shadow-lg transition-shadow">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-base sm:text-lg truncate">{recipe.name}</CardTitle>
+              <CardDescription className="text-xs sm:text-sm mt-1 line-clamp-2">
+                {recipe.description}
+              </CardDescription>
+            </div>
+            <div className="flex gap-1 sm:gap-2 shrink-0">
+              <Button size="sm" variant="outline" onClick={() => openEditDialog(recipe)} className="h-8 w-8 p-0 sm:h-9 sm:w-9">
+                <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => openDeleteDialog(recipe)} className="h-8 w-8 p-0 sm:h-9 sm:w-9">
+                <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button size="sm" variant="outline" onClick={() => openEditDialog(recipe)}>
-              <Edit className="h-4 w-4" />
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => openDeleteDialog(recipe)}>
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="secondary">{recipe.category}</Badge>
-            <Badge variant="outline" className="text-green-600">
-              <DollarSign className="h-3 w-3 mr-1" />
-              ${recipe.cost.toFixed(2)}
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
+            <Badge variant="secondary" className="text-xs">{recipe.category}</Badge>
+            <Badge variant="outline" className={`text-xs ${isProfitable ? 'text-green-600' : 'text-red-600'}`}>
+              <TrendingUp className="h-3 w-3 mr-1" />
+              {isProfitable ? '+' : ''}{formatCurrency(profit)}
             </Badge>
-            <Badge variant="outline">
+            <Badge variant="outline" className="text-xs">
+              <Percent className="h-3 w-3 mr-1" />
+              {profitMargin.toFixed(1)}%
+            </Badge>
+            <Badge variant="outline" className="text-xs">
               <Clock className="h-3 w-3 mr-1" />
               {recipe.prep_time + recipe.cook_time}min
             </Badge>
-            <Badge variant="outline">
-              <Users className="h-3 w-3 mr-1" />
-              {recipe.servings} servings
-            </Badge>
-            <Badge variant={recipe.difficulty === "Easy" ? "default" : recipe.difficulty === "Medium" ? "secondary" : "destructive"}>
-              {recipe.difficulty}
-            </Badge>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="font-medium">Prep Time:</span> {recipe.prep_time}min
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
+            <div className="space-y-1">
+              <p className="text-muted-foreground">Cost Price</p>
+              <p className="font-semibold">{formatCurrency(recipe.cost)}</p>
             </div>
-            <div>
-              <span className="font-medium">Cook Time:</span> {recipe.cook_time}min
+            <div className="space-y-1">
+              <p className="text-muted-foreground">Selling Price</p>
+              <p className="font-semibold">{formatCurrency((recipe as any).selling_price || 0)}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-muted-foreground">Profit/Serving</p>
+              <p className={`font-semibold ${isProfitable ? 'text-green-600' : 'text-red-600'}`}>
+                {formatCurrency(profitPerServing)}
+              </p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-muted-foreground">Servings</p>
+              <p className="font-semibold flex items-center gap-1">
+                <Users className="h-3 w-3" />
+                {recipe.servings}
+              </p>
             </div>
           </div>
 
           <Separator />
 
           <div className="space-y-2">
-            <h4 className="font-medium text-sm">Ingredients ({recipe.ingredients.length})</h4>
-            <div className="grid grid-cols-2 gap-1 text-xs text-muted-foreground">
-              {recipe.ingredients.slice(0, 4).map((ingredient, idx) => (
-                <div key={idx}>
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium text-xs sm:text-sm">Ingredients ({recipe.ingredients?.length || 0})</h4>
+              <Badge variant={recipe.difficulty === "Easy" ? "default" : recipe.difficulty === "Medium" ? "secondary" : "destructive"} className="text-xs">
+                {recipe.difficulty}
+              </Badge>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-xs text-muted-foreground">
+              {(recipe.ingredients || []).slice(0, 4).map((ingredient: any, idx: number) => (
+                <div key={idx} className="truncate">
                   {ingredient.quantity} {ingredient.unit} {ingredient.name}
                 </div>
               ))}
-              {recipe.ingredients.length > 4 && (
-                <div className="text-accent">+{recipe.ingredients.length - 4} more...</div>
+              {(recipe.ingredients?.length || 0) > 4 && (
+                <div className="text-accent">+{(recipe.ingredients?.length || 0) - 4} more...</div>
               )}
             </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6 md:space-y-8 max-w-[100vw] overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-            <ChefHat className="h-8 w-8 text-accent" />
-            Recipe Management
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2 sm:gap-3">
+            <ChefHat className="h-6 w-6 sm:h-8 sm:w-8 text-accent shrink-0" />
+            <span className="truncate">Recipe Management</span>
           </h1>
-          <p className="text-muted-foreground">Manage your restaurant recipes and ingredient costs</p>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+            Track recipes, costs, and profit margins
+          </p>
         </div>
-        <Button className="button-luxury" onClick={() => setIsAddDialogOpen(true)}>
+        <Button className="button-luxury shrink-0 w-full sm:w-auto" onClick={() => setIsAddDialogOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Add Recipe
         </Button>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -196,47 +243,47 @@ const RecipeManagement = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
         <Card className="card-luxury">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <BookOpen className="h-8 w-8 text-accent" />
-              <div>
-                <p className="text-2xl font-bold">{recipes.length}</p>
-                <p className="text-sm text-muted-foreground">Total Recipes</p>
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-accent shrink-0" />
+              <div className="min-w-0">
+                <p className="text-lg sm:text-2xl font-bold truncate">{recipes.length}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Recipes</p>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card className="card-luxury">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <DollarSign className="h-8 w-8 text-green-600" />
-              <div>
-                <p className="text-2xl font-bold">{formatCurrency(13.63)}</p>
-                <p className="text-sm text-muted-foreground">Avg Cost</p>
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-lg sm:text-2xl font-bold truncate">{formatCurrency(totalProfit)}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Total Profit</p>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card className="card-luxury">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <Clock className="h-8 w-8 text-blue-600" />
-              <div>
-                <p className="text-2xl font-bold">27</p>
-                <p className="text-sm text-muted-foreground">Avg Time (min)</p>
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <DollarSign className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-lg sm:text-2xl font-bold truncate">{formatCurrency(avgCost)}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Avg Cost</p>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card className="card-luxury">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <ChefHat className="h-8 w-8 text-purple-600" />
-              <div>
-                <p className="text-2xl font-bold">{categories.length}</p>
-                <p className="text-sm text-muted-foreground">Categories</p>
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-lg sm:text-2xl font-bold truncate">{Math.round(avgTime)}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Avg Time (min)</p>
               </div>
             </div>
           </CardContent>
@@ -244,17 +291,17 @@ const RecipeManagement = () => {
       </div>
 
       {/* Recipes Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
         {filteredRecipes.map((recipe) => (
           <RecipeCard key={recipe.id} recipe={recipe} />
         ))}
       </div>
 
       {filteredRecipes.length === 0 && (
-        <div className="text-center py-12">
-          <ChefHat className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium mb-2">No recipes found</h3>
-          <p className="text-muted-foreground">Try adjusting your search or add a new recipe</p>
+        <div className="text-center py-8 sm:py-12">
+          <ChefHat className="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-3 sm:mb-4" />
+          <h3 className="text-base sm:text-lg font-medium mb-2">No recipes found</h3>
+          <p className="text-xs sm:text-sm text-muted-foreground">Try adjusting your search or add a new recipe</p>
         </div>
       )}
 
