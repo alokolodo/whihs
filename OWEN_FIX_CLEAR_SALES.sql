@@ -1,8 +1,8 @@
 -- =====================================================
--- FIX: Clear All Sales Button - Include Account Entries
+-- FIX: Clear All Sales Button - Clear EVERYTHING to $0
 -- =====================================================
--- This SQL updates the clear_sales_data function to also
--- clear account entries when clearing sales data
+-- This SQL updates the clear_sales_data function to clear
+-- ALL room bookings, orders, game sessions, and account entries
 -- 
 -- Copy and paste this entire file into Owen's Supabase SQL Editor
 -- =====================================================
@@ -32,26 +32,29 @@ BEGIN
   -- Clear based on data type
   CASE data_type
     WHEN 'orders' THEN
-      -- Clear orders
+      -- Clear all orders
       DELETE FROM public.orders;
       GET DIAGNOSTICS orders_deleted = ROW_COUNT;
       deleted_count := orders_deleted;
       
     WHEN 'bookings' THEN
-      -- Clear room bookings
-      DELETE FROM public.room_bookings WHERE payment_status = 'paid';
+      -- Clear ALL room bookings (not just paid)
+      DELETE FROM public.room_bookings;
       GET DIAGNOSTICS bookings_deleted = ROW_COUNT;
       deleted_count := bookings_deleted;
       
     WHEN 'all_sales' THEN
       -- Clear all sales data including accounting entries
+      -- Clear ALL orders (not filtered by status)
       DELETE FROM public.orders;
       GET DIAGNOSTICS orders_deleted = ROW_COUNT;
       
-      DELETE FROM public.room_bookings WHERE payment_status = 'paid';
+      -- Clear ALL room bookings (not just paid)
+      DELETE FROM public.room_bookings;
       GET DIAGNOSTICS bookings_deleted = ROW_COUNT;
       
-      DELETE FROM public.game_sessions WHERE payment_status = 'paid';
+      -- Clear ALL game sessions (not just paid)
+      DELETE FROM public.game_sessions;
       GET DIAGNOSTICS game_sessions_deleted = ROW_COUNT;
       
       -- Clear all account entries (expenses, income, etc.)
@@ -82,21 +85,21 @@ BEGIN
 END;
 $$;
 
--- Grant execute permission
 GRANT EXECUTE ON FUNCTION public.clear_sales_data(text) TO authenticated;
 
 -- =====================================================
 -- VERIFICATION
 -- =====================================================
 -- After running this SQL, the "Clear All Sales" button will:
--- ✅ Clear all orders
--- ✅ Clear all paid room bookings
--- ✅ Clear all paid game sessions
--- ✅ Clear all account entries (NEW!)
+-- ✅ Clear ALL orders (not just paid)
+-- ✅ Clear ALL room bookings (not just paid)
+-- ✅ Clear ALL game sessions (not just paid)
+-- ✅ Clear ALL account entries
 -- 
 -- This means the accounting page will show $0 for:
 -- - Total Revenue
 -- - Total Expenses
 -- - Net Profit
 -- - All journal entries
+-- - All bookings cleared from the system
 -- =====================================================
