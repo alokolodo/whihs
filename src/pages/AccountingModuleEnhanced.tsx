@@ -12,6 +12,7 @@ import {
   AccountEntry as AccountEntryType 
 } from "@/hooks/useAccounting";
 import { AddAccountEntryModal } from "@/components/accounting/AddAccountEntryModal";
+import { EditAccountEntryModal } from "@/components/accounting/EditAccountEntryModal";
 import { ExportDataModal } from "@/components/accounting/ExportDataModal";
 import { SalesReportTab } from "@/components/accounting/SalesReportTab";
 import { DateRangeReportModal } from "@/components/accounting/DateRangeReportModal";
@@ -27,7 +28,8 @@ import {
   Receipt,
   Target,
   AlertCircle,
-  Loader2
+  Loader2,
+  Edit
 } from "lucide-react";
 
 const AccountingModule = () => {
@@ -38,6 +40,8 @@ const AccountingModule = () => {
   const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isDateRangeModalOpen, setIsDateRangeModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<AccountEntryType | null>(null);
 
   const { data: entries = [], isLoading: entriesLoading } = useAccountEntries();
   const { data: summary, isLoading: summaryLoading } = useFinancialSummary();
@@ -187,11 +191,14 @@ const AccountingModule = () => {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Net Income</CardTitle>
+                <CardTitle className="text-sm font-medium">Net Profit</CardTitle>
                 <BarChart3 className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{formatCurrency(summary?.netIncome || 0)}</div>
+                <p className="text-xs text-muted-foreground mb-1">
+                  Revenue - Expenses
+                </p>
                 {(() => {
                   const change = formatChange(summary?.netIncome || 0, previousPeriod.netIncome);
                   return (
@@ -276,8 +283,8 @@ const AccountingModule = () => {
               <div className="space-y-3">
                 {entries.map((entry: AccountEntryType) => (
                   <div key={entry.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex flex-col space-y-1">
+                    <div className="flex items-center space-x-4 flex-1">
+                      <div className="flex flex-col space-y-1 flex-1">
                         <p className="text-sm font-medium">{entry.description}</p>
                         <div className="flex items-center space-x-2">
                           <Badge className={getStatusColor(entry.status || 'paid_transfer')}>
@@ -292,21 +299,33 @@ const AccountingModule = () => {
                         )}
                       </div>
                     </div>
-                    <div className="text-right space-y-1">
-                      <p className="text-sm font-medium">
-                        {formatCurrency(entry.amount || 0)}
-                      </p>
-                      <div className="flex gap-2 text-xs">
-                        {entry.debit_amount && entry.debit_amount > 0 && (
-                          <span className="text-green-600">Dr: {formatCurrency(entry.debit_amount)}</span>
-                        )}
-                        {entry.credit_amount && entry.credit_amount > 0 && (
-                          <span className="text-red-600">Cr: {formatCurrency(entry.credit_amount)}</span>
-                        )}
+                    <div className="flex items-center gap-3">
+                      <div className="text-right space-y-1">
+                        <p className="text-sm font-medium">
+                          {formatCurrency(entry.amount || 0)}
+                        </p>
+                        <div className="flex gap-2 text-xs">
+                          {entry.debit_amount && entry.debit_amount > 0 && (
+                            <span className="text-green-600">Dr: {formatCurrency(entry.debit_amount)}</span>
+                          )}
+                          {entry.credit_amount && entry.credit_amount > 0 && (
+                            <span className="text-red-600">Cr: {formatCurrency(entry.credit_amount)}</span>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {entry.account_categories?.name || 'No Category'}
+                        </p>
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        {entry.account_categories?.name || 'No Category'}
-                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setEditingEntry(entry);
+                          setIsEditModalOpen(true);
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -442,6 +461,15 @@ const AccountingModule = () => {
       <DateRangeReportModal
         isOpen={isDateRangeModalOpen}
         onClose={() => setIsDateRangeModalOpen(false)}
+      />
+
+      <EditAccountEntryModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingEntry(null);
+        }}
+        entry={editingEntry}
       />
     </div>
   );

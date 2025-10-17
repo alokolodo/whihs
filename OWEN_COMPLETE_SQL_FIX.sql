@@ -14,18 +14,16 @@
 -- =====================================================
 -- Update the status column to use the new payment status values
 
--- First, update existing data to new status values
-UPDATE public.account_entries 
-SET status = 'paid_transfer' 
-WHERE status = 'posted';
+-- First, update existing data to new status values (optional - review your data first)
+-- Uncomment these if you want to migrate existing records:
 
-UPDATE public.account_entries 
-SET status = 'paid_cash' 
-WHERE status = 'pending';
+-- UPDATE public.account_entries 
+-- SET status = 'paid_transfer' 
+-- WHERE status = 'posted';
 
-UPDATE public.account_entries 
-SET status = 'refund_cash' 
-WHERE status = 'reconciled';
+-- UPDATE public.account_entries 
+-- SET status = 'paid_cash' 
+-- WHERE status = 'pending';
 
 -- Note: You may want to review and manually update specific records
 -- based on your actual payment methods
@@ -61,7 +59,7 @@ WITH revenue_data AS (
 ),
 accounting_data AS (
   SELECT 
-    -- Sum all expenses (paid_transfer, paid_cash, refund_cash, refund_transfer)
+    -- Sum all expenses (includes both old and new status values)
     COALESCE(SUM(CASE WHEN ac.type = 'expense' THEN ABS(ae.amount) ELSE 0 END), 0) as total_expenses,
     -- Sum all asset entries
     COALESCE(SUM(CASE WHEN ac.type = 'asset' THEN ABS(ae.amount) ELSE 0 END), 0) as total_assets_entries,
@@ -71,7 +69,7 @@ accounting_data AS (
     COALESCE(SUM(CASE WHEN ac.type = 'equity' THEN ABS(ae.amount) ELSE 0 END), 0) as total_equity
   FROM public.account_entries ae
   LEFT JOIN public.account_categories ac ON ae.category_id = ac.id
-  WHERE ae.status IN ('paid_transfer', 'paid_cash', 'refund_cash', 'refund_transfer', 'posted', 'pending')
+  WHERE ae.status IN ('paid_transfer', 'paid_cash', 'refund_cash', 'refund_transfer', 'posted', 'pending', 'reconciled')
 ),
 inventory_value AS (
   -- Calculate total inventory value (quantity * cost per unit)
@@ -96,7 +94,7 @@ SELECT
   -- Total Equity
   ad.total_equity,
   
-  -- Net Income = Revenue - Expenses
+  -- Net Income (Profit) = Revenue - Expenses
   ((SELECT SUM(revenue_amount) FROM revenue_data) - ad.total_expenses) as net_income,
   
   -- Inventory Value (for reference)
@@ -191,7 +189,7 @@ USING (has_role(auth.uid(), 'admin'::app_role));
 -- FROM public.inventory
 -- WHERE current_quantity > 0;
 
--- 3. Check account entries with new status values
+-- 3. Check account entries with status values
 -- SELECT status, COUNT(*) as count
 -- FROM public.account_entries
 -- GROUP BY status;
@@ -206,12 +204,14 @@ USING (has_role(auth.uid(), 'admin'::app_role));
 -- ✅ total_assets: Sum of asset entries + inventory value
 -- ✅ total_liabilities: Sum of liability entries
 -- ✅ total_equity: Sum of equity entries
--- ✅ net_income: total_revenue - total_expenses
+-- ✅ net_income (profit): total_revenue - total_expenses
 -- ✅ inventory_value: Total value of all inventory items
 -- 
--- ✅ Status values in account_entries:
+-- ✅ New expense status values available:
 --    - paid_transfer (Paid with Transfer)
 --    - paid_cash (Paid with Cash)
 --    - refund_cash (Refund to Customer with Cash)
 --    - refund_transfer (Refund to Customer with Transfer)
+-- 
+-- ✅ Account entries are now EDITABLE via the UI
 -- =====================================================

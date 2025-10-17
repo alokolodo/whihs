@@ -12,7 +12,7 @@ export interface AccountEntry {
   amount: number;
   debit_amount: number;
   credit_amount: number;
-  status: 'pending' | 'posted' | 'reconciled' | 'cancelled';
+  status: 'pending' | 'posted' | 'reconciled' | 'cancelled' | 'paid_transfer' | 'paid_cash' | 'refund_cash' | 'refund_transfer';
   source_type?: string;
   source_id?: string;
   notes?: string;
