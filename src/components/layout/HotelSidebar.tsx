@@ -104,8 +104,8 @@ export function HotelSidebar() {
 
   return (
     <Sidebar 
-      className={state === "collapsed" ? "w-14" : "w-64"}
       collapsible="icon"
+      className="border-r"
     >
       <SidebarHeader className="border-b border-border/50 p-3 md:p-4">
         <div className="flex items-center gap-2 md:gap-3">
