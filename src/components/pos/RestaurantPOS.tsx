@@ -72,6 +72,9 @@ const RestaurantPOS = () => {
   const [selectedOrderId, setSelectedOrderId] = useState<string>("");
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
   const [isAddingItem, setIsAddingItem] = useState(false);
+  const [showQuantityModal, setShowQuantityModal] = useState(false);
+  const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(null);
+  const [itemQuantity, setItemQuantity] = useState(1);
 
   // Filter available menu items for restaurant
   const restaurantItems = menuItems.filter(item => item.is_available);
@@ -125,12 +128,16 @@ const RestaurantPOS = () => {
 
   const selectedOrder = orders.find(o => o.id === selectedOrderId);
 
-  const addToOrder = async (item: MenuItem) => {
+  const addToOrder = async (item: MenuItem, quantity: number = 1) => {
     if (!selectedOrderId || isAddingItem) return;
     
     setIsAddingItem(true);
     try {
-      await addItemToOrder(selectedOrderId, item, 1); // Always add quantity of 1
+      await addItemToOrder(selectedOrderId, item, quantity);
+      setShowQuantityModal(false);
+      setSelectedMenuItem(null);
+      setItemQuantity(1);
+      setActiveCategory(""); // Close category modal after adding
     } catch (error) {
       console.error('Error adding item to order:', error);
       toast({
@@ -141,6 +148,12 @@ const RestaurantPOS = () => {
     } finally {
       setIsAddingItem(false);
     }
+  };
+
+  const handleMenuItemClick = (item: MenuItem) => {
+    setSelectedMenuItem(item);
+    setItemQuantity(1);
+    setShowQuantityModal(true);
   };
 
   const updateOrderItemQuantity = async (orderItemId: string, quantity: number) => {
@@ -235,6 +248,67 @@ const RestaurantPOS = () => {
       {/* Add Table Modal */}
       {showAddTableModal && (
         <AddTableModal onClose={() => setShowAddTableModal(false)} />
+      )}
+
+      {/* Quantity Selection Modal */}
+      {showQuantityModal && selectedMenuItem && (
+        <div className="absolute inset-0 bg-black/50 z-30 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md bg-white">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold">Add to Order</h3>
+                <Button variant="ghost" onClick={() => {
+                  setShowQuantityModal(false);
+                  setSelectedMenuItem(null);
+                  setItemQuantity(1);
+                }}>✕</Button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <p className="text-lg font-semibold">{selectedMenuItem.name}</p>
+                  <p className="text-sm text-muted-foreground">{formatCurrency(selectedMenuItem.price)}</p>
+                </div>
+
+                <div className="flex items-center justify-center gap-4">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    onClick={() => setItemQuantity(Math.max(1, itemQuantity - 1))}
+                  >
+                    <Minus className="h-5 w-5" />
+                  </Button>
+                  
+                  <div className="text-3xl font-bold w-20 text-center">
+                    {itemQuantity}
+                  </div>
+                  
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    onClick={() => setItemQuantity(itemQuantity + 1)}
+                  >
+                    <Plus className="h-5 w-5" />
+                  </Button>
+                </div>
+
+                <div className="text-center py-2 border-t">
+                  <p className="text-sm text-muted-foreground">Total</p>
+                  <p className="text-2xl font-bold">{formatCurrency(selectedMenuItem.price * itemQuantity)}</p>
+                </div>
+
+                <Button
+                  className="w-full"
+                  size="lg"
+                  disabled={isAddingItem}
+                  onClick={() => addToOrder(selectedMenuItem, itemQuantity)}
+                >
+                  {isAddingItem ? "Adding..." : "Add to Order"}
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
       )}
 
       {/* Table Selection Modal */}
@@ -619,8 +693,7 @@ const RestaurantPOS = () => {
                           }`}
                           onClick={() => {
                             if (!isAddingItem) {
-                              addToOrder(item);
-                              setActiveCategory("");
+                              handleMenuItemClick(item);
                             }
                           }}
                         >

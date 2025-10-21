@@ -91,6 +91,75 @@ export const useAccountCategories = () => {
   });
 };
 
+export const useExpensesByCategory = () => {
+  return useQuery({
+    queryKey: ['expenses-by-category'],
+    queryFn: async () => {
+      // Get all expense entries with their categories
+      const { data: expenseEntries, error } = await supabase
+        .from('account_entries')
+        .select(`
+          amount,
+          category_id,
+          account_categories (
+            id,
+            name,
+            account_code,
+            parent_id
+          )
+        `)
+        .in('status', ['paid_transfer', 'paid_cash', 'posted', 'pending'])
+        .not('account_categories', 'is', null);
+
+      if (error) throw error;
+
+      // Get all expense categories with hierarchy
+      const { data: categories, error: catError } = await supabase
+        .from('account_categories')
+        .select('*')
+        .eq('type', 'expense')
+        .eq('is_active', true)
+        .order('account_code');
+
+      if (catError) throw catError;
+
+      // Build hierarchy
+      const categoryMap = new Map();
+      categories.forEach(cat => categoryMap.set(cat.id, { ...cat, children: [], total: 0 }));
+
+      // Link children to parents
+      categories.forEach(cat => {
+        if (cat.parent_id && categoryMap.has(cat.parent_id)) {
+          categoryMap.get(cat.parent_id).children.push(categoryMap.get(cat.id));
+        }
+      });
+
+      // Calculate totals
+      expenseEntries?.forEach((entry: any) => {
+        const categoryId = entry.category_id;
+        const amount = Math.abs(Number(entry.amount || 0));
+        
+        if (categoryMap.has(categoryId)) {
+          const cat = categoryMap.get(categoryId);
+          cat.total += amount;
+
+          // Add to parent totals
+          let parentId = cat.parent_id;
+          while (parentId && categoryMap.has(parentId)) {
+            categoryMap.get(parentId).total += amount;
+            parentId = categoryMap.get(parentId).parent_id;
+          }
+        }
+      });
+
+      // Get root categories (no parent)
+      const rootCategories = Array.from(categoryMap.values()).filter(cat => !cat.parent_id);
+
+      return { categories: rootCategories, categoryMap };
+    }
+  });
+};
+
 export const useBudgets = () => {
   return useQuery({
     queryKey: ['budgets'],
