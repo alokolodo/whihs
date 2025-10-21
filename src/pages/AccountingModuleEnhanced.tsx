@@ -10,6 +10,7 @@ import {
   useFinancialSummary, 
   useBudgets,
   useExpensesByCategory,
+  useAccountCategories,
   AccountEntry as AccountEntryType 
 } from "@/hooks/useAccounting";
 import { AddAccountEntryModal } from "@/components/accounting/AddAccountEntryModal";
@@ -32,8 +33,11 @@ import {
   Loader2,
   Edit,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Filter,
+  X
 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const AccountingModule = () => {
   const { toast } = useToast();
@@ -45,12 +49,22 @@ const AccountingModule = () => {
   const [isDateRangeModalOpen, setIsDateRangeModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<AccountEntryType | null>(null);
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>("");
 
   const { data: entries = [], isLoading: entriesLoading } = useAccountEntries();
   const { data: summary, isLoading: summaryLoading } = useFinancialSummary();
   const { data: budgets = [], isLoading: budgetsLoading } = useBudgets();
   const { data: expenseData, isLoading: expensesLoading } = useExpensesByCategory();
+  const { data: categories = [], isLoading: categoriesLoading } = useAccountCategories();
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+
+  // Filter entries based on selected category
+  const filteredEntries = selectedCategoryFilter 
+    ? entries.filter(entry => entry.category_id === selectedCategoryFilter)
+    : entries;
+
+  // Calculate total of filtered entries
+  const filteredTotal = filteredEntries.reduce((sum, entry) => sum + (entry.amount || 0), 0);
 
   // Previous period data for comparison
   const previousPeriod = {
@@ -156,7 +170,7 @@ const AccountingModule = () => {
     );
   };
 
-  if (entriesLoading || summaryLoading || budgetsLoading || expensesLoading) {
+  if (entriesLoading || summaryLoading || budgetsLoading || expensesLoading || categoriesLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex items-center space-x-2">
@@ -331,12 +345,57 @@ const AccountingModule = () => {
         <TabsContent value="entries" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Journal Entries</CardTitle>
-              <CardDescription>All accounting transactions and entries</CardDescription>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle>Journal Entries</CardTitle>
+                  <CardDescription>All accounting transactions and entries</CardDescription>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Select value={selectedCategoryFilter} onValueChange={setSelectedCategoryFilter}>
+                    <SelectTrigger className="w-[250px]">
+                      <Filter className="h-4 w-4 mr-2" />
+                      <SelectValue placeholder="Filter by category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category: any) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {selectedCategoryFilter && (
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      onClick={() => setSelectedCategoryFilter("")}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+              {selectedCategoryFilter && (
+                <div className="mt-4 p-3 bg-accent/50 rounded-lg flex justify-between items-center">
+                  <p className="text-sm font-medium">
+                    Showing {filteredEntries.length} {filteredEntries.length === 1 ? 'entry' : 'entries'} for: {
+                      categories.find((c: any) => c.id === selectedCategoryFilter)?.name
+                    }
+                  </p>
+                  <p className="text-lg font-bold">
+                    Total: {formatCurrency(filteredTotal)}
+                  </p>
+                </div>
+              )}
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {entries.map((entry: AccountEntryType) => (
+                {filteredEntries.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No entries found for the selected category
+                  </div>
+                ) : (
+                  filteredEntries.map((entry: AccountEntryType) => (
                   <div key={entry.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50">
                     <div className="flex items-center space-x-4 flex-1">
                       <div className="flex flex-col space-y-1 flex-1">
@@ -383,7 +442,8 @@ const AccountingModule = () => {
                       </Button>
                     </div>
                   </div>
-                ))}
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
