@@ -9,6 +9,7 @@ import {
   useAccountEntries, 
   useFinancialSummary, 
   useBudgets,
+  useExpensesByCategory,
   AccountEntry as AccountEntryType 
 } from "@/hooks/useAccounting";
 import { AddAccountEntryModal } from "@/components/accounting/AddAccountEntryModal";
@@ -29,7 +30,9 @@ import {
   Target,
   AlertCircle,
   Loader2,
-  Edit
+  Edit,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 
 const AccountingModule = () => {
@@ -46,6 +49,8 @@ const AccountingModule = () => {
   const { data: entries = [], isLoading: entriesLoading } = useAccountEntries();
   const { data: summary, isLoading: summaryLoading } = useFinancialSummary();
   const { data: budgets = [], isLoading: budgetsLoading } = useBudgets();
+  const { data: expenseData, isLoading: expensesLoading } = useExpensesByCategory();
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
   // Previous period data for comparison
   const previousPeriod = {
@@ -101,7 +106,57 @@ const AccountingModule = () => {
     }
   };
 
-  if (entriesLoading || summaryLoading || budgetsLoading) {
+  const toggleCategory = (categoryId: string) => {
+    const newExpanded = new Set(expandedCategories);
+    if (newExpanded.has(categoryId)) {
+      newExpanded.delete(categoryId);
+    } else {
+      newExpanded.add(categoryId);
+    }
+    setExpandedCategories(newExpanded);
+  };
+
+  const renderCategoryTree = (category: any, level: number = 0) => {
+    const hasChildren = category.children && category.children.length > 0;
+    const isExpanded = expandedCategories.has(category.id);
+    const indent = level * 20;
+
+    return (
+      <div key={category.id}>
+        <div 
+          className="flex items-center justify-between p-3 hover:bg-accent/50 rounded-lg cursor-pointer"
+          style={{ paddingLeft: `${indent + 12}px` }}
+          onClick={() => hasChildren && toggleCategory(category.id)}
+        >
+          <div className="flex items-center gap-2">
+            {hasChildren && (
+              isExpanded ? 
+                <ChevronDown className="h-4 w-4" /> : 
+                <ChevronRight className="h-4 w-4" />
+            )}
+            {!hasChildren && <div className="w-4" />}
+            <span className={level === 0 ? 'font-bold' : level === 1 ? 'font-semibold' : ''}>
+              {category.name}
+            </span>
+            {category.account_code && (
+              <span className="text-xs text-muted-foreground">({category.account_code})</span>
+            )}
+          </div>
+          <span className={`font-medium ${level === 0 ? 'text-lg font-bold' : ''}`}>
+            {formatCurrency(category.total || 0)}
+          </span>
+        </div>
+        
+        {hasChildren && isExpanded && (
+          <div>
+            {category.children.map((child: any) => renderCategoryTree(child, level + 1))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  if (entriesLoading || summaryLoading || budgetsLoading || expensesLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex items-center space-x-2">
@@ -436,6 +491,24 @@ const AccountingModule = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* Expense Breakdown Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Expense Breakdown</CardTitle>
+              <CardDescription>Hierarchical expense categories</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-1">
+                {expenseData?.categories.map(category => renderCategoryTree(category))}
+              </div>
+              {(!expenseData?.categories || expenseData.categories.length === 0) && (
+                <p className="text-sm text-muted-foreground text-center py-8">
+                  No expense categories found. Add expense entries to see the breakdown.
+                </p>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 
