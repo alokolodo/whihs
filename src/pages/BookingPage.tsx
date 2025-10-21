@@ -32,7 +32,7 @@ const FormInput = memo(({ label, id, type = "text", required = false, className 
 
 const BookingPage = () => {
   const [searchParams] = useSearchParams();
-  const { rooms, loading, createRoomBooking } = useRoomsDB();
+  const { rooms, loading, createPendingBooking } = useRoomsDB();
   const { formatCurrency, settings } = useGlobalSettings();
   
   // Memoize derived values to prevent unnecessary re-calculations
@@ -98,7 +98,7 @@ const BookingPage = () => {
     setIsSubmitting(true);
     
     try {
-      await createRoomBooking({
+      await createPendingBooking({
         room_id: formData.selectedRoomId,
         guest_name: formData.fullName,
         guest_email: formData.email,
@@ -110,7 +110,7 @@ const BookingPage = () => {
         special_requests: formData.specialRequests || undefined
       });
       
-      toast.success("Booking confirmed! We look forward to your stay.");
+      toast.success("Booking request submitted! Our receptionist will contact you shortly to confirm payment.");
       
       // Reset form
       setFormData({

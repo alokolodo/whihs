@@ -111,7 +111,7 @@ const RoomsPage = () => {
   const [filterType, setFilterType] = useState("all");
   const [sortBy, setSortBy] = useState("price-low");
 
-  // Memoize expensive calculations
+  // Memoize expensive calculations - only show truly available rooms
   const availableRooms = useMemo(() => 
     rooms.filter(room => room.status === 'available'),
     [rooms]
