@@ -27,7 +27,7 @@ export interface RoomBooking {
   nights: number;
   total_amount: number;
   payment_status: 'pending' | 'paid' | 'cancelled';
-  booking_status: 'active' | 'completed' | 'cancelled';
+  booking_status: 'pending' | 'active' | 'completed' | 'cancelled';
   special_requests?: string;
   created_at: string;
   updated_at: string;
@@ -96,7 +96,103 @@ export const useRoomsDB = () => {
     }
   };
 
-  // Create a room booking (check-in)
+  // Create a pending room booking request (from frontend)
+  const createPendingBooking = async (bookingData: {
+    room_id: string;
+    guest_name: string;
+    guest_phone?: string;
+    guest_email?: string;
+    check_in_date: string;
+    check_out_date: string;
+    nights: number;
+    total_amount: number;
+    special_requests?: string;
+  }) => {
+    try {
+      const { data, error } = await supabase
+        .from('room_bookings')
+        .insert([{
+          ...bookingData,
+          payment_status: 'pending',
+          booking_status: 'pending'
+        }])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      await fetchBookings();
+      
+      toast({
+        title: "Booking Request Submitted",
+        description: "Your booking request has been sent. Our receptionist will confirm your payment shortly.",
+      });
+      
+      return data as RoomBooking;
+    } catch (error) {
+      console.error('Error creating pending booking:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create booking request",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  // Confirm a pending booking and add to accounting (by receptionist)
+  const confirmBooking = async (bookingId: string, paymentMethod: string = 'cash') => {
+    try {
+      const booking = bookings.find(b => b.id === bookingId);
+      if (!booking) throw new Error("Booking not found");
+
+      // Update booking status
+      const { error: updateError } = await supabase
+        .from('room_bookings')
+        .update({ 
+          payment_status: 'paid',
+          booking_status: 'active',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', bookingId);
+      
+      if (updateError) throw updateError;
+      
+      // Update room status to occupied
+      await updateRoomStatus(booking.room_id, 'occupied');
+      
+      // Create accounting entry
+      const room = rooms.find(r => r.id === booking.room_id);
+      const { createAccountingEntryForPayment } = await import('@/utils/accountingIntegration');
+      
+      await createAccountingEntryForPayment({
+        amount: booking.total_amount,
+        description: `Room booking confirmed - ${room?.room_type || 'Room'} ${room?.room_number || ''}`,
+        source_type: 'room_booking',
+        source_id: booking.id,
+        reference_number: `RB-${booking.id.slice(0, 8)}`,
+        payment_method: paymentMethod,
+        guest_name: booking.guest_name,
+      });
+      
+      await Promise.all([fetchRooms(), fetchBookings()]);
+      
+      toast({
+        title: "Booking Confirmed",
+        description: `${booking.guest_name}'s booking has been confirmed and payment recorded.`,
+      });
+    } catch (error) {
+      console.error('Error confirming booking:', error);
+      toast({
+        title: "Error",
+        description: "Failed to confirm booking",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  // Create a room booking (check-in) - for receptionist use
   const createRoomBooking = async (bookingData: {
     room_id: string;
     guest_name: string;
@@ -132,6 +228,9 @@ export const useRoomsDB = () => {
         .single();
       
       if (error) throw error;
+      
+      // Update room status to occupied
+      await updateRoomStatus(bookingData.room_id, 'occupied');
       
       // Create accounting entry for room booking payment
       const room = rooms.find(r => r.id === bookingData.room_id);
@@ -369,6 +468,8 @@ export const useRoomsDB = () => {
     updateRoom,
     deleteRoom,
     createRoomBooking,
+    createPendingBooking,
+    confirmBooking,
     getAvailableRooms,
     getRoomByNumber,
     updateRoomStatus,

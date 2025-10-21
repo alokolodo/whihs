@@ -13,7 +13,8 @@ import {
   Edit,
   Trash2,
   LogOut,
-  LogIn
+  LogIn,
+  Bell
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,6 +28,7 @@ import { EditRoomModal } from "@/components/room/EditRoomModal";
 import { RoomSettingsModal } from "@/components/room/RoomSettingsModal";
 import { RoomBookingModal } from "@/components/room/RoomBookingModal";
 import { CheckInModal } from "@/components/room/CheckInModal";
+import { PendingBookingsModal } from "@/components/room/PendingBookingsModal";
 import { useGuests } from "@/hooks/useGuests";
 import { toast } from "sonner";
 import { useGlobalSettings } from "@/contexts/HotelSettingsContext";
@@ -102,7 +104,12 @@ const RoomManagement = () => {
   const [showRoomSettings, setShowRoomSettings] = useState(false);
   const [showRoomBooking, setShowRoomBooking] = useState(false);
   const [showCheckIn, setShowCheckIn] = useState(false);
+  const [showPendingBookings, setShowPendingBookings] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState<FrontendRoom | null>(null);
+
+  const pendingBookingsCount = bookings.filter(
+    b => b.booking_status === 'pending' && b.payment_status === 'pending'
+  ).length;
 
   const statusColors = {
     ready: "bg-green-500",
@@ -240,6 +247,17 @@ const RoomManagement = () => {
           <p className="text-muted-foreground">Manage hotel rooms, occupancy, and maintenance</p>
         </div>
         <div className="flex gap-2">
+          <Button 
+            variant={pendingBookingsCount > 0 ? "default" : "outline"}
+            onClick={() => setShowPendingBookings(true)}
+            className="relative"
+          >
+            <Bell className="h-4 w-4 mr-2" />
+            Pending Requests
+            {pendingBookingsCount > 0 && (
+              <Badge className="ml-2 bg-red-500 text-white">{pendingBookingsCount}</Badge>
+            )}
+          </Button>
           <Button onClick={() => setShowAddRoom(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Add Room
@@ -456,6 +474,11 @@ const RoomManagement = () => {
         onOpenChange={setShowCheckIn}
         room={selectedRoom}
         onCheckInConfirm={handleCheckInConfirm}
+      />
+
+      <PendingBookingsModal
+        open={showPendingBookings}
+        onOpenChange={setShowPendingBookings}
       />
     </div>
   );
